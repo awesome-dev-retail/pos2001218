@@ -1,5 +1,5 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
-import authReducer from "./slices/authSlice";
+import authReducer from "./slices/authSlice.js";
 import areaReducer from "./slices/areaSlice";
 import tableReducer from "./slices/tableSlice";
 import menuReducer from "./slices/menuSlice";

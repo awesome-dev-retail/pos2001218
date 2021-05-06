@@ -1,5 +1,7 @@
+import { message } from "antd";
 import axios from "axios";
 import config from "../configs/index";
+import { logoutLocally } from "../slices/authSlice";
 const baseUrl = config.BASE_URL;
 
 class HttpRequest {
@@ -15,10 +17,14 @@ class HttpRequest {
 
   getInsideConfig() {
     //let token = this.store.AuthStore.getToken ? this.store.AuthStore.getToken : '';
+    const state = this.store.getState();
+    const { Auth } = state;
+    const { token } = Auth;
+
     return {
       baseURL: this.baseUrl,
       headers: {
-        Authorization: "", //token
+        Authorization: token || "", //token
       },
       withCredentials: true,
       timeout: config.API_REQUEST_TIME_OUT_LIMIT,
@@ -109,7 +115,6 @@ class HttpRequest {
 
         // Access token
         if (headers && headers.authorization && typeof data === "object") {
-          // data.token = "2fse783mcEIlui4pN5i7WQ==";
           data.token = headers.authorization;
         }
 
@@ -128,14 +133,20 @@ class HttpRequest {
             this.errorCount = 0;
             data.error = null;
           } else if (data.code === 401) {
+            // Authentication failed
             this.errorCount++;
             data.error = new Error(data.msg);
             data.error.code = data.code;
+            // message.error(data.msg);
+
+            this.store.dispatch(logoutLocally());
+
             // this.store.AuthStore.logoutWithOutNotice();
           } else {
             this.errorCount++;
             data.error = new Error(data.msg);
             data.error.code = data.code;
+            message.error(data.msg);
           }
           return data;
         } else {
@@ -154,6 +165,7 @@ class HttpRequest {
     //     //dd('API request sending to ', options.url);
     // }
     const insideConfig = this.getInsideConfig();
+    console.log(insideConfig);
     const nocache = options.nocache ? options.nocache : insideConfig.nocache;
     if (nocache) {
       options.url = options.url + "?nocache=" + new Date().getTime();
@@ -167,6 +179,8 @@ class HttpRequest {
     //     // console.log('API request sending to: ' + options.baseURL + '/' + options.url);
     //     //dd('API request sending to: ', options);
     // }
+    console.log(options);
+
     this.interceptors(instance, options.url);
     return instance(options);
   }

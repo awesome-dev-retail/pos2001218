@@ -26,7 +26,7 @@ export const fetchTableListInShop = createAsyncThunk("table/fetchTableListInShop
   try {
     const res = await axios({
       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/list_in_shop?shopId=${id}`,
-      headers: { Authorization: "Bearer 5AejlB6IF1mvgGdoXda5MA==" },
+      headers: { Authorization: "Bearer hqv0Y96MiPG5G5_waxP28A==" },
     });
     if (res.error) throw res.error;
     console.log("fetchTableListInShop--------------", res);
@@ -42,7 +42,7 @@ export const fetchTableListInArea = createAsyncThunk("table/fetchTableListInArea
     console.log("-----areaId--- ------", areaId);
     const res = await axios({
       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/list_in_area?shopId=${shopId}&areaId=${areaId}`,
-      headers: { Authorization: "Bearer 5AejlB6IF1mvgGdoXda5MA==" },
+      headers: { Authorization: "Bearer hqv0Y96MiPG5G5_waxP28A==" },
     });
     if (res.error) throw res.error;
     console.log("fetchTableListInArea--------------", res);
@@ -57,7 +57,7 @@ export const fetchTableById = createAsyncThunk("table/fetchTableById", async (ta
   try {
     const res = await axios({
       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/${tableId}`,
-      headers: { Authorization: "Bearer 5AejlB6IF1mvgGdoXda5MA==" },
+      headers: { Authorization: "Bearer hqv0Y96MiPG5G5_waxP28A==" },
     });
     if (res.error) throw res.error;
     console.log("fetchTableById--------------", res);
@@ -73,7 +73,7 @@ export const saveTable = createAsyncThunk("table/saveTable", async (tableObj, { 
     const res = await axios({
       method: "post",
       url: "https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/save",
-      headers: { Authorization: "Bearer 5AejlB6IF1mvgGdoXda5MA==" },
+      headers: { Authorization: "Bearer hqv0Y96MiPG5G5_waxP28A==" },
       data: tableObj,
     });
     if (res.error) throw res.error;
@@ -89,7 +89,7 @@ export const deleteTable = createAsyncThunk("table/deleteTable", async (id, { re
     const res = await axios({
       method: "delete",
       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/delete/${id}`,
-      headers: { Authorization: "Bearer 5AejlB6IF1mvgGdoXda5MA==" },
+      headers: { Authorization: "Bearer hqv0Y96MiPG5G5_waxP28A==" },
     });
     if (res.error) throw res.error;
     console.log("deleteTable--------------", res);
