@@ -30,22 +30,12 @@ function TableList(props) {
 
   const redirectToOrder = async (tableObj) => {
     const obj = Object.assign({}, tableObj);
-    console.log(obj);
-    obj.status = "Occupied";
-    // console.log("obj", obj);
-    await dispatch(saveTable(obj));
-    // dispatch(fetchTableListInShop(1));
-    // eslint-disable-next-line react/prop-types
-    // props.history.push("/order/1");
-    if (obj.id % 2 === 0) {
-      setTable(tableObj);
-      setPersonNumPopStatus(true);
-    } else {
+    setTable(obj);
+    if (obj.status === "Occupied") {
       props.history.push(`/order/${tableObj.id}`);
+    } else {
+      setPersonNumPopStatus(true);
     }
-    // setInterval(() => {
-    //   setTime((time) => time + 1);
-    // }, 1000);
   };
 
   const handleSaveTable = (tableObj) => {
@@ -87,11 +77,10 @@ function TableList(props) {
       let copyTableListFromSlice = JSON.parse(JSON.stringify(tableListFromSlice));
       copyTable.num = value;
       setTable(copyTable);
-      let index = copyTableListFromSlice.findIndex(item => item.id === copyTable.id);
+      let index = copyTableListFromSlice.findIndex((item) => item.id === copyTable.id);
       copyTableListFromSlice[index].num = value;
       await dispatch(setTableList(copyTableListFromSlice));
     }
-
   };
 
   return (
@@ -110,7 +99,9 @@ function TableList(props) {
               {item.status === "Available" && <div className="wait-plan-order-text">To be ordered</div>}
               {item.status === "Occupied" && <div className="wait-plan-order-text">$100</div>}
               <div>
-                <span>{item.num || 0}/{item.capacity}</span>
+                <span>
+                  {item.num || 0}/{item.capacity}
+                </span>
                 <span></span>
               </div>
             </div>
@@ -129,7 +120,7 @@ function TableList(props) {
         </div>
       </div>
       <AddTable visible={showTable} hideModel={setShowTable} tableObj={table}></AddTable>
-      <AreaPepleNum visible={showPersonNumPop} hideModel={handleUpdatePersonNum} />
+      <AreaPepleNum visible={showPersonNumPop} hideModel={handleUpdatePersonNum} tableObj={table} />
     </Fragment>
   );
 }

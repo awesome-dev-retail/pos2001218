@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { selectDishObjInOrder, setDishObjInOrder } from "../../slices/dishSlice";
-import { fetchTableById } from "../../slices/tableSlice";
+import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { withRouter } from "react-router";
@@ -17,19 +17,20 @@ function OrderList(props) {
 
   const tableMenus = [
     // { name: "规格/做法", key: "spec" },
-    { name: "Add", key: "feeding" },
+    { name: "Ingredient", key: "feeding" },
     { name: "Comment", key: "remark" },
     ,
     // { name: "稍后上菜", key: "wait" },
     // { name: "买赠", key: "buyGift" },
     { name: "Delete", key: "delete" },
+    { name: "Cancel", key: "Cancel" },
   ];
   const dispatch = useDispatch();
   // eslint-disable-next-line react/prop-types
   const tableId = props.match.params.id;
   // debugger;
-  const table = useSelector((state) => selectTable(state));
-  console.log(table);
+  const table = useSelector((state) => selectTable(state)) || {};
+  // console.log("=======================", table);
 
   useEffect(async () => {
     // debugger;
@@ -81,6 +82,14 @@ function OrderList(props) {
       copyDishOrder.splice(index, 1);
       setCurrentDish({});
       await dispatch(setDishObjInOrder(copyDishOrder));
+    } else if (key === "Cancel") {
+      let tableObj = Object.assign({}, table);
+      tableObj.status = "Available";
+      console.log("=============table.status", tableObj);
+      await dispatch(saveTable(tableObj));
+      await dispatch(fetchTableListInShop(1));
+      // eslint-disable-next-line react/prop-types
+      props.history.push("/");
     }
   };
 

@@ -106,6 +106,9 @@ const TableSlice = createSlice({
     setTableList: (state, action) => {
       state.tableList = action.payload;
     },
+    setTable: (state, action) => {
+      state.table = action.payload;
+    },
   },
   extraReducers: {
     [fetchTableListInShop.pending]: (state) => {
@@ -187,7 +190,7 @@ const TableSlice = createSlice({
     },
   },
 });
-export const { setTableList } = TableSlice.actions;
+export const { setTableList, setTable } = TableSlice.actions;
 export const selectTableList = (state) => state.Table.tableList;
 export const selectTable = (state) => state.Table.table;
 // export const selectTableById = (state) => state.Table.table;
