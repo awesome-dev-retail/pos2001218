@@ -19,7 +19,6 @@ function OrderList(props) {
     // { name: "规格/做法", key: "spec" },
     { name: "Ingredient", key: "feeding" },
     { name: "Comment", key: "remark" },
-    ,
     // { name: "稍后上菜", key: "wait" },
     // { name: "买赠", key: "buyGift" },
     { name: "Delete", key: "delete" },
