@@ -26,7 +26,7 @@ export const fetchAreaList = createAsyncThunk("area/fetchAreaList", async (id, {
   try {
     const res = await axios({
       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/area/list_in_shop?shopId=${id}`,
-      headers: { Authorization: "Bearer hqv0Y96MiPG5G5_waxP28A==" },
+      headers: { Authorization: "Bearer hT8t8ndaNBRgBBa25588ZA==" },
     });
     if (res.error) throw res.error;
     console.log("fetchAreaList--------------", res);
@@ -42,7 +42,7 @@ export const saveArea = createAsyncThunk("area/saveArea", async (areaObj, { reje
     const res = await axios({
       method: "post",
       url: "https://pos-restaurant-be-dev.azurewebsites.net/pos/data/area/save",
-      headers: { Authorization: "Bearer hqv0Y96MiPG5G5_waxP28A==" },
+      headers: { Authorization: "Bearer hT8t8ndaNBRgBBa25588ZA==" },
       data: areaObj,
     });
     if (res.error) throw res.error;
@@ -58,7 +58,7 @@ export const deleteArea = createAsyncThunk("area/deleteArea", async (id, { rejec
     const res = await axios({
       method: "delete",
       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/area/delete/${id}`,
-      headers: { Authorization: "Bearer hqv0Y96MiPG5G5_waxP28A==" },
+      headers: { Authorization: "Bearer hT8t8ndaNBRgBBa25588ZA==" },
     });
     if (res.error) throw res.error;
     console.log("deleteArea--------------", res);

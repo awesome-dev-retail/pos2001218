@@ -23,7 +23,7 @@ function DishList(props) {
 
   const dispatch = useDispatch();
   const dishListFromSlice = useSelector((state) => selectDishList(state)) || [];
-  const dishObjInOrder = useSelector(state => selectDishObjInOrder(state)) || [];
+  const dishObjInOrder = useSelector((state) => selectDishObjInOrder(state)) || [];
 
   // console.log("dishListFromSlice", dishListFromSlice);
   const menuIdFromSlice = useSelector((state) => selectMenuId(state));
@@ -67,7 +67,7 @@ function DishList(props) {
   }
 
   const addToOrderList = async (dish) => {
-    let index = dishObjInOrder.findIndex(item => item.id === dish.id);
+    let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
     let arr = JSON.parse(JSON.stringify(dishObjInOrder));
     let copyDish = JSON.parse(JSON.stringify(dish));
     if (index > -1) {

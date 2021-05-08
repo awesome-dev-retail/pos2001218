@@ -32,7 +32,7 @@ function TableList(props) {
     const obj = Object.assign({}, tableObj);
     setTable(obj);
     if (obj.status === "Occupied") {
-      props.history.push(`/order/${tableObj.id}`);
+      props.history.push(`/order/${obj.id}`);
     } else {
       setPersonNumPopStatus(true);
     }

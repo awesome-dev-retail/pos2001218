@@ -84,7 +84,6 @@ function OrderList(props) {
     } else if (key === "Cancel") {
       let tableObj = Object.assign({}, table);
       tableObj.status = "Available";
-      console.log("=============table.status", tableObj);
       await dispatch(saveTable(tableObj));
       await dispatch(fetchTableListInShop(1));
       // eslint-disable-next-line react/prop-types
