@@ -5,6 +5,8 @@ import { Badge, Modal, Button } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 
+import CacheStorage from "../../lib/cache-storage";
+
 import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder } from "../../slices/dishSlice";
 import { calculateInvoice } from "../../slices/invoiceSlice";
 
@@ -138,10 +140,11 @@ function DishList(props) {
       copyDish.count = 1;
       arr.push(copyDish);
     }
-    await dispatch(setDishObjInOrder(arr));
     const invoice = createInvoice(table, arr);
     console.log("invoice----------------", invoice);
     await dispatch(calculateInvoice(invoice));
+    //need get data from returned invoice later on.
+    await dispatch(setDishObjInOrder(arr));
   };
 
   return (
