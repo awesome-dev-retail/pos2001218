@@ -1,15 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
+import CacheStorage from "../../lib/cache-storage";
 
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
-
-import { selectDishObjInOrder, setDishObjInOrder } from "../../slices/dishSlice";
-import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
-import { selectTable } from "../../slices/tableSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
+import { selectDishObjInOrder, setDishObjInOrder } from "../../slices/dishSlice";
+import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
+import { selectTable } from "../../slices/tableSlice";
+
+import { calculateInvoice } from "../../slices/invoiceSlice";
+import { selectInvoice } from "../../slices/invoiceSlice";
+import { createInvoice } from "../../services/createInvoice";
 function OrderList(props) {
   const [currentDish, setCurrentDish] = useState({});
 
@@ -31,10 +35,23 @@ function OrderList(props) {
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
 
+  const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
+
   useEffect(async () => {
     // debugger;
     await dispatch(fetchTableById(tableId));
     console.log(tableId);
+    dispatch(setDishObjInOrder([]));
+    const arr = CacheStorage.getItem("dishObjInOrder_" + "1_" + tableId);
+    // debugger;
+    // console.log(arr);
+    if (arr) {
+      dispatch(setDishObjInOrder(arr));
+      // debugger;
+    }
+    // return () => {
+    //   console.log("-------------willUnmount");
+    // };
   }, []);
 
   const updateCount = async (value) => {
@@ -56,6 +73,13 @@ function OrderList(props) {
       } else {
         copyDishOrder[index].count += value;
       }
+
+      const invoice = createInvoice(table, copyDishOrder);
+      console.log("invoice in updateCount----------------", invoice);
+      await dispatch(calculateInvoice(invoice));
+      CacheStorage.setItem("invoice_" + "1_" + table.id, invoiceFromSlice);
+      //need adjust data from returned invoice here and modify arr later on.
+      CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
       await dispatch(setDishObjInOrder(copyDishOrder));
     }
   };
@@ -73,14 +97,14 @@ function OrderList(props) {
 
   const handleOperation = async (key) => {
     // 删除
+    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
     if (key === "delete") {
-      let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
       let index = copyDishOrder.findIndex((i) => {
         return i.id === currentDish.id;
       });
       copyDishOrder.splice(index, 1);
       setCurrentDish({});
-      await dispatch(setDishObjInOrder(copyDishOrder));
+      // await dispatch(setDishObjInOrder(copyDishOrder));
     } else if (key === "Cancel") {
       let tableObj = Object.assign({}, table);
       tableObj.status = "Available";
@@ -89,6 +113,14 @@ function OrderList(props) {
       // eslint-disable-next-line react/prop-types
       props.history.push("/");
     }
+
+    const invoice = createInvoice(table, copyDishOrder);
+    console.log("invoice in handleOperation----------------", invoice);
+    await dispatch(calculateInvoice(invoice));
+    CacheStorage.setItem("invoice_" + "1_" + table.id, invoiceFromSlice);
+    //need adjust data from returned invoice here and modify arr later on.
+    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
+    await dispatch(setDishObjInOrder(copyDishOrder));
   };
 
   // 计算商品总数和总价
@@ -127,7 +159,7 @@ function OrderList(props) {
                 <div className="count">X {item.count}</div>
                 <div className="price">
                   <div className="new-price">${item.unit_price}</div>
-                  <div className="old-price">$ {item.unit_cost}</div>
+                  {/* <div className="old-price">$ {item.unit_cost}</div> */}
                 </div>
               </div>
             ))}

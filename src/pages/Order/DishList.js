@@ -10,6 +10,8 @@ import CacheStorage from "../../lib/cache-storage";
 import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder } from "../../slices/dishSlice";
 import { calculateInvoice } from "../../slices/invoiceSlice";
 
+import { selectInvoice } from "../../slices/invoiceSlice";
+
 import { selectTable } from "../../slices/tableSlice";
 
 import { selectDishList } from "../../slices/dishSlice";
@@ -17,6 +19,8 @@ import { selectDishList } from "../../slices/dishSlice";
 import { selectMenuId } from "../../slices/menuSlice";
 
 import AddDish from "../../components/AddDish";
+
+import { createInvoice } from "../../services/createInvoice";
 
 function DishList(props) {
   const [showDish, setShowDish] = useState(false);
@@ -30,6 +34,7 @@ function DishList(props) {
   const dispatch = useDispatch();
   const dishListFromSlice = useSelector((state) => selectDishList(state)) || [];
   const dishObjInOrder = useSelector((state) => selectDishObjInOrder(state)) || [];
+  const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
 
   // console.log("dishListFromSlice", dishListFromSlice);
   const menuIdFromSlice = useSelector((state) => selectMenuId(state));
@@ -88,47 +93,47 @@ function DishList(props) {
   //     return { count, price: price.toFixed(2) };
   //   }, [JSON.stringify(dishObjFromSlice)]);
 
-  const createInvoice = (table, dishArr) => {
-    const grossAmount = dishArr.reduce((total, currentValue) => {
-      return total + currentValue.count * currentValue.unit_price;
-    }, 0);
-    return {
-      CID: 1,
-      ShopID: 1,
-      LaneID: "LE_001",
-      TableID: table.id,
-      DivideNo: 1,
-      MemberID: 0,
-      TakeawayID: 0,
-      InvoiceDate: new Date(),
-      GrossAmount: grossAmount.toFixed(2) * 1,
-      NetAmount: (grossAmount * 0.87).toFixed(2) * 1,
-      GSTAmount: (grossAmount - grossAmount * 0.87).toFixed(2) * 1,
-      UserID: 24,
+  // createInvoice = (table, dishArr) => {
+  //   const grossAmount = dishArr.reduce((total, currentValue) => {
+  //     return total + currentValue.count * currentValue.unit_price;
+  //   }, 0);
+  //   return {
+  //     CID: 1,
+  //     ShopID: 1,
+  //     LaneID: "LE_001",
+  //     TableID: table.id,
+  //     DivideNo: 1,
+  //     MemberID: 0,
+  //     TakeawayID: 0,
+  //     InvoiceDate: new Date(),
+  //     GrossAmount: grossAmount.toFixed(2) * 1,
+  //     NetAmount: (grossAmount * 0.87).toFixed(2) * 1,
+  //     GSTAmount: (grossAmount - grossAmount * 0.87).toFixed(2) * 1,
+  //     UserID: 24,
 
-      Lines: dishArr.map((dish) => ({
-        Dish: {
-          DishCode: dish.dish_code,
-        },
-        Quantity: {
-          Qty: dish.count,
-        },
-        UOM: "EACH",
-        UnitPrice: dish.unit_price,
-        DiscountPercentage: {
-          DiscountPercentage: 0,
-        },
-        DiscountAmount: {
-          DiscountAmount: 0,
-        },
-        Amount: dish.count * dish.unit_price,
-        UnitCost: dish.unit_cost,
-        ServeNow: true,
-        Cooked: false,
-        Served: false,
-      })),
-    };
-  };
+  //     Lines: dishArr.map((dish) => ({
+  //       Dish: {
+  //         DishCode: dish.dish_code,
+  //       },
+  //       Quantity: {
+  //         Qty: dish.count,
+  //       },
+  //       UOM: "EACH",
+  //       UnitPrice: dish.unit_price,
+  //       DiscountPercentage: {
+  //         DiscountPercentage: 0,
+  //       },
+  //       DiscountAmount: {
+  //         DiscountAmount: 0,
+  //       },
+  //       Amount: dish.count * dish.unit_price,
+  //       UnitCost: dish.unit_cost,
+  //       ServeNow: true,
+  //       Cooked: false,
+  //       Served: false,
+  //     })),
+  //   };
+  // };
 
   const addToOrderList = async (dish) => {
     let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
@@ -141,9 +146,11 @@ function DishList(props) {
       arr.push(copyDish);
     }
     const invoice = createInvoice(table, arr);
-    console.log("invoice----------------", invoice);
+    console.log("invoice in addToOrderList----------------", invoice);
     await dispatch(calculateInvoice(invoice));
-    //need get data from returned invoice later on.
+    CacheStorage.setItem("invoice_" + "1_" + table.id, invoiceFromSlice);
+    //need adjust data from returned invoice here and modify arr later on.
+    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, arr);
     await dispatch(setDishObjInOrder(arr));
   };
 
