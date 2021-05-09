@@ -26,7 +26,7 @@ function OrderList(props) {
     // { name: "稍后上菜", key: "wait" },
     // { name: "买赠", key: "buyGift" },
     { name: "Delete", key: "delete" },
-    { name: "Cancel", key: "Cancel" },
+    { name: "Cancel", key: "cancel" },
   ];
   const dispatch = useDispatch();
   // eslint-disable-next-line react/prop-types
@@ -105,22 +105,25 @@ function OrderList(props) {
       copyDishOrder.splice(index, 1);
       setCurrentDish({});
       // await dispatch(setDishObjInOrder(copyDishOrder));
-    } else if (key === "Cancel") {
+      const invoice = createInvoice(table, copyDishOrder);
+      console.log("invoice in handleOperation-delete----------------", invoice);
+      await dispatch(calculateInvoice(invoice));
+      CacheStorage.setItem("invoice_" + "1_" + table.id, invoiceFromSlice);
+      //need adjust data from returned invoice here and modify arr later on.
+      CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
+      await dispatch(setDishObjInOrder(copyDishOrder));
+    } else if (key === "cancel") {
       let tableObj = Object.assign({}, table);
       tableObj.status = "Available";
       await dispatch(saveTable(tableObj));
-      await dispatch(fetchTableListInShop(1));
+      // await dispatch(fetchTableListInShop(1));
       // eslint-disable-next-line react/prop-types
       props.history.push("/");
+      // copyDishOrder = [];
+      CacheStorage.removeItem("invoice_" + "1_" + table.id, invoiceFromSlice);
+      //need adjust data from returned invoice here and modify arr later on.
+      CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
     }
-
-    const invoice = createInvoice(table, copyDishOrder);
-    console.log("invoice in handleOperation----------------", invoice);
-    await dispatch(calculateInvoice(invoice));
-    CacheStorage.setItem("invoice_" + "1_" + table.id, invoiceFromSlice);
-    //need adjust data from returned invoice here and modify arr later on.
-    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
-    await dispatch(setDishObjInOrder(copyDishOrder));
   };
 
   // 计算商品总数和总价
