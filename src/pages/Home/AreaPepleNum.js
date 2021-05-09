@@ -11,7 +11,12 @@ import "./index.areapeple.scss";
 const Index = (props) => {
   const [num, setNum] = useState("");
   const dispatch = useDispatch();
-  const hideModal = (number = 0) => {
+
+  const hideModal = () => {
+    setNum("");
+    props.hideModel();
+  };
+  const handleOk = (number = 0) => {
     const { tableObj } = props;
     props.hideModel(number);
     // eslint-disable-next-line react/prop-types
@@ -43,10 +48,10 @@ const Index = (props) => {
       title="Number Of Customers"
       destroyOnClose={true}
       visible={props.visible}
-      onOk={hideModal}
+      onOk={handleOk}
       onCancel={hideModal}
       footer={[
-        <Button disabled={!num.length} className={`${!num.length ? "disabled" : ""} model-btn`} key="btn" onClick={() => hideModal(num)}>
+        <Button disabled={!num.length} className={`${!num.length ? "disabled" : ""} model-btn`} key="btn" onClick={() => handleOk(num)}>
           START TO ORDER
         </Button>,
       ]}>

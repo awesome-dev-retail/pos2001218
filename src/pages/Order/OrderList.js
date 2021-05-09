@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import CacheStorage from "../../lib/cache-storage";
 
-import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
+import { Badge, Modal, Button } from "antd";
+import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
@@ -36,7 +37,7 @@ function OrderList(props) {
   // console.log("=======================", table);
 
   const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
-
+  const { confirm } = Modal;
   useEffect(async () => {
     // debugger;
     await dispatch(fetchTableById(tableId));
@@ -113,16 +114,29 @@ function OrderList(props) {
       CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
       await dispatch(setDishObjInOrder(copyDishOrder));
     } else if (key === "cancel") {
-      let tableObj = Object.assign({}, table);
-      tableObj.status = "Available";
-      await dispatch(saveTable(tableObj));
-      // await dispatch(fetchTableListInShop(1));
-      // eslint-disable-next-line react/prop-types
-      props.history.push("/");
-      // copyDishOrder = [];
-      CacheStorage.removeItem("invoice_" + "1_" + table.id, invoiceFromSlice);
-      //need adjust data from returned invoice here and modify arr later on.
-      CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
+      confirm({
+        title: "Are you sure to cancel the order?",
+        icon: <ExclamationCircleOutlined />,
+        // content: "Some descriptions",
+        okText: "Yes",
+        okType: "danger",
+        cancelText: "No",
+        async onOk() {
+          let tableObj = Object.assign({}, table);
+          tableObj.status = "Available";
+          await dispatch(saveTable(tableObj));
+          // await dispatch(fetchTableListInShop(1));
+          // eslint-disable-next-line react/prop-types
+          props.history.push("/");
+          // copyDishOrder = [];
+          CacheStorage.removeItem("invoice_" + "1_" + table.id, invoiceFromSlice);
+          //need adjust data from returned invoice here and modify arr later on.
+          CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
+        },
+        onCancel() {
+          // console.log("Cancel");
+        },
+      });
     }
   };
 
