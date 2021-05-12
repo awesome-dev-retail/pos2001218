@@ -9,6 +9,8 @@ const initialState = {
   dish: [],
   dishObjInOrder: [],
   // addedDish: null,
+  showCashier: false,
+  currentDish: {},
   status: "",
   error: null,
 };
@@ -91,6 +93,12 @@ const DishSlice = createSlice({
     setDishObjInOrder(state, action) {
       state.dishObjInOrder = action.payload;
     },
+    setCurrentDish(state, action) {
+      state.currentDish = action.payload;
+    },
+    setShowCashier(state, action) {
+      state.showCashier = action.payload;
+    },
   },
   extraReducers: {
     [fetchDishListInShop.pending]: (state) => {
@@ -172,9 +180,11 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder } = DishSlice.actions;
+export const { setDishObjInOrder, setCurrentDish, setShowCashier } = DishSlice.actions;
+export const selectCashierStatus = (state) => state.Dish.showCashier;
 
 export const selectDishList = (state) => state.Dish.dish;
+export const selectCurrentDish = (state) => state.Dish.currentDish;
 export const selectDishObjInOrder = (state) => state.Dish.dishObjInOrder;
 
 export default DishSlice.reducer;

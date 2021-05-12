@@ -3,10 +3,13 @@ import { Dropdown, Avatar, Badge } from "antd";
 
 import Header from "../../components/Header";
 // import UIMenu from "../../components/UIMenu";
-import Checkout from "./Checkout.js";
+import Cashier from "./Cashier.js";
 import OrderList from "./OrderList";
 import DishList from "./DishList";
 import DishCategory from "./DishCategory";
+import { useSelector, useDispatch } from "react-redux";
+
+import { selectDishObjInOrder, setDishObjInOrder, setCurrentDish, selectCurrentDish, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
 
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -14,6 +17,7 @@ import moment from "moment";
 import "./index.scss";
 
 const Order = (props) => {
+  const cashierStatus = useSelector((state) => selectCashierStatus(state));
   // console.log("orderpage");
   const timerRef = useRef();
   // const [tableList, setTableList] = useState(tableListData)
@@ -44,19 +48,12 @@ const Order = (props) => {
 
   return (
     <div className="order-page-container">
-      {/* <Header></Header> */}
       <main className="main">
-        {/* {!showTableInfo ? ( */}
-        {/* <ShopInfo></ShopInfo> */}
-        <OrderList
-          showCheckout={() => {
-            setShowCheckout(!showCheckout);
-          }}></OrderList>
-        {/* ) : ( */}
-
-        {/* )} */}
-        {showCheckout ? (
-          <Checkout></Checkout>
+        <OrderList></OrderList>
+        {cashierStatus ? (
+          <div className="right-container cashier">
+            <Cashier />
+          </div>
         ) : (
           <div className="right-container">
             <DishList></DishList>

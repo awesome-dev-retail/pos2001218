@@ -3,39 +3,59 @@ import PropTypes from "prop-types";
 import CacheStorage from "../../lib/cache-storage";
 
 import { Badge, Modal, Button } from "antd";
-import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import {
+  MenuOutlined,
+  PrinterOutlined,
+  FileTextFilled,
+  CaretDownOutlined,
+  QuestionCircleFilled,
+  CloseOutlined,
+  CheckCircleTwoTone,
+  AntDesignOutlined,
+  PlusOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
-import { selectDishObjInOrder, setDishObjInOrder } from "../../slices/dishSlice";
+import { selectDishObjInOrder, setDishObjInOrder, setCurrentDish, selectCurrentDish, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
 import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
 
 import { calculateInvoice } from "../../slices/invoiceSlice";
 import { selectInvoice } from "../../slices/invoiceSlice";
 import { createInvoice } from "../../services/createInvoice";
+
+import addIcon from "../../assets/images/jia.png";
+import reduceIcon from "../../assets/images/jian.png";
+import "./OrderList.scss";
 function OrderList(props) {
-  const [currentDish, setCurrentDish] = useState({});
+  // const [currentDish, setCurrentDish] = useState({});
+  const [currentMeun, setCurrentMeun] = useState();
 
   const [showMore, setShowMore] = useState(false);
-
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const tableMenus = [
     // { name: "规格/做法", key: "spec" },
-    { name: "Ingredient", key: "feeding" },
+    { name: "Extras", key: "feeding" },
     { name: "Comment", key: "remark" },
     // { name: "稍后上菜", key: "wait" },
     // { name: "买赠", key: "buyGift" },
     { name: "Delete", key: "delete" },
     { name: "Cancel", key: "cancel" },
   ];
+  const remarkList = ["Spicy", "Salted", "No nut", "Vegetarian"];
+  // const remarkList = ["不加香菜", "不放辣", "不加葱花", "少盐", "素食"];
   const dispatch = useDispatch();
   // eslint-disable-next-line react/prop-types
   const tableId = props.match.params.id;
   // debugger;
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
-
+  const currentDish = useSelector((state) => selectCurrentDish(state));
+  const cashierStatus = useSelector((state) => selectCashierStatus(state));
   const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
   const { confirm } = Modal;
   useEffect(async () => {
@@ -61,9 +81,11 @@ function OrderList(props) {
       copyCurrentDish.count += value;
       // 数量为0  删除
       if (!copyCurrentDish.count) {
-        setCurrentDish({});
+        // setCurrentDish({});
+        dispatch(setCurrentDish({}));
       } else {
-        setCurrentDish(copyCurrentDish);
+        // setCurrentDish(copyCurrentDish);
+        dispatch(setCurrentDish(copyCurrentDish));
       }
       let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
       let index = copyDishOrder.findIndex((i) => {
@@ -92,19 +114,25 @@ function OrderList(props) {
     copyDishOrder.forEach((i) => {
       i.checked = i.id === item.id;
     });
-    setCurrentDish(item);
+    // setCurrentDish(item);
+    dispatch(setCurrentDish(item));
+
     await dispatch(setDishObjInOrder(copyDishOrder));
   };
 
   const handleOperation = async (key) => {
-    // 删除
+    if (!Object.keys(currentDish).length) {
+      return;
+    }
+    setCurrentMeun(key); // 删除
     let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
     if (key === "delete") {
       let index = copyDishOrder.findIndex((i) => {
         return i.id === currentDish.id;
       });
       copyDishOrder.splice(index, 1);
-      setCurrentDish({});
+      // setCurrentDish({});
+      dispatch(setCurrentDish({}));
       // await dispatch(setDishObjInOrder(copyDishOrder));
       const invoice = createInvoice(table, copyDishOrder);
       console.log("invoice in handleOperation-delete----------------", invoice);
@@ -113,6 +141,10 @@ function OrderList(props) {
       //need adjust data from returned invoice here and modify arr later on.
       CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
       await dispatch(setDishObjInOrder(copyDishOrder));
+    } else if (key === "feeding") {
+      setShowDrawer(true);
+    } else if (key === "remark") {
+      setShowDrawer(true);
     } else if (key === "cancel") {
       confirm({
         title: "Are you sure to cancel the order?",
@@ -142,18 +174,128 @@ function OrderList(props) {
 
   // 计算商品总数和总价
   const total = useMemo(() => {
-    let count = dishObjFromSlice.reduce((total, currentValue) => {
-      return total + currentValue.count || 1;
-    }, 0);
-
-    let price = dishObjFromSlice.reduce((total, currentValue) => {
-      return total + (currentValue.count || 1) * currentValue.unit_price;
-    }, 0);
-
-    return { count, price: price.toFixed(2) };
+    let count = 0,
+      price = 0,
+      oldPrice = 0;
+    dishObjFromSlice.forEach((item) => {
+      count += item.count || 1;
+      price += (item.count || 1) * item.unit_price;
+      oldPrice += (item.count || 1) * item.unit_cost;
+    });
+    return { count, price: price.toFixed(2), oldPrice: oldPrice.toFixed(2) };
   }, [JSON.stringify(dishObjFromSlice)]);
 
-  console.log(total);
+  let currentDishCopy = JSON.parse(JSON.stringify(currentDish));
+  const handleCheckRemark = (item) => {
+    console.log(item);
+    if (currentDishCopy.remark) {
+      let index = currentDishCopy.remark.findIndex((i) => item === i);
+      let remark = currentDishCopy.remark;
+      if (index > -1) {
+        remark.splice(index, 1);
+      } else {
+        remark.push(item);
+      }
+      currentDishCopy = {
+        ...currentDishCopy,
+        remark,
+      };
+    } else {
+      let remark = [item];
+      currentDishCopy.remark = remark;
+    }
+
+    dispatch(setCurrentDish(currentDishCopy));
+    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
+    let index = copyDishObjFromSlice.findIndex((item) => item.id === currentDish.id);
+    copyDishObjFromSlice.splice(index, 1, currentDishCopy);
+    dispatch(setDishObjInOrder(copyDishObjFromSlice));
+  };
+
+  const handleUpdateCashierStatus = () => {
+    dispatch(setShowCashier(true));
+  };
+  /**
+   *
+   * @param {*} number
+   */
+
+  const hanndleUpdateCount = (number) => {
+    let materialData = [];
+    if (currentDishCopy.material && currentDishCopy.material.length) {
+      materialData = currentDishCopy.material;
+      let count = materialData[0].count + number;
+      if (count >= 0) {
+        materialData = [
+          {
+            name: "Milk",
+            count,
+            unitPrice: 1,
+          },
+        ];
+        currentDishCopy = {
+          ...currentDishCopy,
+          material: materialData,
+        };
+      }
+    } else if (number) {
+      materialData[0] = {
+        name: "Milk",
+        count: number,
+        unitPrice: 1,
+      };
+      currentDishCopy.material = materialData;
+    }
+    dispatch(setCurrentDish(currentDishCopy));
+    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
+    let index = copyDishObjFromSlice.findIndex((item) => item.id === currentDish.id);
+    copyDishObjFromSlice.splice(index, 1, currentDishCopy);
+    dispatch(setDishObjInOrder(copyDishObjFromSlice));
+  };
+  const drawerDom = useMemo(() => {
+    let dom = null;
+    if (currentMeun === "feeding") {
+      dom = (
+        <div className="material-item">
+          <Badge count={currentDish.material ? currentDish.material[0].count : 0}>
+            <div className="material-info-inner">
+              <div className="material-info-name">Milk</div>
+              <span>$1</span>
+            </div>
+          </Badge>
+          <div className="counter-inner">
+            <div onClick={() => hanndleUpdateCount(-1)}>
+              <img src={reduceIcon} alt="jian" />
+            </div>
+            <div onClick={() => hanndleUpdateCount(1)}>
+              <img src={addIcon} alt="jia" />
+            </div>
+          </div>
+        </div>
+      );
+    } else if (currentMeun === "remark") {
+      dom = (
+        <>
+          <div className="tabs">
+            {["For Dish", "For Order"].map((item, index) => (
+              <div className={currentTabIndex === index ? "active" : ""} key={item} onClick={() => setCurrentTabIndex(index)}>
+                {item}
+              </div>
+            ))}
+          </div>
+          <div className="remark-list">
+            {remarkList.map((item) => (
+              <div onClick={() => handleCheckRemark(item)} className={`remark-item ${Array.isArray(currentDish.remark) && currentDish.remark.includes(item) ? "remark-item-active" : ""}`} key={item}>
+                {item}
+                {Array.isArray(currentDish.remark) && currentDish.remark.includes(item) && <CheckCircleTwoTone twoToneColor="#ea7e52" />}
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    }
+    return dom;
+  }, [currentMeun, currentTabIndex, currentDish]);
   return (
     <div className="table-info-container">
       <div className="inner">
@@ -169,45 +311,43 @@ function OrderList(props) {
           <div className="bill-list">
             {dishObjFromSlice.map((item, index) => (
               <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
-                <div className="bill-name">
-                  <div>{item.description}</div>
-                  {item.tip && <div className="food-tip">{item.tip}</div>}
+                <div>
+                  <div className="bill-name">
+                    <div>{item.description}</div>
+                    {item.tip && <div className="food-tip">{item.tip}</div>}
+                  </div>
+                  {item.material && item.material.length > 0 && item.material[0].count > 0 && (
+                    <div className="materials">
+                      Extras:
+                      {item.material.map((i, index) => (
+                        <span key={index}>
+                          {i.name} x {i.count} ${i.count * i.unitPrice}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
                 </div>
                 <div className="count">X {item.count}</div>
                 <div className="price">
                   <div className="new-price">${item.unit_price}</div>
-                  {/* <div className="old-price">$ {item.unit_cost}</div> */}
+                  <div className="old-price">$ {item.unit_cost}</div>
                 </div>
               </div>
             ))}
           </div>
-          {/* <div className="bill-list">
-            {billData.map((item, index) => (
-              <div className={`bill-item ${index === 0 ? "bill-item-current" : ""}`} key={item.id}>
-                <div className="bill-name">
-                  <div>{item.name}</div>
-                  {item.tip && <div className="food-tip">{item.tip}</div>}
-                </div>
-                <div className="count">X {item.count}</div>
-                <div className="price">
-                  <div className="new-price">${item.newPrice}</div>
-                  <div className="old-price">$ {item.oldPrice}</div>
-                </div>
-              </div>
-            ))}
-          </div> */}
         </div>
         <div className="table-bottom">
           <div className="tatal-money-container">
             <span>Total: {total.count} dishes</span>&emsp;
-            {/* <span>共3项</span> */}
-            <div className="tatal-money">${total.price}</div>
+            <div className="tatal-money">
+              <span>${total.price}</span>
+              <div className="old-price">Price: ${total.oldPrice}</div>
+            </div>
           </div>
           <div className="btn-group">
             <div>Add Dish</div>
-            {/* <div>加菜</div> */}
-            <div onClick={props.showCheckout}>Checkout</div>
-            {/* <div>去结账</div> */}
+            {!cashierStatus && <div onClick={handleUpdateCashierStatus}>Checkout</div>}
           </div>
         </div>
       </div>
@@ -225,19 +365,19 @@ function OrderList(props) {
             <div>Change Table</div>
             <div>Combine Table</div>
             <div>Batch</div>
-            {/* <div>拼桌</div>
-            <div>换桌</div>
-            <div>合桌</div>
-            <div>批量</div> */}
           </div>
         </div>
+      </div>
+      {/* <div className={"drawer hide"}> */}
+      <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
+        <div className="drawer-header">
+          <h3 className="drawer-title">Comment-Fruit Salad</h3>
+          <CloseOutlined onClick={() => setShowDrawer(false)} />
+        </div>
+        <div className="drawer-content">{drawerDom}</div>
       </div>
     </div>
   );
 }
-
-OrderList.propTypes = {
-  showCheckout: PropTypes.func.isRequired,
-};
 
 export default withRouter(OrderList);
