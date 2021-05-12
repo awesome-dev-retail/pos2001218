@@ -136,8 +136,8 @@ stages:
           - task: AzureWebAppContainer@1
             displayName: Deploy to App Service
             inputs:
-              azureSubscription: "$(azureSubscription)"
-              appName: "$(appName)"
-              containers: $(containerRegistry)/$(imageRepository):$(Build.BuildId)
+              azureSubscription: 'Brunton.Dev6(da56b525-d140-4bb2-b5b4-484fd4fa4379)'
+              appName: 'pos-catering-master-fe'
+              containers: '$(containerRegistry)/$(imageRepository):$(Build.BuildId)'
 
 #EOF#
