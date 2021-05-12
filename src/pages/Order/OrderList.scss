@@ -1,0 +1,123 @@
+.table-info-container {
+  position: relative;
+  .drawer {
+    position: absolute;
+    top: 5px;
+
+    z-index: 80;
+    padding: 15px;
+    box-sizing: border-box;
+    width: 350px;
+    overflow: hidden;
+    height: 100%;
+    background: #fff;
+    box-shadow: 5px 0 10px -5px #efefef;
+    text-align: left;
+    font-weight: normal;
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .anticon-close {
+        font-size: 22px;
+        cursor: pointer;
+        color: #535353;
+        // &:hover {
+        //   transform: rotate(90deg);
+        //   transition: 0.5s;
+        // }
+      }
+    }
+    .material-item {
+      width: 150px;
+      margin-top: 30px;
+      border: 1px solid #efefef;
+      .material-info-inner {
+        width: 150px;
+        padding: 10px 5px;
+        box-sizing: border-box;
+        .material-info-name {
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        span {
+          color: #aaa;
+          font-size: 14px;
+        }
+      }
+      .counter-inner {
+        display: flex;
+        border-top: 1px solid #efefef;
+        div {
+          flex-basis: 50%;
+          padding: 5px 0;
+          text-align: center;
+          cursor: pointer;
+          &:active {
+            background: #efefef;
+          }
+          &:first-of-type {
+            border-right: 1px solid #efefef;
+          }
+          img {
+            width: 25px;
+            vertical-align: middle;
+          }
+        }
+      }
+    }
+    .tabs {
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      color: #999;
+      border-bottom: 1px solid #efefef;
+      > div {
+        cursor: pointer;
+        padding: 5px 0;
+        flex-basis: 100px;
+        border-bottom: 2px solid transparent;
+        &.active {
+          border-color: #ea7e52;
+        }
+      }
+    }
+    .remark-list {
+      display: flex;
+      flex-wrap: wrap;
+      padding-top: 20px;
+      .remark-item {
+        margin: 10px 20px 0 0;
+        cursor: pointer;
+        position: relative;
+        padding: 0 20px;
+        text-align: center;
+        min-width: 120px;
+        height: 40px;
+        line-height: 40px;
+        border-right: 40px;
+        color: #535353;
+        border-radius: 40px;
+        border: 1px solid #efefef;
+        &.remark-item-active {
+          border-color: #ea7e52;
+          color: #ea7e52;
+        }
+        .anticon-check-circle {
+          position: absolute;
+          right: 0;
+          top: 0;
+        }
+      }
+    }
+    &.show {
+      transition: 1s;
+      left: calc(100% + 5px);
+    }
+    &.hide {
+      left: -350px;
+      opacity: 0;
+      transition: 1s;
+    }
+  }
+}
