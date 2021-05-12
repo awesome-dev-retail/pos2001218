@@ -136,7 +136,7 @@ stages:
           - task: AzureWebAppContainer@1
             displayName: Deploy to App Service
             inputs:
-              azureSubscription: "Brunton.Dev6(da56b525-d140-4bb2-b5b4-484fd4fa4379)"
+              azureSubscription: "$(azureSubscription)"
               appName: "$(appName)"
               containers: $(containerRegistry)/$(imageRepository):$(Build.BuildId)
 
