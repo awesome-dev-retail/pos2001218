@@ -28,7 +28,7 @@ export const calculateInvoice = createAsyncThunk("invoice/calculateInvoice", asy
     const res = await axios({
       method: "post",
       url: "https://pos-restaurant-be-dev.azurewebsites.net/pos/data/invoice/calculate",
-      headers: { Authorization: "Bearer XCkfD775gu0EBNuC3FjigQ==" },
+      headers: { Authorization: "Bearer xKSugVriO0BABrQs7LyRmw==" },
       data: invoice,
     });
     if (res.error) throw res.error;
