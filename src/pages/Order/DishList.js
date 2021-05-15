@@ -36,6 +36,7 @@ function DishList(props) {
   const dishObjInOrder = useSelector((state) => selectDishObjInOrder(state)) || [];
   const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
   console.log("invoiceFromSlice", invoiceFromSlice);
+  console.log("dishObjInOrder", dishObjInOrder);
 
   // console.log("dishListFromSlice", dishListFromSlice);
   const menuIdFromSlice = useSelector((state) => selectMenuId(state));
@@ -43,7 +44,6 @@ function DishList(props) {
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================indishlist", table);
 
-  let copydishObjInOrder = [];
   useEffect(() => {
     dispatch(fetchDishListInShop(1));
   }, []);
@@ -87,14 +87,14 @@ function DishList(props) {
     const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice);
     CacheStorage.setItem("invoice_" + "1_" + table.id, copyInvoiceFromSlice);
     //need modify copydishObjInOrder based on invoiceFromSlice here before setDishObjInOrder later on
-    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
-    dispatch(setDishObjInOrder(copydishObjInOrder));
-    // console.log("invoiceFromSlice of addToOrderList from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + table.id));
+    // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
+    // dispatch(setDishObjInOrder(copydishObjInOrder));
+    console.log("invoiceFromSlice of addToOrderList from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + table.id));
   }, [invoiceFromSlice]);
 
   const addToOrderList = async (dish) => {
     let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
-    copydishObjInOrder = JSON.parse(JSON.stringify(dishObjInOrder));
+    let copydishObjInOrder = JSON.parse(JSON.stringify(dishObjInOrder));
     let copyDish = JSON.parse(JSON.stringify(dish));
     if (index > -1) {
       copydishObjInOrder[index].count = copydishObjInOrder[index].count + 1;
@@ -106,6 +106,7 @@ function DishList(props) {
     const invoice = createInvoice(table, copydishObjInOrder);
     await dispatch(calculateInvoice(invoice));
     //then will trigger the useEffect above
+    dispatch(setDishObjInOrder(copydishObjInOrder));
   };
 
   return (

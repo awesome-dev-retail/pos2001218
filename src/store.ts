@@ -33,6 +33,7 @@ export default configureStore({
         "menu/deleteMenu/fulfilled",
 
         "dish/fetchDishList/fulfilled",
+        "dish/fetchDishListInShop/fulfilled",
         "dish/fetchDishListInMenu/fulfilled",
         "dish/saveDish/fulfilled",
         "dish/deleteDish/fulfilled",
