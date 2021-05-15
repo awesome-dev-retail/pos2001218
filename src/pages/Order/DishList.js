@@ -35,13 +35,15 @@ function DishList(props) {
   const dishListFromSlice = useSelector((state) => selectDishList(state)) || [];
   const dishObjInOrder = useSelector((state) => selectDishObjInOrder(state)) || [];
   const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
+  console.log("invoiceFromSlice", invoiceFromSlice);
 
   // console.log("dishListFromSlice", dishListFromSlice);
   const menuIdFromSlice = useSelector((state) => selectMenuId(state));
 
   const table = useSelector((state) => selectTable(state)) || {};
-  console.log("=======================indishlist", table);
+  // console.log("=======================indishlist", table);
 
+  let copydishObjInOrder = [];
   useEffect(() => {
     dispatch(fetchDishListInShop(1));
   }, []);
@@ -81,77 +83,29 @@ function DishList(props) {
     });
   }
 
-  // const total = useMemo(() => {
-  //     let count = dishObjFromSlice.reduce((total, currentValue) => {
-  //       return total + currentValue.count || 1;
-  //     }, 0);
-
-  //     let price = dishObjFromSlice.reduce((total, currentValue) => {
-  //       return total + (currentValue.count || 1) * currentValue.unit_price;
-  //     }, 0);
-
-  //     return { count, price: price.toFixed(2) };
-  //   }, [JSON.stringify(dishObjFromSlice)]);
-
-  // createInvoice = (table, dishArr) => {
-  //   const grossAmount = dishArr.reduce((total, currentValue) => {
-  //     return total + currentValue.count * currentValue.unit_price;
-  //   }, 0);
-  //   return {
-  //     CID: 1,
-  //     ShopID: 1,
-  //     LaneID: "LE_001",
-  //     TableID: table.id,
-  //     DivideNo: 1,
-  //     MemberID: 0,
-  //     TakeawayID: 0,
-  //     InvoiceDate: new Date(),
-  //     GrossAmount: grossAmount.toFixed(2) * 1,
-  //     NetAmount: (grossAmount * 0.87).toFixed(2) * 1,
-  //     GSTAmount: (grossAmount - grossAmount * 0.87).toFixed(2) * 1,
-  //     UserID: 24,
-
-  //     Lines: dishArr.map((dish) => ({
-  //       Dish: {
-  //         DishCode: dish.dish_code,
-  //       },
-  //       Quantity: {
-  //         Qty: dish.count,
-  //       },
-  //       UOM: "EACH",
-  //       UnitPrice: dish.unit_price,
-  //       DiscountPercentage: {
-  //         DiscountPercentage: 0,
-  //       },
-  //       DiscountAmount: {
-  //         DiscountAmount: 0,
-  //       },
-  //       Amount: dish.count * dish.unit_price,
-  //       UnitCost: dish.unit_cost,
-  //       ServeNow: true,
-  //       Cooked: false,
-  //       Served: false,
-  //     })),
-  //   };
-  // };
+  useEffect(() => {
+    const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice);
+    CacheStorage.setItem("invoice_" + "1_" + table.id, copyInvoiceFromSlice);
+    //need modify copydishObjInOrder based on invoiceFromSlice here before setDishObjInOrder later on
+    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
+    dispatch(setDishObjInOrder(copydishObjInOrder));
+    // console.log("invoiceFromSlice of addToOrderList from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + table.id));
+  }, [invoiceFromSlice]);
 
   const addToOrderList = async (dish) => {
     let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
-    let arr = JSON.parse(JSON.stringify(dishObjInOrder));
+    copydishObjInOrder = JSON.parse(JSON.stringify(dishObjInOrder));
     let copyDish = JSON.parse(JSON.stringify(dish));
     if (index > -1) {
-      arr[index].count = arr[index].count + 1;
+      copydishObjInOrder[index].count = copydishObjInOrder[index].count + 1;
     } else {
       copyDish.count = 1;
-      arr.push(copyDish);
+      copydishObjInOrder.push(copyDish);
     }
-    const invoice = createInvoice(table, arr);
-    console.log("invoice in addToOrderList----------------", invoice);
+
+    const invoice = createInvoice(table, copydishObjInOrder);
     await dispatch(calculateInvoice(invoice));
-    CacheStorage.setItem("invoice_" + "1_" + table.id, invoiceFromSlice);
-    //need adjust data from returned invoice here and modify arr later on.
-    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, arr);
-    await dispatch(setDishObjInOrder(arr));
+    //then will trigger the useEffect above
   };
 
   return (
