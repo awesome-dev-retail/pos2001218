@@ -110,9 +110,9 @@
       .table-bottom {
         padding: 15px 20px;
         .tatal-money-container {
-          display: flex;
-          justify-content: flex-end;
-          align-items: baseline;
+          // display: flex;
+          // justify-content: flex-end;
+          // align-items: baseline;
           color: #999;
           .tatal-money {
             font-size: 22px;
@@ -126,6 +126,91 @@
               text-decoration: line-through;
               font-size: 12px;
               font-weight: 400;
+            }
+          }
+          .tatal-money-top {
+            display: flex;
+            border: 1px solid #efefef;
+            height: 40px;
+            line-height: 40px;
+            font-weight: bold;
+            color: #000;
+            padding-right: 10px;
+            img {
+              width: 20px;
+              margin-right: 5px;
+            }
+            > div:first-of-type {
+              flex-basis: 20%;
+              text-align: center;
+              border-right: 1px solid #efefef;
+            }
+            > div:last-of-type {
+              flex: 1;
+              display: flex;
+              padding: 0 px;
+              justify-content: space-between;
+              align-items: center;
+              .tatal-top-right {
+                display: flex;
+                color: #999;
+                div {
+                  color: #000;
+                  margin-right: 10px;
+                }
+              }
+            }
+          }
+          .tatal-money-content {
+            border: 1px solid #efefef;
+            border-top: none;
+            display: flex;
+            font-size: 12px;
+            font-weight: bold;
+            > div {
+              padding: 15px 5px;
+            }
+            .left {
+              flex-basis: 40%;
+              border-right: 1px solid #efefef;
+              .left-line {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                .label {
+                }
+                .text {
+                  font-weight: bold;
+                  color: #000;
+                }
+              }
+            }
+            .content {
+              display: flex;
+              justify-content: center;
+              flex-direction: column;
+              flex-basis: 26%;
+              text-align: right;
+              font-weight: bold;
+              border-right: 1px solid #efefef;
+              div {
+                color: #ea7e52;
+                font-size: 18px;
+              }
+            }
+            .right {
+              flex: 1;
+              padding: 15px 0;
+              div {
+                height: 50%;
+                text-align: center;
+              }
+              > div:first-of-type {
+                border-bottom: 1px solid #efefef;
+              }
+              > div:last-of-type {
+                padding-top: 15px;
+              }
             }
           }
         }

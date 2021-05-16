@@ -16,6 +16,7 @@ import "./Cashier.scss";
 import { Input } from "antd";
 
 const Cashier = (props) => {
+  const [showCashPage, setShowCashPage] = useState(false);
   const [payMoney, setPayMoney] = useState(0);
   const [showCalcultor, setShowCalcultor] = useState(true);
   const [money, setMoney] = useState({});
@@ -30,73 +31,82 @@ const Cashier = (props) => {
     setPayMoney(price);
     setMoney({ price, oldPrice });
   }, [dishObjFromSlice]);
+
   const discountList = [
     {
       id: "hyyh",
-      name: "VIP",
-      // name: "会员优惠",
+      name: "CASH",
+      bgColor: "#35E783",
       icon: huangguan,
     },
     {
-      id: "md",
-      name: "Free",
-      // name: "免单",
+      id: "hyyh",
+      name: "CRETID CARD",
+      bgColor: "#CB83FF",
       icon: huangguan,
     },
     {
-      id: "ddzd",
-      name: "Customized",
-      // name: "订单自定",
+      id: "hyyh",
+      name: "VOUCHER",
+      bgColor: "#F80E3E",
       icon: huangguan,
     },
-    // {
-    //   id: "hh",
-    //   name: "happy hour",
-    //   icon: huangguan,
-    // },
-    // {
-    //   id: "tqw",
-    //   name: "汤75%",
-    //   icon: huangguan,
-    // },
+    {
+      id: "hyyh",
+      name: "CRETID ACCOUNT",
+      bgColor: "#A1D1F0",
+      icon: huangguan,
+    },
+    {
+      id: "hyyh",
+      name: "SPLIT PAYMENT",
+      bgColor: "#FCBECE",
+      icon: huangguan,
+    },
+    {
+      id: "hyyh",
+      name: "REDEEM POINTS",
+      bgColor: "#FDD441",
+      icon: huangguan,
+    },
+    {
+      id: "hyyh",
+      name: "GIFT CARD",
+      bgColor: "#9600FF",
+      icon: huangguan,
+    },
+    {
+      id: "hyyh",
+      name: "OPTIONS",
+      bgColor: "#98F8CA",
+      icon: huangguan,
+    },
   ];
   const calculatorNum = [
     { key: 1, value: 1 },
     { key: 2, value: 2 },
     { key: 3, value: 3 },
+    { key: <img key="deleteIcon" src={deleteIcon} alt="deleteIcon" />, value: "delete" },
     { key: 4, value: 4 },
     { key: 5, value: 5 },
     { key: 6, value: 6 },
+    { key: 10, value: 10 },
     { key: 7, value: 7 },
     { key: 8, value: 8 },
     { key: 9, value: 9 },
-    { key: ".", value: "." },
+    { key: 20, value: 20 },
     { key: 0, value: 0 },
     { key: "00", value: "00" },
+    { key: ".", value: "." },
+    { key: 50, value: 50 },
   ];
-  const calcultorOptions = [
-    { key: <DownOutlined key="DownOutlined" />, value: "hide" },
-    { key: <img key="deleteIcon" src={deleteIcon} alt="deleteIcon" />, value: "delete" },
-    { key: "CLEAR", value: "clear" },
-  ];
-  const handlePayCash = () => {
-    console.log(1);
-  };
-  const quickSetPayMoney = (money) => {
-    setPayMoney(money);
-  };
 
   const handleClickCalculator = (value) => {
-    console.log(value);
-    if (value === "hide") {
-      setShowCalcultor(false);
-    } else if (value === "clear") {
-      setPayMoney("");
-    } else if (value === "delete") {
+    if (value === "delete") {
       let copyPayMoney = payMoney.toString();
       if (copyPayMoney.length) {
         copyPayMoney = copyPayMoney.substr(0, copyPayMoney.length - 1);
-        setPayMoney(parseFloat(copyPayMoney));
+        setPayMoney(parseFloat(copyPayMoney || 0));
       }
     } else {
       let copyPayMoney = payMoney.toString();
@@ -104,113 +114,55 @@ const Cashier = (props) => {
       setPayMoney(parseFloat(copyPayMoney));
     }
   };
+
+  const handleClickOperation = (name) => {
+    if (name === "CASH") {
+      console.log(name);
+      setShowCashPage(true);
+    } else if (name === "SPLIT PAYMENT") {
+
+    }
+  };
   return (
     <div className="cashier-container">
-      <div className="cashier-container-left">
-        <div className="title">CONCESSION</div>
-        <div className="discount-way-list">
-          {discountList.map((item) => (
-            <div className="discount-way-item" key={item.id}>
+      {!showCashPage ? <div>
+        <div className="title">Amount Tendered</div>
+        <div className="cashier-inner">
+          <Input className="total-input" value={payMoney && payMoney.toFixed(2)} />
+          <div className="cashier">
+            {calculatorNum.map(item => (
+              <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
+                {item.key}
+              </div>
+            ))
+            }
+          </div>
+        </div>
+        <div className="operation-list">
+          {discountList.map(item => (
+            <div key={item.name} className="operation-item" style={{ background: item.bgColor }} onClick={() => handleClickOperation(item.name)}>
               <img src={item.icon} alt="icon" />
-              <span>{item.name}</span>
+              <div>{item.name}</div>
             </div>
           ))}
-          <div className="discount-way-item"></div>
-        </div>
-        <div className="title">PAYMENT</div>
-        <div className="pay-way-container">
-          <div className="pay-way">
-            <div onClick={handlePayCash}>CASH</div>
-            <div>
-              <img src={zfb} alt="zfb" />
-              <img src={weixin} alt="weixin" />
-              SCAN
-            </div>
-          </div>
-          <div className="pay-way-other">
-            <div className="pay-way-other-item">
-              <div>
-                <img src={banckCard} alt="banckCard" />
-              </div>
-              <span>Bank Card</span>
-            </div>
-            <div className="pay-way-other-item">
-              <div>
-                <img src={huangguanWhite} alt="banckCard" />
-              </div>
-              <span>Valued Card</span>
-            </div>
-            <div className="pay-way-other-item">
-              <div></div>
-              <span>Others</span>
-            </div>
-          </div>
         </div>
       </div>
-      <div className="cashier-container-right">
-        <div className="title">BILL</div>
-        <div className="line">
-          <span className="label">Price</span>
-          <span>${money.oldPrice}</span>
-        </div>
-        <div className="line">
-          <span className="label">Discount</span>
-          <div>
-            <span>-${(money.oldPrice - money.price).toFixed(2)}</span>
-            {/* <span className="show-more">展开</span> */}
-          </div>
-        </div>
-        <div className="line">
-          <span className="label">Fraction</span>
-          <span>-$0.0</span>
-        </div>
-        <div className="line">
-          <span className="label">Receivable</span>
-          <span>${money.price && money.price.toFixed(2)}</span>
-        </div>
-        {/* <div className="line">
-          <span className="label">实收</span>
-          <span className="choose-pay-way">选择支付方式</span>
-        </div> */}
-        <div className="line last-line">
-          <span className="label">Cash</span>
-          <Input className="input-money" value={payMoney && payMoney.toFixed(2)} onClick={() => setShowCalcultor(true)} />
-          {/* <span>撤销</span> */}
-        </div>
-        <div className="line">
-          <span className="label">{payMoney && payMoney - money.oldPrice > 0 ? "Change" : "To be paid"}</span>
-          <span className="give-money">{(payMoney - money.price).toFixed(2)}</span>
-        </div>
-        <div className="calculator-container">
-          <div className="quick-input">
-            {[50, 100].map((item) => (
-              <div onClick={() => quickSetPayMoney(item)} key={item}>
-                ￥{item}
-              </div>
-            ))}
-          </div>
-          {showCalcultor && (
-            <div className="calculator">
-              <div className="calculator-left">
-                {calculatorNum.map((item) => (
-                  <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
-                    {item.key}
-                  </div>
-                ))}
-              </div>
-              <div className="calculator-right">
-                {calcultorOptions.map((item) => (
-                  <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
-                    {item.key}
-                  </div>
-                ))}
-              </div>
+        :
+        <div className="cash-page">
+          <div className="title">Finalise Sale</div>
+          <div className="cashier-inner">
+            <div className="give-money-tip">Change required from:${payMoney}</div>
+            <Input className="total-input" value={`$${(payMoney - money.price).toFixed(2)}`} />
+            <div className="quick-operation-btn">
+              <div>PRINT RECEIPT</div>
+              <div>EMAIL RECEIPT</div>
             </div>
-          )}
+            <div className="complete-btn">COMPELETE SALE</div>
+          </div>
         </div>
-        <div className="submit">CONFIRM TO CHECKOUT</div>
-      </div>
+      }
     </div>
+
   );
 };
 

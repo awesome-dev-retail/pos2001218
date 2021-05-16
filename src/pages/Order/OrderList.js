@@ -29,6 +29,9 @@ import { createInvoice } from "../../services/createInvoice";
 
 import addIcon from "../../assets/images/jia.png";
 import reduceIcon from "../../assets/images/jian.png";
+import morentouxiang from "../../assets/images/morentouxiang.png";
+import sousuo from "../../assets/images/sousuo.png";
+
 import "./OrderList.scss";
 function OrderList(props) {
   // const [currentDish, setCurrentDish] = useState({});
@@ -338,11 +341,41 @@ function OrderList(props) {
           </div>
         </div>
         <div className="table-bottom">
-          <div className="tatal-money-container">
+          {/* <div className="tatal-money-container">
             <span>Total: {total.count} dishes</span>&emsp;
             <div className="tatal-money">
               <span>${total.price}</span>
               <div className="old-price">Price: ${total.oldPrice}</div>
+            </div>
+          </div> */}
+          <div className="tatal-money-container">
+            <div className="tatal-money-top">
+              <div><img src={morentouxiang} alt="morentouxiang" />0</div>
+              <div><div><img src={sousuo} alt="sousuo" />Customer</div><div className="tatal-top-right"><div>N/A</div>POINTS</div></div>
+            </div>
+            <div className="tatal-money-content">
+              <div className="left">
+                <div className="left-line">
+                  <span className="label">DISCOUNT</span>
+                  <span className="text">${(total.oldPrice - total.price).toFixed(2)}</span>
+                </div>
+                <div className="left-line">
+                  <span className="label">SUBTOTAL</span>
+                  <span className="text">$32.0</span>
+                </div>
+                <div className="left-line">
+                  <span className="label">TAX(GST)</span>
+                  <span className="text">${0.15 * total.price}</span>
+                </div>
+              </div>
+              <div className="content">
+                <span>TOTAL</span>
+                <div className="content-total">${total.price}</div>
+              </div>
+              <div className="right">
+                <div>NEW CUSTOMER</div>
+                <div>ORDER DETAILS</div>
+              </div>
             </div>
           </div>
           <div className="btn-group">
