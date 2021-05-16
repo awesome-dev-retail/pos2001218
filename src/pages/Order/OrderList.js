@@ -60,6 +60,9 @@ function OrderList(props) {
   const currentDish = useSelector((state) => selectCurrentDish(state));
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
   const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
+
+  const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
+
   const { confirm } = Modal;
   useEffect(async () => {
     // debugger;
@@ -109,8 +112,6 @@ function OrderList(props) {
       await dispatch(setDishObjInOrder(copyDishOrder));
     }
   };
-
-  const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
 
   const handleCheckDishOrder = async (item) => {
     let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));

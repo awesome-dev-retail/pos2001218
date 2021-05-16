@@ -91,7 +91,8 @@ const Index = (props) => {
 Index.propTypes = {
   id: PropTypes.number,
   hideModel: PropTypes.func.isRequired,
-  showMoreTypeSetup: PropTypes.func.isRequired,
+  showMoreTypeSetup: PropTypes.func,
+  // showMoreTypeSetup: PropTypes.func.isRequired,
   visible: PropTypes.bool.isRequired,
   description: PropTypes.string,
   price: PropTypes.number,

@@ -8,6 +8,7 @@ export const createInvoice = (table, dishArr) => {
     LaneID: "LE_001",
     TableID: table.id,
     DivideNo: 1,
+    InvoiceType: "EatIn",
     MemberID: 0,
     TakeawayID: 0,
     InvoiceDate: new Date(),
@@ -20,10 +21,13 @@ export const createInvoice = (table, dishArr) => {
       Dish: {
         DishCode: dish.dish_code,
       },
+      Description: dish.description,
       Quantity: {
         Qty: dish.count,
       },
-      UOM: "EACH",
+      UOM: {
+        UOM: "EACH",
+      },
       UnitPrice: dish.unit_price,
       DiscountPercentage: {
         DiscountPercentage: 0,
