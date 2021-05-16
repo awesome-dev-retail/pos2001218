@@ -7,7 +7,7 @@ export const createDishObjInOrder = (table, invoice) => {
   if (invoice.hasOwnProperty("InvoiceID")) {
     const dishObjInOrder = invoice.Lines.map((item) => {
       const dish = copydishObjInOrder.find((dish) => dish.dish_code === item.Dish.DishCode);
-      dish.unit_price = 100;
+      // dish.unit_price = 100;
       // dish.unit_price = item.unit_price;
       return dish;
     });
