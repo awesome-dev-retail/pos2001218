@@ -21,6 +21,7 @@ export const createInvoice = (table, dishArr) => {
       Dish: {
         DishCode: dish.dish_code,
       },
+      Description: dish.description,
       Quantity: {
         Qty: dish.count,
       },

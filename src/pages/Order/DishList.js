@@ -21,6 +21,7 @@ import { selectMenuId } from "../../slices/menuSlice";
 import AddDish from "../../components/AddDish";
 
 import { createInvoice } from "../../services/createInvoice";
+import { createDishObjInOrder } from "../../services/createDishObjInOrder";
 
 function DishList(props) {
   const [showDish, setShowDish] = useState(false);
@@ -84,7 +85,11 @@ function DishList(props) {
   }
 
   useEffect(() => {
-    const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice);
+    // debugger;
+    const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice) || {};
+    const dishObjInOrder = createDishObjInOrder(table, copyInvoiceFromSlice);
+    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, dishObjInOrder);
+    dispatch(setDishObjInOrder(dishObjInOrder));
     CacheStorage.setItem("invoice_" + "1_" + table.id, copyInvoiceFromSlice);
     //need modify copydishObjInOrder based on invoiceFromSlice here before setDishObjInOrder later on
     // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
@@ -102,11 +107,11 @@ function DishList(props) {
       copyDish.count = 1;
       copydishObjInOrder.push(copyDish);
     }
-
+    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
     const invoice = createInvoice(table, copydishObjInOrder);
     await dispatch(calculateInvoice(invoice));
     //then will trigger the useEffect above
-    dispatch(setDishObjInOrder(copydishObjInOrder));
+    // dispatch(setDishObjInOrder(copydishObjInOrder));
   };
 
   return (
