@@ -1,29 +1,23 @@
 import CacheStorage from "../lib/cache-storage";
 
-export const createDishObjInOrder = (table, invoice) => {
-  const copydishObjInOrder = CacheStorage.getItem("dishObjInOrder_" + "1_" + table.id);
+export const createDishObjInOrder = (state, copydishObjInOrder) => {
+  // export const createDishObjInOrder = (tableID, invoice) => {
+  // const copydishObjInOrder = CacheStorage.getItem("dishObjInOrder_" + "1_" + state.invoice.TableID);
   // if (JSON.parse(JSON.stringify(invoice)) != "{}") {
   // debugger;
-  if (invoice.hasOwnProperty("InvoiceID")) {
-    const dishObjInOrder = invoice.Lines.map((item) => {
+  // console.log("state.invoice.data.Lines", state.invoice.data.Lines);
+  // console.log("copydishObjInOrder", copydishObjInOrder);
+  if (state.invoice && state.invoice.Lines) {
+    const newdishObjInOrder = state.invoice.Lines.map((item) => {
       const dish = copydishObjInOrder.find((dish) => dish.dish_code === item.Dish.DishCode);
       // dish.unit_price = 100;
       // dish.unit_price = item.unit_price;
       return dish;
     });
-    return dishObjInOrder;
+    return newdishObjInOrder;
+  } else {
+    return [];
   }
-  return copydishObjInOrder;
-  // const dishObjInOrder = invoice.lines.map((item) => ({
-  //   cid: 1,
-  //   dish_code: item.Dish.DishCode,
-  //   description: item.Description,
-  //   UOM: item.UOM.UOM,
-  //   unit_price: item.UnitPrice,
-  //   // unit_cost: 7.32,
-  //   // pos_image_url: "",
-  //   // status: "",
-  // }));
 };
 
 const dishlist = {

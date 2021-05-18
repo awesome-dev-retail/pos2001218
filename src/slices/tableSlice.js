@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
 // import { CacheStorage, message } from "../lib";
-import { tableListRequest } from "../services";
+import { tableListInShopRequest, tableListInAreaRequest, tableByIdRequest, saveTableRequest, deleteTableRequest } from "../services";
 import axios from "axios";
 // import { history } from "../App";
 
@@ -22,12 +22,9 @@ const initialState = {
 //     },
 //   });
 // };
-export const fetchTableListInShop = createAsyncThunk("table/fetchTableListInShop", async (id, { rejectWithValue }) => {
+export const fetchTableListInShop = createAsyncThunk("table/fetchTableListInShop", async (shopId, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/list_in_shop?shopId=${id}`,
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-    });
+    const res = await tableListInShopRequest(shopId);
     if (res.error) throw res.error;
     console.log("fetchTableListInShop--------------", res);
 
@@ -40,10 +37,7 @@ export const fetchTableListInShop = createAsyncThunk("table/fetchTableListInShop
 export const fetchTableListInArea = createAsyncThunk("table/fetchTableListInArea", async ({ shopId, areaId }, { rejectWithValue }) => {
   try {
     console.log("-----areaId--- ------", areaId);
-    const res = await axios({
-      url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/list_in_area?shopId=${shopId}&areaId=${areaId}`,
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-    });
+    const res = await tableListInAreaRequest({ shopId, areaId });
     if (res.error) throw res.error;
     console.log("fetchTableListInArea--------------", res);
 
@@ -55,13 +49,9 @@ export const fetchTableListInArea = createAsyncThunk("table/fetchTableListInArea
 
 export const fetchTableById = createAsyncThunk("table/fetchTableById", async (tableId, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/${tableId}`,
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-    });
+    const res = await tableByIdRequest(tableId);
     if (res.error) throw res.error;
     console.log("fetchTableById--------------", res);
-
     return res;
   } catch (e) {
     return rejectWithValue(e.message);
@@ -70,12 +60,7 @@ export const fetchTableById = createAsyncThunk("table/fetchTableById", async (ta
 
 export const saveTable = createAsyncThunk("table/saveTable", async (tableObj, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      method: "post",
-      url: "https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/save",
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-      data: tableObj,
-    });
+    const res = await saveTableRequest(tableObj);
     if (res.error) throw res.error;
     console.log("saveTable--------------", res);
     return res;
@@ -84,13 +69,9 @@ export const saveTable = createAsyncThunk("table/saveTable", async (tableObj, { 
   }
 });
 
-export const deleteTable = createAsyncThunk("table/deleteTable", async (id, { rejectWithValue }) => {
+export const deleteTable = createAsyncThunk("table/deleteTable", async (tableId, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      method: "delete",
-      url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/delete/${id}`,
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-    });
+    const res = await deleteTableRequest(tableId);
     if (res.error) throw res.error;
     console.log("deleteTable--------------", res);
     return res;
@@ -116,7 +97,7 @@ const TableSlice = createSlice({
     },
     [fetchTableListInShop.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.tableList = action.payload.data.data.list;
+      state.tableList = action.payload.data.list;
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
@@ -131,7 +112,7 @@ const TableSlice = createSlice({
     },
     [fetchTableListInArea.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.tableList = action.payload.data.data.list;
+      state.tableList = action.payload.data.list;
       // state.tableList = action.payload.data.data.list;
       state.error = null;
       // state.token = action.payload.token;
@@ -147,7 +128,7 @@ const TableSlice = createSlice({
     },
     [fetchTableById.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.table = action.payload.data.data;
+      state.table = action.payload.data;
       // state.tableList = action.payload.data.data.list;
       state.error = null;
       // state.token = action.payload.token;
@@ -163,7 +144,7 @@ const TableSlice = createSlice({
     },
     [saveTable.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.table = action.payload.data.data;
+      state.table = action.payload.data;
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);

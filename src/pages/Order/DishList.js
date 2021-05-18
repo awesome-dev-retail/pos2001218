@@ -7,10 +7,10 @@ import { useSelector, useDispatch } from "react-redux";
 
 import CacheStorage from "../../lib/cache-storage";
 
-import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder } from "../../slices/dishSlice";
-import { calculateInvoice } from "../../slices/invoiceSlice";
+import { selectCurrentUser } from "../../slices/authSlice";
 
-import { selectInvoice } from "../../slices/invoiceSlice";
+import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder } from "../../slices/dishSlice";
+import { calculateInvoice } from "../../slices/dishSlice";
 
 import { selectTable } from "../../slices/tableSlice";
 
@@ -21,7 +21,6 @@ import { selectMenuId } from "../../slices/menuSlice";
 import AddDish from "../../components/AddDish";
 
 import { createInvoice } from "../../services/createInvoice";
-import { createDishObjInOrder } from "../../services/createDishObjInOrder";
 
 function DishList(props) {
   const [showDish, setShowDish] = useState(false);
@@ -33,17 +32,13 @@ function DishList(props) {
   const { confirm } = Modal;
 
   const dispatch = useDispatch();
+  const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const dishListFromSlice = useSelector((state) => selectDishList(state)) || [];
   const dishObjInOrder = useSelector((state) => selectDishObjInOrder(state)) || [];
-  const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
-  console.log("invoiceFromSlice", invoiceFromSlice);
-  console.log("dishObjInOrder", dishObjInOrder);
 
-  // console.log("dishListFromSlice", dishListFromSlice);
   const menuIdFromSlice = useSelector((state) => selectMenuId(state));
 
   const table = useSelector((state) => selectTable(state)) || {};
-  // console.log("=======================indishlist", table);
 
   useEffect(() => {
     dispatch(fetchDishListInShop(1));
@@ -79,23 +74,17 @@ function DishList(props) {
         await dispatch(fetchDishListInMenu(dish.class_id));
       },
       onCancel() {
-        // console.log("Cancel");
+        console.log("Cancel");
       },
     });
   }
 
-  useEffect(() => {
-    // debugger;
-    const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice) || {};
-    const dishObjInOrder = createDishObjInOrder(table, copyInvoiceFromSlice);
-    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, dishObjInOrder);
-    dispatch(setDishObjInOrder(dishObjInOrder));
-    CacheStorage.setItem("invoice_" + "1_" + table.id, copyInvoiceFromSlice);
-    //need modify copydishObjInOrder based on invoiceFromSlice here before setDishObjInOrder later on
-    // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
-    // dispatch(setDishObjInOrder(copydishObjInOrder));
-    console.log("invoiceFromSlice of addToOrderList from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + table.id));
-  }, [invoiceFromSlice]);
+  // useEffect(() => {
+  //   // debugger;
+  //   const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice) || {};
+  //   CacheStorage.setItem("invoice_" + "1_" + table.id, copyInvoiceFromSlice);
+  //   console.log("invoiceFromSlice of addToOrderList from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + table.id));
+  // }, [invoiceFromSlice]);
 
   const addToOrderList = async (dish) => {
     let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
@@ -107,11 +96,11 @@ function DishList(props) {
       copyDish.count = 1;
       copydishObjInOrder.push(copyDish);
     }
-    CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
-    const invoice = createInvoice(table, copydishObjInOrder);
-    await dispatch(calculateInvoice(invoice));
-    //then will trigger the useEffect above
     // dispatch(setDishObjInOrder(copydishObjInOrder));
+    // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
+    const invoice = createInvoice(table, copydishObjInOrder, currentUser.userinfo.id);
+    dispatch(setDishObjInOrder(copydishObjInOrder));
+    dispatch(calculateInvoice(invoice));
   };
 
   return (

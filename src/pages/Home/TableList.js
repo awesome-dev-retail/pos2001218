@@ -65,7 +65,7 @@ function TableList(props) {
         await dispatch(fetchTableListInArea({ shopId: 1, areaId }));
       },
       onCancel() {
-        // console.log("Cancel");
+        console.log("Cancel");
       },
     });
   }

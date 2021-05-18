@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
 // import { CacheStorage, message } from "../lib";
-import { areaListRequest } from "../services";
+import { areaListRequest, saveAreaRequest, deleteAreaRequest } from "../services";
 import axios from "axios";
 // import { history } from "../App";
 
@@ -22,12 +22,9 @@ const initialState = {
 //     },
 //   });
 // };
-export const fetchAreaList = createAsyncThunk("area/fetchAreaList", async (id, { rejectWithValue }) => {
+export const fetchAreaList = createAsyncThunk("area/fetchAreaList", async (shopId, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/area/list_in_shop?shopId=${id}`,
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-    });
+    const res = await areaListRequest(shopId);
     if (res.error) throw res.error;
     console.log("fetchAreaList--------------", res);
 
@@ -39,12 +36,7 @@ export const fetchAreaList = createAsyncThunk("area/fetchAreaList", async (id, {
 
 export const saveArea = createAsyncThunk("area/saveArea", async (areaObj, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      method: "post",
-      url: "https://pos-restaurant-be-dev.azurewebsites.net/pos/data/area/save",
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-      data: areaObj,
-    });
+    const res = await saveAreaRequest();
     if (res.error) throw res.error;
     console.log("saveArea--------------", res);
     return res;
@@ -53,13 +45,9 @@ export const saveArea = createAsyncThunk("area/saveArea", async (areaObj, { reje
   }
 });
 
-export const deleteArea = createAsyncThunk("area/deleteArea", async (id, { rejectWithValue }) => {
+export const deleteArea = createAsyncThunk("area/deleteArea", async (areaId, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      method: "delete",
-      url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/area/delete/${id}`,
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-    });
+    const res = await deleteAreaRequest(areaId);
     if (res.error) throw res.error;
     console.log("deleteArea--------------", res);
     return res;
@@ -78,7 +66,7 @@ const AreaSlice = createSlice({
     },
     [fetchAreaList.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.area = action.payload.data.data.list;
+      state.area = action.payload.data.list;
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
@@ -93,7 +81,7 @@ const AreaSlice = createSlice({
     },
     [saveArea.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.areaId = action.payload.data.data.id;
+      state.areaId = action.payload.data.id;
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
 // import { CacheStorage, message } from "../lib";
-import { tableListRequest } from "../services";
+import { calculateInvoiceRequest } from "../services";
 import axios from "axios";
 // import { history } from "../App";
 
@@ -25,12 +25,7 @@ const initialState = {
 // };
 export const calculateInvoice = createAsyncThunk("invoice/calculateInvoice", async (invoice, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      method: "post",
-      url: "https://pos-restaurant-be-dev.azurewebsites.net/pos/data/invoice/calculate",
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-      data: invoice,
-    });
+    const res = await calculateInvoiceRequest(invoice);
     if (res.error) throw res.error;
     console.log("calculateInvoice--------------", res);
 
@@ -119,7 +114,7 @@ const InvoiceSlice = createSlice({
     },
     [calculateInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.invoice = action.payload.data.data;
+      state.invoice = action.payload;
       // state.tableList = action.payload.data.data.list;
       state.error = null;
       // state.token = action.payload.token;

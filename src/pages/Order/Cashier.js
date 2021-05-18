@@ -117,37 +117,36 @@ const Cashier = (props) => {
 
   const handleClickOperation = (name) => {
     if (name === "CASH") {
-      console.log(name);
+      // console.log(name);
       setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
-
     }
   };
   return (
     <div className="cashier-container">
-      {!showCashPage ? <div>
-        <div className="title">Amount Tendered</div>
-        <div className="cashier-inner">
-          <Input className="total-input" value={payMoney && payMoney.toFixed(2)} />
-          <div className="cashier">
-            {calculatorNum.map(item => (
-              <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
-                {item.key}
+      {!showCashPage ? (
+        <div>
+          <div className="title">Amount Tendered</div>
+          <div className="cashier-inner">
+            <Input className="total-input" value={payMoney && payMoney.toFixed(2)} />
+            <div className="cashier">
+              {calculatorNum.map((item) => (
+                <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
+                  {item.key}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="operation-list">
+            {discountList.map((item) => (
+              <div key={item.name} className="operation-item" style={{ background: item.bgColor }} onClick={() => handleClickOperation(item.name)}>
+                <img src={item.icon} alt="icon" />
+                <div>{item.name}</div>
               </div>
-            ))
-            }
+            ))}
           </div>
         </div>
-        <div className="operation-list">
-          {discountList.map(item => (
-            <div key={item.name} className="operation-item" style={{ background: item.bgColor }} onClick={() => handleClickOperation(item.name)}>
-              <img src={item.icon} alt="icon" />
-              <div>{item.name}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-        :
+      ) : (
         <div className="cash-page">
           <div className="title">Finalise Sale</div>
           <div className="cashier-inner">
@@ -160,9 +159,8 @@ const Cashier = (props) => {
             <div className="complete-btn">COMPELETE SALE</div>
           </div>
         </div>
-      }
+      )}
     </div>
-
   );
 };
 

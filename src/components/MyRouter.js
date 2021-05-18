@@ -22,13 +22,13 @@ const MyRouter = () => {
       <Switch>
         <Route exact path={CONSTANT.ROUTES.LOGIN} component={LoginPage} />
         <Route path={CONSTANT.ROUTES.SELECT_SHOP} component={SelectShop} />
-        {/* <AuthCheck> */}
-        <Suspense fallback={<PageLoading spinning={true} />}>
-          <Route exact path={CONSTANT.ROUTES.HOME} component={HomePage} />
-          <Route path={CONSTANT.ROUTES.ORDER} component={OrderPage} />
-          <Route path={CONSTANT.ROUTES.ABOUT} component={AboutPage} />
-        </Suspense>
-        {/* </AuthCheck> */}
+        <AuthCheck>
+          <Suspense fallback={<PageLoading spinning={true} />}>
+            <Route exact path={CONSTANT.ROUTES.HOME} component={HomePage} />
+            <Route path={CONSTANT.ROUTES.ORDER} component={OrderPage} />
+            <Route path={CONSTANT.ROUTES.ABOUT} component={AboutPage} />
+          </Suspense>
+        </AuthCheck>
       </Switch>
     </Router>
   );

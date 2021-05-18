@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
+import { menuListRequest, saveMenuRequest, deleteMenuRequest } from "../services";
 // import { CacheStorage, message } from "../lib";
 // import { menuListRequest } from "../services";
 import axios from "axios";
@@ -22,12 +23,9 @@ const initialState = {
 //     },
 //   });
 // };
-export const fetchMenuList = createAsyncThunk("menu/fetchMenuList", async (id, { rejectWithValue }) => {
+export const fetchMenuList = createAsyncThunk("menu/fetchMenuList", async (shopId, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dish_class/list_in_shop?shopId=${id}`,
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-    });
+    const res = await menuListRequest(shopId);
     if (res.error) throw res.error;
     console.log("fetchMenuList--------------", res);
     return res;
@@ -38,12 +36,7 @@ export const fetchMenuList = createAsyncThunk("menu/fetchMenuList", async (id, {
 
 export const saveMenu = createAsyncThunk("menu/saveMenu", async (menuObj, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      method: "post",
-      url: "https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dish_class/save",
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-      data: menuObj,
-    });
+    const res = await saveMenuRequest(menuObj);
     if (res.error) throw res.error;
     console.log("saveMenu--------------", res);
     return res;
@@ -52,13 +45,9 @@ export const saveMenu = createAsyncThunk("menu/saveMenu", async (menuObj, { reje
   }
 });
 
-export const deleteMenu = createAsyncThunk("menu/deleteMenu", async (id, { rejectWithValue }) => {
+export const deleteMenu = createAsyncThunk("menu/deleteMenu", async (menuId, { rejectWithValue }) => {
   try {
-    const res = await axios({
-      method: "delete",
-      url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dish_class/delete/${id}`,
-      headers: { Authorization: "Bearer USB9RbmRlv4EiLxEShlXRQ==" },
-    });
+    const res = await deleteMenuRequest(menuId);
     if (res.error) throw res.error;
     console.log("deleteMenu--------------", res);
     return res;
@@ -81,7 +70,7 @@ const MenuSlice = createSlice({
     },
     [fetchMenuList.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.menu = action.payload.data.data.list;
+      state.menu = action.payload.data.list;
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
@@ -96,7 +85,7 @@ const MenuSlice = createSlice({
     },
     [saveMenu.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.menuId = action.payload.data.data.id;
+      state.menuId = action.payload.data.id;
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);

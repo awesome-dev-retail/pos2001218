@@ -1,4 +1,6 @@
-export const createInvoice = (table, dishArr) => {
+import React, { Fragment, useEffect, useState } from "react";
+
+export function createInvoice(table, dishArr, userID) {
   const grossAmount = dishArr.reduce((total, currentValue) => {
     return total + currentValue.count * currentValue.unit_price;
   }, 0);
@@ -15,7 +17,7 @@ export const createInvoice = (table, dishArr) => {
     GrossAmount: grossAmount.toFixed(2) * 1,
     NetAmount: (grossAmount * 0.87).toFixed(2) * 1,
     GSTAmount: (grossAmount - grossAmount * 0.87).toFixed(2) * 1,
-    UserID: 24,
+    UserID: userID,
 
     Lines: dishArr.map((dish) => ({
       Dish: {
@@ -42,4 +44,4 @@ export const createInvoice = (table, dishArr) => {
       Served: false,
     })),
   };
-};
+}

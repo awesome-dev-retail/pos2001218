@@ -19,12 +19,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
+import { selectCurrentUser } from "../../slices/authSlice";
+
 import { selectDishObjInOrder, setDishObjInOrder, setCurrentDish, selectCurrentDish, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
 import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
 
-import { calculateInvoice } from "../../slices/invoiceSlice";
-import { selectInvoice } from "../../slices/invoiceSlice";
+import { calculateInvoice } from "../../slices/dishSlice";
 import { createInvoice } from "../../services/createInvoice";
 
 import addIcon from "../../assets/images/jia.png";
@@ -55,11 +56,11 @@ function OrderList(props) {
   // eslint-disable-next-line react/prop-types
   const tableId = props.match.params.id;
   // debugger;
+  const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
   const currentDish = useSelector((state) => selectCurrentDish(state));
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
-  const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
 
@@ -103,13 +104,9 @@ function OrderList(props) {
         copyDishOrder[index].count += value;
       }
 
-      const invoice = createInvoice(table, copyDishOrder);
-      console.log("invoice in updateCount----------------", invoice);
-      await dispatch(calculateInvoice(invoice));
-      CacheStorage.setItem("invoice_" + "1_" + table.id, invoiceFromSlice);
-      //need adjust data from returned invoice here and modify arr later on.
-      CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
-      await dispatch(setDishObjInOrder(copyDishOrder));
+      const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
+      dispatch(setDishObjInOrder(copyDishOrder));
+      dispatch(calculateInvoice(invoice));
     }
   };
 
@@ -125,31 +122,7 @@ function OrderList(props) {
   };
 
   const handleOperation = async (key) => {
-    if (!Object.keys(currentDish).length) {
-      return;
-    }
-    setCurrentMeun(key); // 删除
-    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
-    if (key === "delete") {
-      let index = copyDishOrder.findIndex((i) => {
-        return i.id === currentDish.id;
-      });
-      copyDishOrder.splice(index, 1);
-      // setCurrentDish({});
-      dispatch(setCurrentDish({}));
-      // await dispatch(setDishObjInOrder(copyDishOrder));
-      const invoice = createInvoice(table, copyDishOrder);
-      console.log("invoice in handleOperation-delete----------------", invoice);
-      await dispatch(calculateInvoice(invoice));
-      CacheStorage.setItem("invoice_" + "1_" + table.id, invoiceFromSlice);
-      //need adjust data from returned invoice here and modify arr later on.
-      CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
-      await dispatch(setDishObjInOrder(copyDishOrder));
-    } else if (key === "feeding") {
-      setShowDrawer(true);
-    } else if (key === "remark") {
-      setShowDrawer(true);
-    } else if (key === "cancel") {
+    if (key === "cancel") {
       confirm({
         title: "Are you sure to cancel the order?",
         icon: <ExclamationCircleOutlined />,
@@ -165,14 +138,34 @@ function OrderList(props) {
           // eslint-disable-next-line react/prop-types
           props.history.push("/");
           // copyDishOrder = [];
-          CacheStorage.removeItem("invoice_" + "1_" + table.id, invoiceFromSlice);
-          //need adjust data from returned invoice here and modify arr later on.
-          CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id, copyDishOrder);
+          CacheStorage.removeItem("invoice_" + "1_" + table.id);
+          CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
         },
         onCancel() {
           // console.log("Cancel");
         },
       });
+      return;
+    }
+    if (!Object.keys(currentDish).length) {
+      return;
+    }
+    setCurrentMeun(key); // 删除
+    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+    if (key === "delete") {
+      let index = copyDishOrder.findIndex((i) => {
+        return i.id === currentDish.id;
+      });
+      copyDishOrder.splice(index, 1);
+      // setCurrentDish({});
+      dispatch(setCurrentDish({}));
+      const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
+      dispatch(setDishObjInOrder(copyDishOrder));
+      dispatch(calculateInvoice(invoice));
+    } else if (key === "feeding") {
+      setShowDrawer(true);
+    } else if (key === "remark") {
+      setShowDrawer(true);
     }
   };
 
@@ -351,22 +344,33 @@ function OrderList(props) {
           </div> */}
           <div className="tatal-money-container">
             <div className="tatal-money-top">
-              <div><img src={morentouxiang} alt="morentouxiang" />0</div>
-              <div><div><img src={sousuo} alt="sousuo" />Customer</div><div className="tatal-top-right"><div>N/A</div>POINTS</div></div>
+              <div>
+                <img src={morentouxiang} alt="morentouxiang" />0
+              </div>
+              <div>
+                <div>
+                  <img src={sousuo} alt="sousuo" />
+                  Customer
+                </div>
+                <div className="tatal-top-right">
+                  <div>N/A</div>POINTS
+                </div>
+              </div>
             </div>
             <div className="tatal-money-content">
               <div className="left">
                 <div className="left-line">
                   <span className="label">DISCOUNT</span>
-                  <span className="text">${(total.oldPrice - total.price).toFixed(2)}</span>
+                  <span className="text">$0</span>
+                  {/* <span className="text">${(total.oldPrice - total.price).toFixed(2)}</span> */}
                 </div>
                 <div className="left-line">
                   <span className="label">SUBTOTAL</span>
-                  <span className="text">$32.0</span>
+                  <span className="text">${(0.85 * total.price).toFixed(2)}</span>
                 </div>
                 <div className="left-line">
                   <span className="label">TAX(GST)</span>
-                  <span className="text">${0.15 * total.price}</span>
+                  <span className="text">${(0.15 * total.price).toFixed(2)}</span>
                 </div>
               </div>
               <div className="content">
