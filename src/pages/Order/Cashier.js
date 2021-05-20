@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { DownOutlined } from "@ant-design/icons";
 
 import huangguan from "../../assets/images/huangguan.png";
@@ -11,6 +12,7 @@ import zfb from "../../assets/images/zfb.png";
 import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch } from "react-redux";
 import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
+import { fetchDocument } from "../../slices/documentSlice";
 
 import "./Cashier.scss";
 import { Input } from "antd";
@@ -21,6 +23,16 @@ const Cashier = (props) => {
   const [showCalcultor, setShowCalcultor] = useState(true);
   const [money, setMoney] = useState({});
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // eslint-disable-next-line react/prop-types
+    const pathname = props.location.pathname + "";
+    const invoiceID = pathname.split("/")[3] * 1;
+    dispatch(fetchDocument(invoiceID));
+  }, []);
+
   useEffect(() => {
     let price = 0,
       oldPrice = 0;
