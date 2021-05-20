@@ -8,6 +8,7 @@ import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, Quest
 import { Dropdown, Avatar, Layout, Spin } from "antd";
 import UIMenu from "../UIMenu";
 import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectAuthIsLoading } from "../../slices/authSlice";
+import { history } from "../MyRouter";
 
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
@@ -20,6 +21,8 @@ const AuthCheck = (props) => {
     if (token) {
       dispatch(setToken(token));
       dispatch(fetchUser());
+    } else {
+      history.push("./login");
     }
   }, []);
 
