@@ -9,9 +9,8 @@ import axios from "axios";
 
 const initialState = {
   document: {},
-  documentObjInOrder: [],
   showCashier: false,
-  currentDocument: {},
+  // currentDocument: {},
   status: "",
   error: null,
 };
@@ -58,11 +57,12 @@ const DocumentSlice = createSlice({
     [fetchDocument.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.document = action.payload.data;
-      const copyDocument = JSON.parse(JSON.stringify(state.document));
 
-      CacheStorage.setItem("document_" + "1_" + copyDocument.id, copyDocument);
+      // const copyDocument = JSON.parse(JSON.stringify(state.document));
 
-      console.log("copyDocument from localstorage----------------", CacheStorage.getItem("document_" + "1_" + copyDocument.id));
+      // CacheStorage.setItem("document_" + "1_" + copyDocument.id, copyDocument);
+
+      // console.log("copyDocument from localstorage----------------", CacheStorage.getItem("document_" + "1_" + copyDocument.id));
       // state.tableList = action.payload.data.data.list;
       state.error = null;
       // state.token = action.payload.token;
