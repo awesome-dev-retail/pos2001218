@@ -3,9 +3,9 @@ export default {
     HOME: "/",
     ABOUT: "/about",
     LOGIN: "/login",
-    // ORDER: "/order",
-    ORDER: "/order/:id",
-    PAYMENT: "/payment/:id",
+    ORDER: "/order",
+    ORDER_LIST: "/order/table/:tableId",
+    ORDER_PAYMENT: "/order/payment/:invoiceId",
     SELECT_SHOP: "/select-shop",
   },
   API_STATUS: {

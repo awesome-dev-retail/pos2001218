@@ -93,7 +93,7 @@ export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (table, { 
     console.log("++++++++++++++++++++", copyInvoice);
     const res = await saveInvoiceRequest(copyInvoice);
     if (res.error) throw res.error;
-    history.push(`/payment/${res.data.InvoiceID}`);
+    history.push(`/order/payment/${res.data.InvoiceID}`);
 
     console.log("saveInvoice--------------", res);
     return res;

@@ -69,7 +69,8 @@ function OrderList(props) {
   // const remarkList = ["不加香菜", "不放辣", "不加葱花", "少盐", "素食"];
   const dispatch = useDispatch();
   // eslint-disable-next-line react/prop-types
-  const tableId = props.match.params.id;
+  const pathname = props.location.pathname + "";
+  const tableId = pathname.split("/")[3] * 1;
   const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const table = useSelector((state) => selectTable(state)) || {};
@@ -81,6 +82,9 @@ function OrderList(props) {
 
   const { confirm } = Modal;
   useEffect(async () => {
+    // eslint-disable-next-line react/prop-types
+    // console.log("=====================", props);
+    // console.log(tableId);
     await dispatch(fetchTableById(tableId));
     dispatch(setDishObjInOrder([]));
     const arr = CacheStorage.getItem("dishObjInOrder_" + "1_" + tableId);
@@ -88,7 +92,6 @@ function OrderList(props) {
       dispatch(setDishObjInOrder(arr));
     }
 
-    console.log(tableId);
     const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
 
     if (obj) {
@@ -197,7 +200,7 @@ function OrderList(props) {
 
   let currentDishCopy = JSON.parse(JSON.stringify(currentDish));
   const handleCheckRemark = (item) => {
-    console.log(item);
+    // console.log(item);
     if (currentDishCopy.remark) {
       let index = currentDishCopy.remark.findIndex((i) => item === i);
       let remark = currentDishCopy.remark;
@@ -229,7 +232,7 @@ function OrderList(props) {
     // eslint-disable-next-line react/prop-types
     // props.history.push(`/payment/${copyInvoice.InvoiceID}`);
     if (invoiceFromSlice.InvoiceID > 0) {
-      history.push(`/payment/${invoiceFromSlice.InvoiceID}`);
+      history.push(`/order/payment/${invoiceFromSlice.InvoiceID}`);
     } else {
       dispatch(saveInvoice(table));
     }

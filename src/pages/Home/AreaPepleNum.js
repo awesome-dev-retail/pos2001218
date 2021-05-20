@@ -20,7 +20,7 @@ const Index = (props) => {
     const { tableObj } = props;
     props.hideModel(number);
     // eslint-disable-next-line react/prop-types
-    props.history.push(`/order/${tableObj.id}`);
+    props.history.push(`/order/table/${tableObj.id}`);
     tableObj.status = "Occupied";
     dispatch(saveTable(tableObj));
   };

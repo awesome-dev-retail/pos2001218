@@ -47,8 +47,8 @@ const Order = (props) => {
         <OrderList></OrderList>
         <Switch>
           {/* <Redirect from="/" exact to="/home" /> */}
-          <Route path={CONSTANT.ROUTES.ORDER} component={DishPage} />
-          <Route path={CONSTANT.ROUTES.PAYMENT} component={CashierPage} />
+          <Route path={CONSTANT.ROUTES.ORDER_LIST} component={DishPage} />
+          <Route path={CONSTANT.ROUTES.ORDER_PAYMENT} component={CashierPage} />
         </Switch>
         {/* {cashierStatus ? (
             
