@@ -41,7 +41,7 @@ const Cashier = (props) => {
     },
     {
       id: "hyyh",
-      name: "CRETID CARD",
+      name: "EFT-POS",
       bgColor: "#CB83FF",
       icon: huangguan,
     },
