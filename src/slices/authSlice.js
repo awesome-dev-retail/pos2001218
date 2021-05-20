@@ -168,6 +168,6 @@ export const selectIsLogin = (state) => state.Auth.user;
 export const selectCurrentUser = (state) => state.Auth.user;
 export const selectShops = (state) => state.Auth.shops;
 export const selectLanes = (state) => state.Auth.lanes;
-export const selectAuthIsLoading = (state) => state.Auth.status === CONSTANT.API_STATUS.LOADING;
+export const selectAuthIsLoading = (state) => state.Auth.status === CONSTANT.API_STATUS.LOADING || state.Auth.status === CONSTANT.API_STATUS.IDLE;
 
 export default authSlice.reducer;

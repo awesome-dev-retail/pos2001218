@@ -1,0 +1,143 @@
+trigger:
+  - none
+#  batch: true
+#  branches:
+#    include: [ buildOpt ]        # the branch name, need to change according to the project
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+  dockerFilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+stages:
+
+  # Prepare the build environment
+  - stage: PREPARE
+    jobs:
+      - job: PREPARE_ENVIRONMENT
+        displayName: Prepare Environment
+        steps:
+          # - task: NodeTool@0
+          #   displayName: Install NodeJS 12
+          #   inputs:
+          #     versionSpec: '12.x'
+          - script: |
+              printf "\n ------------------------"
+              printf "\n Running on: $(Agent.OS) $(Agent.Name) $(Agent.Version)"
+              printf "\n  Node version: $(node -v)"
+              printf "\n  NPM version:  $(npm -v)"
+              printf "\n  Yarn version: $(yarn -v)"
+              printf "\n  $(docker -v)"
+              printf "\n ------------------------"
+              printf "\n  acrServiceConnection: $(acrServiceConnection)"
+              printf "\n  appName: $(appName)"
+              printf "\n  containerRegistry: $(containerRegistry)"
+              printf "\n  imageRepository: $(imageRepository)"
+              printf "\n  azureSubscription: $(azureSubscription)"
+              printf "\n  requestedForId: $(Build.RequestedForId)"
+            displayName: Print Environment Details
+
+  # Build the project
+  - stage: BUILD
+    jobs:
+      - job: BUILD_FRONTEND
+        displayName: Build Frontend
+        steps:
+          - task: NodeTool@0
+            displayName: Install NodeJS@12
+            inputs:
+              versionSpec: "12.x"
+
+
+          - task: Cache@2
+            displayName: Cache NPM packages
+            inputs:
+              key: 'npm | "$(Agent.OS)" | package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: $(npm_config_cache)
+
+          - task: Npm@1
+            displayName: Install Dependencies with NPM
+            inputs:
+              command: "ci"
+
+          - task: Npm@1
+            displayName: Build the project
+            inputs:
+              command: "custom"
+              customCommand: "run $(buildCmd)"
+
+          - task: CopyFiles@2
+            displayName: Copy Build to Staging Area
+            inputs:
+              Contents: build/**
+              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+          - task: PublishBuildArtifacts@1
+            displayName: Archive Build
+            inputs:
+              pathToPublish: "$(Build.ArtifactStagingDirectory)/build"
+              artifactName: "build"
+
+  # Build and Push Docker Image
+  - stage: DOCKER
+    jobs:
+      - job: DOCKER_BUILD
+        displayName: Build Docker Image
+        steps:
+
+          ## Copy Dockerfile to root directory
+          - task: CopyFiles@2
+            displayName: Copy Dockerfile to Root Directory
+            inputs:
+              Contents: Dockerfiles/**
+              TargetFolder: '$(Build.SourcesDirectory)'
+              flattenFolders: true
+
+          ## Download build artifacts from previous stage
+          - task: DownloadBuildArtifacts@0
+            displayName: Download Artifacts
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "build"
+              downloadPath: "$(System.DefaultWorkingDirectory)"
+
+          ## Build the Docker image
+          - task: Docker@2
+            displayName: Build Docker Image
+            inputs:
+              containerRegistry: $(acrServiceConnection)
+              repository: $(imageRepository)
+              dockerfile: $(dockerfilePath)
+              command: build
+              tags: |
+                $(Build.BuildId)
+
+          ## Push the Docker image to ACR
+          - task: Docker@2
+            displayName: Push Docker Image to ACR
+            inputs:
+              containerRegistry: $(acrServiceConnection)
+              repository: $(imageRepository)
+              command: push
+              tags: |
+                $(Build.BuildId)
+  # Deploy to App Services
+  - stage: DEPLOY
+    jobs:
+      - job: DOCKER_DEPLOY
+        displayName: Deploy Docker Image to App Service
+        steps:
+          - task: AzureWebAppContainer@1
+            displayName: Deploy to App Service
+            inputs:
+              azureSubscription: 'Brunton.Dev6(da56b525-d140-4bb2-b5b4-484fd4fa4379)'
+              appName: 'pos-catering-master-fe'
+              containers: '$(containerRegistry)/$(imageRepository):$(Build.BuildId)'
+
+#EOF#
