@@ -4,7 +4,6 @@ export const createDishObjInOrder = (state, copydishObjInOrder) => {
   // export const createDishObjInOrder = (tableID, invoice) => {
   // const copydishObjInOrder = CacheStorage.getItem("dishObjInOrder_" + "1_" + state.invoice.TableID);
   // if (JSON.parse(JSON.stringify(invoice)) != "{}") {
-  // debugger;
   // console.log("state.invoice.data.Lines", state.invoice.data.Lines);
   // console.log("copydishObjInOrder", copydishObjInOrder);
   if (state.invoice && state.invoice.Lines) {

@@ -80,7 +80,6 @@ function DishList(props) {
   }
 
   // useEffect(() => {
-  //   // debugger;
   //   const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice) || {};
   //   CacheStorage.setItem("invoice_" + "1_" + table.id, copyInvoiceFromSlice);
   //   console.log("invoiceFromSlice of addToOrderList from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + table.id));
@@ -98,7 +97,6 @@ function DishList(props) {
     }
     // dispatch(setDishObjInOrder(copydishObjInOrder));
     // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
-    // debugger;
     const invoice = createInvoice(table, copydishObjInOrder, currentUser.userinfo.id);
     dispatch(setDishObjInOrder(copydishObjInOrder));
     dispatch(calculateInvoice(invoice));

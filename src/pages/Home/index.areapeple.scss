@@ -1,3 +1,5 @@
+@import "../../lib.scss";
+
 .counter-container {
   .ant-modal-header {
     text-align: center;
@@ -46,7 +48,7 @@
     .model-btn {
       padding: 10px 0;
       text-align: center;
-      background: #ea7e52;
+      background: $bizex-pink;
       color: #fff;
       font-size: 18px;
       cursor: pointer;

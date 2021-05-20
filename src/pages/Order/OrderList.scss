@@ -1,3 +1,5 @@
+@import "../../lib.scss";
+
 .table-info-container {
   position: relative;
   .drawer {
@@ -78,7 +80,7 @@
         flex-basis: 100px;
         border-bottom: 2px solid transparent;
         &.active {
-          border-color: #ea7e52;
+          border-color: $bizex-pink;
         }
       }
     }
@@ -100,8 +102,8 @@
         border-radius: 40px;
         border: 1px solid #efefef;
         &.remark-item-active {
-          border-color: #ea7e52;
-          color: #ea7e52;
+          border-color: $bizex-pink;
+          color: $bizex-pink;
         }
         .anticon-check-circle {
           position: absolute;
@@ -111,13 +113,13 @@
       }
     }
     &.show {
-      transition: 1s;
+      transition: 0s;
       left: calc(100% + 5px);
     }
     &.hide {
       left: -350px;
       opacity: 0;
-      transition: 1s;
+      transition: 0s;
     }
   }
 }

@@ -1,3 +1,5 @@
+@import "../../lib.scss";
+
 .cashier-container {
   flex: 1;
   display: flex;
@@ -124,7 +126,7 @@
         font-weight: bold;
       }
       .give-money {
-        color: #ea7e52;
+        color: $bizex-pink;
         margin-right: 40px;
         font-size: 22px;
         font-weight: bold;

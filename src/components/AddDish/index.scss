@@ -1,3 +1,5 @@
+@import "../../lib.scss";
+
 .add-dishes-container {
   .ant-modal-header {
     border-bottom: 0;
@@ -7,7 +9,7 @@
     .ant-input:focus,
     .ant-input:hover,
     .ant-input-focused {
-      border-color: #ea7e52;
+      border-color: $bizex-pink;
       box-shadow: 0 0 0 1px rgb(241, 189, 168);
     }
     .model-content {
@@ -55,12 +57,12 @@
       height: 40px;
       line-height: 40px;
       border-radius: 2px;
-      background: #ea7e52;
+      background: $bizex-pink;
       color: #fff;
       &:first-of-type {
         background: #fff;
-        color: #ea7e52;
-        border: 1px solid #ea7e52;
+        color: $bizex-pink;
+        border: 1px solid $bizex-pink;
         margin-right: 10px;
       }
     }

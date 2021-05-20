@@ -70,7 +70,6 @@ function OrderList(props) {
   const dispatch = useDispatch();
   // eslint-disable-next-line react/prop-types
   const tableId = props.match.params.id;
-  // debugger;
   const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const table = useSelector((state) => selectTable(state)) || {};
@@ -86,16 +85,13 @@ function OrderList(props) {
     dispatch(setDishObjInOrder([]));
     const arr = CacheStorage.getItem("dishObjInOrder_" + "1_" + tableId);
     if (arr) {
-      // debugger;
       dispatch(setDishObjInOrder(arr));
     }
 
-    // debugger;
     console.log(tableId);
     const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
 
     if (obj) {
-      debugger;
       dispatch(setCurrentInvoice(obj));
     }
   }, []);
@@ -232,12 +228,9 @@ function OrderList(props) {
     // console.log("=====================copyInvoice", table.id, copyInvoice);
     // eslint-disable-next-line react/prop-types
     // props.history.push(`/payment/${copyInvoice.InvoiceID}`);
-    // debugger;
     if (invoiceFromSlice.InvoiceID > 0) {
-      debugger;
       history.push(`/payment/${invoiceFromSlice.InvoiceID}`);
     } else {
-      debugger;
       dispatch(saveInvoice(table));
     }
     // dispatch(setShowCashier(true));
@@ -314,7 +307,7 @@ function OrderList(props) {
             {remarkList.map((item) => (
               <div onClick={() => handleCheckRemark(item)} className={`remark-item ${Array.isArray(currentDish.remark) && currentDish.remark.includes(item) ? "remark-item-active" : ""}`} key={item}>
                 {item}
-                {Array.isArray(currentDish.remark) && currentDish.remark.includes(item) && <CheckCircleTwoTone twoToneColor="#ea7e52" />}
+                {Array.isArray(currentDish.remark) && currentDish.remark.includes(item) && <CheckCircleTwoTone twoToneColor="$bizex-pink" />}
               </div>
             ))}
           </div>
