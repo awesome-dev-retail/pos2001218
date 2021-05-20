@@ -116,9 +116,7 @@ export const deleteDishRequest = (dishID) => {
     method: "delete",
   });
 };
-//====================dish end
 
-//====================invoice start
 export const calculateInvoiceRequest = (invoice) => {
   return api.request({
     url: "/pos/data/invoice/calculate",
@@ -126,7 +124,25 @@ export const calculateInvoiceRequest = (invoice) => {
     data: invoice,
   });
 };
-//====================invoice end
+
+export const saveInvoiceRequest = (invoice) => {
+  return api.request({
+    url: "/pos/data/invoice/save",
+    method: "post",
+    data: invoice,
+  });
+};
+
+//====================dish end
+
+//====================document start
+export const fetchDocumentRequest = (invoiceID) => {
+  return api.request({
+    url: `/pos/data/document/${invoiceID}`,
+    method: "get",
+  });
+};
+//====================document end
 
 export const loginRequest = (data) => {
   const { password, username } = data;

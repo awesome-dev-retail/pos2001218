@@ -123,43 +123,45 @@ const Cashier = (props) => {
     }
   };
   return (
-    <div className="cashier-container">
-      {!showCashPage ? (
-        <div>
-          <div className="title">Amount Tendered</div>
-          <div className="cashier-inner">
-            <Input className="total-input" value={payMoney && payMoney.toFixed(2)} />
-            <div className="cashier">
-              {calculatorNum.map((item) => (
-                <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
-                  {item.key}
+    <div className="right-container cashier">
+      <div className="cashier-container">
+        {!showCashPage ? (
+          <div>
+            <div className="title">Amount Tendered</div>
+            <div className="cashier-inner">
+              <Input className="total-input" value={payMoney && payMoney.toFixed(2)} />
+              <div className="cashier">
+                {calculatorNum.map((item) => (
+                  <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
+                    {item.key}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="operation-list">
+              {discountList.map((item) => (
+                <div key={item.name} className="operation-item" style={{ background: item.bgColor }} onClick={() => handleClickOperation(item.name)}>
+                  <img src={item.icon} alt="icon" />
+                  <div>{item.name}</div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="operation-list">
-            {discountList.map((item) => (
-              <div key={item.name} className="operation-item" style={{ background: item.bgColor }} onClick={() => handleClickOperation(item.name)}>
-                <img src={item.icon} alt="icon" />
-                <div>{item.name}</div>
+        ) : (
+          <div className="cash-page">
+            <div className="title">Finalise Sale</div>
+            <div className="cashier-inner">
+              <div className="give-money-tip">Change required from:${payMoney}</div>
+              <Input className="total-input" value={`$${(payMoney - money.price).toFixed(2)}`} />
+              <div className="quick-operation-btn">
+                <div>PRINT RECEIPT</div>
+                <div>EMAIL RECEIPT</div>
               </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="cash-page">
-          <div className="title">Finalise Sale</div>
-          <div className="cashier-inner">
-            <div className="give-money-tip">Change required from:${payMoney}</div>
-            <Input className="total-input" value={`$${(payMoney - money.price).toFixed(2)}`} />
-            <div className="quick-operation-btn">
-              <div>PRINT RECEIPT</div>
-              <div>EMAIL RECEIPT</div>
+              <div className="complete-btn">COMPELETE SALE</div>
             </div>
-            <div className="complete-btn">COMPELETE SALE</div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

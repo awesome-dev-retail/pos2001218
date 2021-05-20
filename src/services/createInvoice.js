@@ -1,9 +1,13 @@
 import React, { Fragment, useEffect, useState } from "react";
+import moment from "moment";
 
 export function createInvoice(table, dishArr, userID) {
   const grossAmount = dishArr.reduce((total, currentValue) => {
     return total + currentValue.count * currentValue.unit_price;
   }, 0);
+  //  "InvoiceDate": "2019-10-03 14:52:39", // [required]
+  const InvoiceDate = moment().format("YYYY-MM-DD HH:mm:ss");
+  // console.log("time---------------------", InvoiceDate);
   return {
     CID: 1,
     ShopID: 1,
@@ -13,7 +17,7 @@ export function createInvoice(table, dishArr, userID) {
     InvoiceType: "EatIn",
     MemberID: 0,
     TakeawayID: 0,
-    InvoiceDate: new Date(),
+    InvoiceDate,
     GrossAmount: grossAmount.toFixed(2) * 1,
     NetAmount: (grossAmount * 0.87).toFixed(2) * 1,
     GSTAmount: (grossAmount - grossAmount * 0.87).toFixed(2) * 1,

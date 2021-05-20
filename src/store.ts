@@ -4,6 +4,7 @@ import areaReducer from "./slices/areaSlice";
 import tableReducer from "./slices/tableSlice";
 import menuReducer from "./slices/menuSlice";
 import dishReducer from "./slices/dishSlice";
+import documentReducer from "./slices/documentSlice";
 // import invoiceReducer from "./slices/invoiceSlice";
 
 export default configureStore({
@@ -13,11 +14,14 @@ export default configureStore({
     Table: tableReducer,
     Menu: menuReducer,
     Dish: dishReducer,
+    Document: documentReducer,
     // Invoice: invoiceReducer,
   },
   middleware: getDefaultMiddleware({
     serializableCheck: {
       ignoredActions: [
+        "user/fetchUser/fulfilled",
+
         "area/fetchAreaList/fulfilled",
         "area/saveArea/fulfilled",
         "area/deleteArea/fulfilled",
@@ -39,8 +43,11 @@ export default configureStore({
         "dish/deleteDish/fulfilled",
 
         "dish/calculateInvoice/fulfilled",
+        "dish/saveInvoice/fulfilled",
+
+        "document/fetchDocument/fulfilled",
       ],
-      // ignoredActions: ["user/fetchUser/fulfilled"],
+      // ignoredActions: [],
     },
   }),
 });

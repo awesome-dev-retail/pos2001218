@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
+import { history } from "../components/MyRouter";
+
 import CacheStorage from "../lib/cache-storage";
 
 // import { CacheStorage, message } from "../lib";
-import { dishListRequest, dishListInMenuRequest, saveDishRequest, deleteDishRequest, calculateInvoiceRequest } from "../services";
+import { dishListRequest, dishListInMenuRequest, saveDishRequest, deleteDishRequest, calculateInvoiceRequest, saveInvoiceRequest } from "../services";
 import axios from "axios";
-// import { history } from "../App";
 import { createDishObjInOrder } from "../services/createDishObjInOrder";
 
 const initialState = {
@@ -76,10 +77,28 @@ export const deleteDish = createAsyncThunk("dish/deleteDish", async (dishID, { r
 
 export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async (invoice, { rejectWithValue }) => {
   try {
+    debugger;
     const res = await calculateInvoiceRequest(invoice);
     if (res.error) throw res.error;
     console.log("calculateInvoice--------------", res);
 
+    return res;
+  } catch (e) {
+    return rejectWithValue(e.message);
+  }
+});
+
+export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (table, { rejectWithValue }) => {
+  try {
+    debugger;
+    const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
+    console.log("++++++++++++++++++++", copyInvoice);
+    const res = await saveInvoiceRequest(copyInvoice);
+    debugger;
+    if (res.error) throw res.error;
+    history.push(`/payment/${res.data.InvoiceID}`);
+
+    console.log("saveInvoice--------------", res);
     return res;
   } catch (e) {
     return rejectWithValue(e.message);
@@ -99,6 +118,9 @@ const DishSlice = createSlice({
     setShowCashier(state, action) {
       state.showCashier = action.payload;
     },
+    setCurrentInvoice(state, action) {
+      state.invoice = action.payload;
+    },
   },
   extraReducers: {
     [calculateInvoice.pending]: (state) => {
@@ -107,17 +129,35 @@ const DishSlice = createSlice({
     [calculateInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
-      //modify dishObjInOrder based on returned invoice
-      let copydishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
+      debugger;
+      const copydishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
       state.dishObjInOrder = createDishObjInOrder(state, copydishObjInOrder);
 
-      let newdishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
-      CacheStorage.setItem("dishObjInOrder_" + "1_" + state.invoice.TableID, newdishObjInOrder);
+      CacheStorage.setItem("dishObjInOrder_" + "1_" + state.invoice.TableID, state.dishObjInOrder);
+      CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+      // console.log(CacheStorage.getItem("invoice_" + "1_" + res.data.TableID));
 
-      const copyInvoice = Object.assign({}, state.invoice) || {};
-      CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, copyInvoice);
-      console.log("copyInvoice of from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + state.invoice.TableID));
-      // state.tableList = action.payload.data.data.list;
+      state.error = null;
+      // state.token = action.payload.token;
+      // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
+      // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
+    },
+    [calculateInvoice.rejected]: (state, action) => {
+      state.status = config.API_STATUS.FAILED;
+      // message.error(action.payload);
+    },
+    [saveInvoice.pending]: (state) => {
+      state.status = config.API_STATUS.LOADING;
+    },
+    [saveInvoice.fulfilled]: (state, action) => {
+      state.status = config.API_STATUS.SUCCEEDED;
+      state.invoice = action.payload.data;
+      debugger;
+      // history.push();
+      CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+      // console.log(CacheStorage.getItem("invoice_" + "1_" + res.data.TableID));
+      // console.log("copyInvoice of from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + state.invoice.TableID));
+
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
@@ -206,7 +246,9 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder, setCurrentDish, setShowCashier } = DishSlice.actions;
+export const { setDishObjInOrder, setCurrentDish, setShowCashier, setCurrentInvoice } = DishSlice.actions;
+
+export const selectInvoice = (state) => state.Dish.invoice;
 export const selectCashierStatus = (state) => state.Dish.showCashier;
 
 export const selectDishList = (state) => state.Dish.dish;

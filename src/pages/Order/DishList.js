@@ -9,8 +9,8 @@ import CacheStorage from "../../lib/cache-storage";
 
 import { selectCurrentUser } from "../../slices/authSlice";
 
-import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder } from "../../slices/dishSlice";
-import { calculateInvoice } from "../../slices/dishSlice";
+import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder, calculateInvoice } from "../../slices/dishSlice";
+import { selectInvoice } from "../../slices/dishSlice";
 
 import { selectTable } from "../../slices/tableSlice";
 
@@ -98,6 +98,7 @@ function DishList(props) {
     }
     // dispatch(setDishObjInOrder(copydishObjInOrder));
     // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
+    // debugger;
     const invoice = createInvoice(table, copydishObjInOrder, currentUser.userinfo.id);
     dispatch(setDishObjInOrder(copydishObjInOrder));
     dispatch(calculateInvoice(invoice));

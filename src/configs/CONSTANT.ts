@@ -5,6 +5,7 @@ export default {
     LOGIN: "/login",
     // ORDER: "/order",
     ORDER: "/order/:id",
+    PAYMENT: "/payment/:id",
     SELECT_SHOP: "/select-shop",
   },
   API_STATUS: {

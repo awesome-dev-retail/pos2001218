@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
+import { history } from "../../components/MyRouter";
+
 import CacheStorage from "../../lib/cache-storage";
 
 import { Badge, Modal, Button } from "antd";
@@ -21,11 +23,24 @@ import Counter from "../../components/Counter";
 
 import { selectCurrentUser } from "../../slices/authSlice";
 
-import { selectDishObjInOrder, setDishObjInOrder, setCurrentDish, selectCurrentDish, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
+import {
+  selectDishObjInOrder,
+  setDishObjInOrder,
+  setCurrentDish,
+  selectCurrentDish,
+  selectCashierStatus,
+  setShowCashier,
+  calculateInvoice,
+  saveInvoice,
+  setCurrentInvoice,
+} from "../../slices/dishSlice";
+import { selectInvoice } from "../../slices/dishSlice";
+
+import { fetchDocument } from "../../slices/documentSlice";
+
 import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
 
-import { calculateInvoice } from "../../slices/dishSlice";
 import { createInvoice } from "../../services/createInvoice";
 
 import addIcon from "../../assets/images/jia.png";
@@ -56,6 +71,7 @@ function OrderList(props) {
   // eslint-disable-next-line react/prop-types
   const tableId = props.match.params.id;
   // debugger;
+  const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
@@ -66,20 +82,22 @@ function OrderList(props) {
 
   const { confirm } = Modal;
   useEffect(async () => {
-    // debugger;
     await dispatch(fetchTableById(tableId));
-    console.log(tableId);
     dispatch(setDishObjInOrder([]));
     const arr = CacheStorage.getItem("dishObjInOrder_" + "1_" + tableId);
-    // debugger;
-    // console.log(arr);
     if (arr) {
-      dispatch(setDishObjInOrder(arr));
       // debugger;
+      dispatch(setDishObjInOrder(arr));
     }
-    // return () => {
-    //   console.log("-------------willUnmount");
-    // };
+
+    // debugger;
+    console.log(tableId);
+    const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
+
+    if (obj) {
+      debugger;
+      dispatch(setCurrentInvoice(obj));
+    }
   }, []);
 
   const updateCount = async (value) => {
@@ -117,7 +135,6 @@ function OrderList(props) {
     });
     // setCurrentDish(item);
     dispatch(setCurrentDish(item));
-
     await dispatch(setDishObjInOrder(copyDishOrder));
   };
 
@@ -210,7 +227,20 @@ function OrderList(props) {
   };
 
   const handleUpdateCashierStatus = () => {
-    dispatch(setShowCashier(true));
+    // const copyInvoice = JSON.parse(JSON.stringify(invoiceFromSlice));
+    // const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
+    // console.log("=====================copyInvoice", table.id, copyInvoice);
+    // eslint-disable-next-line react/prop-types
+    // props.history.push(`/payment/${copyInvoice.InvoiceID}`);
+    // debugger;
+    if (invoiceFromSlice.InvoiceID > 0) {
+      debugger;
+      history.push(`/payment/${invoiceFromSlice.InvoiceID}`);
+    } else {
+      debugger;
+      dispatch(saveInvoice(table));
+    }
+    // dispatch(setShowCashier(true));
   };
   /**
    *
@@ -300,10 +330,11 @@ function OrderList(props) {
           <div className="top-info">
             {/* <div className="top-info" onClick={() => setShowTableInfo(false)}> */}
             <span>
-              Table Name: {table.table_name || ""}，2/{table.capacity}
+              Table Name: {table.table_name || ""}
+              {/* Table Name: {table.table_name || ""}，2/{table.capacity} */}
             </span>
             {/* <span>桌台1，人数12/12</span> */}
-            <CaretDownOutlined />
+            {/* <CaretDownOutlined /> */}
           </div>
           <div className="bill-list">
             {dishObjFromSlice.map((item, index) => (
@@ -328,7 +359,7 @@ function OrderList(props) {
                 <div className="count">X {item.count}</div>
                 <div className="price">
                   <div className="new-price">${item.unit_price}</div>
-                  <div className="old-price">$ {item.unit_cost}</div>
+                  {/* <div className="old-price">$ {item.unit_cost}</div>  */}
                 </div>
               </div>
             ))}
@@ -409,7 +440,8 @@ function OrderList(props) {
       {/* <div className={"drawer hide"}> */}
       <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
         <div className="drawer-header">
-          <h3 className="drawer-title">Comment-Fruit Salad</h3>
+          <h3 className="drawer-title">COMMENT</h3>
+          {/* <h3 className="drawer-title">Comment-Fruit Salad</h3> */}
           <CloseOutlined onClick={() => setShowDrawer(false)} />
         </div>
         <div className="drawer-content">{drawerDom}</div>
