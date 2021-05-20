@@ -77,7 +77,6 @@ export const deleteDish = createAsyncThunk("dish/deleteDish", async (dishID, { r
 
 export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async (invoice, { rejectWithValue }) => {
   try {
-    debugger;
     const res = await calculateInvoiceRequest(invoice);
     if (res.error) throw res.error;
     console.log("calculateInvoice--------------", res);
@@ -90,11 +89,9 @@ export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async 
 
 export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (table, { rejectWithValue }) => {
   try {
-    debugger;
     const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
     console.log("++++++++++++++++++++", copyInvoice);
     const res = await saveInvoiceRequest(copyInvoice);
-    debugger;
     if (res.error) throw res.error;
     history.push(`/payment/${res.data.InvoiceID}`);
 
@@ -129,7 +126,6 @@ const DishSlice = createSlice({
     [calculateInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
-      debugger;
       const copydishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
       state.dishObjInOrder = createDishObjInOrder(state, copydishObjInOrder);
 
@@ -152,11 +148,7 @@ const DishSlice = createSlice({
     [saveInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
-      debugger;
-      // history.push();
       CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
-      // console.log(CacheStorage.getItem("invoice_" + "1_" + res.data.TableID));
-      // console.log("copyInvoice of from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + state.invoice.TableID));
 
       state.error = null;
       // state.token = action.payload.token;
