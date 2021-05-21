@@ -335,11 +335,10 @@ function OrderList(props) {
           <div className="bill-list">
             {dishObjFromSlice.map((item, index) => (
               <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
-                <div>
-                  <div className="bill-name">
-                    <div>{item.description}</div>
-                    {item.tip && <div className="food-tip">{item.tip}</div>}
-                  </div>
+                {/* <div> */}
+                <div className="bill-name">
+                  <div>{item.description}</div>
+                  {item.tip && <div className="food-tip">{item.tip}</div>}
                   {item.material && item.material.length > 0 && item.material[0].count > 0 && (
                     <div className="materials">
                       Extras:
@@ -352,6 +351,7 @@ function OrderList(props) {
                   )}
                   {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
                 </div>
+                {/* </div> */}
                 <div className="count">X {item.count}</div>
                 <div className="price">
                   <div className="new-price">${item.unit_price}</div>
