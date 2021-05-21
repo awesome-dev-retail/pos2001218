@@ -112,6 +112,11 @@ const DishSlice = createSlice({
     setCurrentDish(state, action) {
       state.currentDish = action.payload;
     },
+    clearCheckedDish(state, action) {
+      state.dishObjInOrder.forEach((item) => {
+        item.checked = false;
+      });
+    },
     setShowCashier(state, action) {
       state.showCashier = action.payload;
     },
@@ -238,7 +243,7 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder, setCurrentDish, setShowCashier, setCurrentInvoice } = DishSlice.actions;
+export const { setDishObjInOrder, setCurrentDish, clearCheckedDish, setShowCashier, setCurrentInvoice } = DishSlice.actions;
 
 export const selectInvoice = (state) => state.Dish.invoice;
 export const selectCashierStatus = (state) => state.Dish.showCashier;

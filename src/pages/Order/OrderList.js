@@ -28,6 +28,7 @@ import {
   setDishObjInOrder,
   setCurrentDish,
   selectCurrentDish,
+  clearCheckedDish,
   selectCashierStatus,
   setShowCashier,
   calculateInvoice,
@@ -93,10 +94,11 @@ function OrderList(props) {
     }
 
     const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
-
     if (obj) {
       dispatch(setCurrentInvoice(obj));
     }
+    dispatch(setCurrentDish({}));
+    dispatch(clearCheckedDish());
   }, []);
 
   const updateCount = async (value) => {
