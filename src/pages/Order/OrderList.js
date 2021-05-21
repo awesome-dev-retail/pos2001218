@@ -197,8 +197,8 @@ function OrderList(props) {
       price += (item.count || 1) * item.unit_price;
       oldPrice += (item.count || 1) * item.unit_cost;
     });
-    return { count, price: formatNum(price), oldPrice: formatNum(oldPrice) };
-  }, [JSON.stringify(dishObjFromSlice), formatNum]);
+    return { count, price: price.toFixed(2), oldPrice: oldPrice.toFixed(2) };
+  }, [JSON.stringify(dishObjFromSlice)]);
 
   let currentDishCopy = JSON.parse(JSON.stringify(currentDish));
   const handleCheckRemark = (item) => {
@@ -356,7 +356,7 @@ function OrderList(props) {
                 {/* </div> */}
                 <div className="count">X {item.count}</div>
                 <div className="price">
-                  <div className="new-price">${formatNumToTwoDecimal(item.unit_price)}</div>
+                  <div className="new-price">${item.unit_price.toFixed(2)}</div>
                   {/* <div className="old-price">$ {item.unit_cost}</div>  */}
                 </div>
               </div>
@@ -390,21 +390,21 @@ function OrderList(props) {
               <div className="left">
                 <div className="left-line">
                   <span className="label">DISCOUNT</span>
-                  <span className="text">${formatNum(0)}</span>
-                  {/* <span className="text">${formatNum(total.oldPrice - total.price)}</span> */}
+                  <span className="text">$0.00</span>
+                  {/* <span className="text">${(total.oldPrice - total.price).toFixed(2)}</span> */}
                 </div>
                 <div className="left-line">
                   <span className="label">SUBTOTAL</span>
-                  <span className="text">${formatNum(0.85 * total.price)}</span>
+                  <span className="text">${(0.85 * total.price).toFixed(2)}</span>
                 </div>
                 <div className="left-line">
                   <span className="label">TAX(GST)</span>
-                  <span className="text">${formatNum(0.15 * total.price)}</span>
+                  <span className="text">${(0.15 * total.price).toFixed(2)}</span>
                 </div>
               </div>
               <div className="content">
                 <span>TOTAL</span>
-                <div className="content-total">${formatNum(1 * total.price)}</div>
+                <div className="content-total">${total.price}</div>
               </div>
               <div className="right">
                 <div>NEW CUSTOMER</div>
