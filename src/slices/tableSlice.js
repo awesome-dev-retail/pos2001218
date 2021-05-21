@@ -3,6 +3,7 @@ import config from "../configs/index";
 // import { CacheStorage, message } from "../lib";
 import { tableListInShopRequest, tableListInAreaRequest, tableByIdRequest, saveTableRequest, deleteTableRequest } from "../services";
 import axios from "axios";
+import CacheStorage from "../lib/cache-storage";
 // import { history } from "../App";
 
 const initialState = {
@@ -97,7 +98,20 @@ const TableSlice = createSlice({
     },
     [fetchTableListInShop.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.tableList = action.payload.data.list;
+      // state.tableList = action.payload.data.list;
+
+      const tableList = action.payload.data.list;
+      const newTableList = tableList.map((item) => {
+        const invoice = CacheStorage.getItem("invoice_" + "1_" + item.id);
+        if (!!invoice) {
+          item.GrossAmount = invoice.GrossAmount;
+        } else {
+          item.GrossAmount = 0;
+          // item.status = "Available";
+        }
+        return item;
+      });
+      state.tableList = newTableList;
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
