@@ -8,6 +8,8 @@ import CacheStorage from "../lib/cache-storage";
 
 const initialState = {
   tableList: [],
+  copyTableListInShop: [],
+  tableListInArea: [],
   table: null,
   // addedTable: null,
   status: "",
@@ -88,6 +90,9 @@ const TableSlice = createSlice({
     setTableList: (state, action) => {
       state.tableList = action.payload;
     },
+    setTableListInArea: (state, action) => {
+      state.tableList = state.copyTableListInShop.filter((item) => item.area_id === action.payload);
+    },
     setTable: (state, action) => {
       state.table = action.payload;
     },
@@ -98,10 +103,10 @@ const TableSlice = createSlice({
     },
     [fetchTableListInShop.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      // state.tableList = action.payload.data.list;
+      state.tableList = action.payload.data.list;
+      state.copyTableListInShop = JSON.parse(JSON.stringify(state.tableList));
 
-      const tableList = action.payload.data.list;
-      const newTableList = tableList.map((item) => {
+      const newTableList = state.copyTableListInShop.map((item) => {
         const invoice = CacheStorage.getItem("invoice_" + "1_" + item.id);
         if (!!invoice) {
           item.GrossAmount = invoice.GrossAmount;
@@ -185,7 +190,7 @@ const TableSlice = createSlice({
     },
   },
 });
-export const { setTableList, setTable } = TableSlice.actions;
+export const { setTableList, setTable, setTableListInArea } = TableSlice.actions;
 export const selectTableList = (state) => state.Table.tableList;
 export const selectTable = (state) => state.Table.table;
 // export const selectTableById = (state) => state.Table.table;
