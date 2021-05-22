@@ -102,12 +102,17 @@ const TableSlice = createSlice({
     // },
 
     setTableInfoPeopleNum: (state, action) => {
-      debugger;
       const copyTableInfo = JSON.parse(JSON.stringify(state.tableInfo));
       copyTableInfo.tables.push(action.payload);
       state.tableInfo = copyTableInfo;
       CacheStorage.setItem("tableInfo", state.tableInfo);
       // CacheStorage.setItem("table_" + "1_" + state.tableInfo.tableId, state.tableInfo);
+    },
+    removeTableInfoPeopleNum: (state, action) => {
+      const currentTable = state.tableInfo.tables.find((i) => i.tableId === action.payload);
+      const index = state.tableInfo.tables.indexOf(currentTable);
+      debugger;
+      state.tableInfo.tables.splice(index, 1);
     },
   },
   extraReducers: {
@@ -132,12 +137,11 @@ const TableSlice = createSlice({
           const currentTable = state.tableInfo.tables.find((i) => i.tableId === item.id);
           item.peopleNum = currentTable ? currentTable.peopleNum : 0;
         } else {
-          debugger;
           const tableInfo = CacheStorage.getItem("tableInfo");
           if (tableInfo) {
             state.tableInfo = tableInfo;
-            const copyTableInfo = JSON.parse(JSON.stringify(state.tableInfo));
-            const currentTable = copyTableInfo.tables.find((i) => i.tableId === item.id);
+            // const copyTableInfo = JSON.parse(JSON.stringify(state.tableInfo));
+            const currentTable = tableInfo.tables.find((i) => i.tableId === item.id);
             item.peopleNum = currentTable ? currentTable.peopleNum : 0;
           } else {
             state.tableInfo = { unpaidOrder: 0, unpaidAmount: 0, tables: [] };
@@ -146,7 +150,6 @@ const TableSlice = createSlice({
         }
         return item;
       });
-      debugger;
       state.tableList = newTableList;
       state.error = null;
       // state.token = action.payload.token;
@@ -221,7 +224,7 @@ const TableSlice = createSlice({
     },
   },
 });
-export const { setTableList, setTable, setTableListInArea, setTableInfoPeopleNum } = TableSlice.actions;
+export const { setTableList, setTable, setTableListInArea, setTableInfoPeopleNum, removeTableInfoPeopleNum } = TableSlice.actions;
 export const selectTableList = (state) => state.Table.tableList;
 export const selectTable = (state) => state.Table.table;
 // export const selectTableById = (state) => state.Table.table;
