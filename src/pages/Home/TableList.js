@@ -100,7 +100,7 @@ function TableList(props) {
               {item.status === "Occupied" && <div className="wait-plan-order-text">${item.GrossAmount ? item.GrossAmount.toFixed(2) : "0.00"}</div>}
               <div>
                 <span>
-                  {item.num || 0}/{item.capacity}
+                  {item.peopleNum || 0}/{item.capacity}
                 </span>
                 <span></span>
               </div>
