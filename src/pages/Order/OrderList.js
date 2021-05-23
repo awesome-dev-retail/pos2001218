@@ -157,7 +157,6 @@ function OrderList(props) {
           // eslint-disable-next-line react/prop-types
           props.history.push("/");
           // copyDishOrder = [];
-          debugger;
           CacheStorage.removeItem("invoice_" + "1_" + table.id);
           CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
         },

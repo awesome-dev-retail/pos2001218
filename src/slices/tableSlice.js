@@ -12,20 +12,10 @@ const initialState = {
   tableListInArea: [],
   table: null,
   tableInfo: null,
-  // addedTable: null,
   status: "",
   error: null,
 };
 
-// export const tableListRequest = (shopId: any) => {
-//   return api.request({
-//     url: `/pos/data/table/list_in_shop?shopId=${shopId}`,
-//     method: "get",
-//     headers: {
-//       Authorization: "2fse783mcEIlui4pN5i7WQ==",
-//     },
-//   });
-// };
 export const fetchTableListInShop = createAsyncThunk("table/fetchTableListInShop", async (shopId, { rejectWithValue }) => {
   try {
     const res = await tableListInShopRequest(shopId);
@@ -97,21 +87,16 @@ const TableSlice = createSlice({
     setTable: (state, action) => {
       state.table = action.payload;
     },
-    // initTableInfo: (state, action) => {
-    //   state.tableInfo = { unpaidOrder: 0, unpaidAmount: 0, tables: [] };
-    // },
 
     setTableInfoPeopleNum: (state, action) => {
       const copyTableInfo = JSON.parse(JSON.stringify(state.tableInfo));
       copyTableInfo.tables.push(action.payload);
       state.tableInfo = copyTableInfo;
       CacheStorage.setItem("tableInfo", state.tableInfo);
-      // CacheStorage.setItem("table_" + "1_" + state.tableInfo.tableId, state.tableInfo);
     },
     removeTableInfoPeopleNum: (state, action) => {
       const currentTable = state.tableInfo.tables.find((i) => i.tableId === action.payload);
       const index = state.tableInfo.tables.indexOf(currentTable);
-      debugger;
       state.tableInfo.tables.splice(index, 1);
     },
   },
@@ -123,38 +108,32 @@ const TableSlice = createSlice({
       state.status = config.API_STATUS.SUCCEEDED;
       state.tableList = action.payload.data.list;
       state.copyTableListInShop = JSON.parse(JSON.stringify(state.tableList));
-
       const newTableList = state.copyTableListInShop.map((item) => {
         const invoice = CacheStorage.getItem("invoice_" + "1_" + item.id);
         if (!!invoice) {
           item.GrossAmount = invoice.GrossAmount;
         } else {
           item.GrossAmount = 0;
-          // item.status = "Available";
         }
         if (state.tableInfo) {
-          // debugger;
           const currentTable = state.tableInfo.tables.find((i) => i.tableId === item.id);
           item.peopleNum = currentTable ? currentTable.peopleNum : 0;
         } else {
           const tableInfo = CacheStorage.getItem("tableInfo");
           if (tableInfo) {
             state.tableInfo = tableInfo;
-            // const copyTableInfo = JSON.parse(JSON.stringify(state.tableInfo));
             const currentTable = tableInfo.tables.find((i) => i.tableId === item.id);
             item.peopleNum = currentTable ? currentTable.peopleNum : 0;
           } else {
-            state.tableInfo = { unpaidOrder: 0, unpaidAmount: 0, tables: [] };
+            state.tableInfo = { tables: [] };
             item.peopleNum = 0;
           }
         }
+
         return item;
       });
       state.tableList = newTableList;
       state.error = null;
-      // state.token = action.payload.token;
-      // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
-      // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
     },
     [fetchTableListInShop.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
@@ -182,11 +161,7 @@ const TableSlice = createSlice({
     [fetchTableById.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.table = action.payload.data;
-      // state.tableList = action.payload.data.data.list;
       state.error = null;
-      // state.token = action.payload.token;
-      // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
-      // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
     },
     [fetchTableById.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
@@ -227,6 +202,7 @@ const TableSlice = createSlice({
 export const { setTableList, setTable, setTableListInArea, setTableInfoPeopleNum, removeTableInfoPeopleNum } = TableSlice.actions;
 export const selectTableList = (state) => state.Table.tableList;
 export const selectTable = (state) => state.Table.table;
+export const selectTableInfo = (state) => state.Table.tableInfo;
 // export const selectTableById = (state) => state.Table.table;
 
 export default TableSlice.reducer;

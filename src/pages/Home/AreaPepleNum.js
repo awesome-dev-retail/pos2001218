@@ -17,7 +17,6 @@ const Index = (props) => {
     props.hideModel();
   };
   const handleOk = (number = 0) => {
-    // debugger;
     const { tableObj } = props;
     props.hideModel(number);
     // eslint-disable-next-line react/prop-types
