@@ -39,7 +39,7 @@ import { selectInvoice } from "../../slices/dishSlice";
 
 import { fetchDocument } from "../../slices/documentSlice";
 
-import { fetchTableById, fetchTableListInShop, saveTable, removeTableInfoPeopleNum } from "../../slices/tableSlice";
+import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
 
 import { createInvoice } from "../../services/createInvoice";
@@ -153,7 +153,6 @@ function OrderList(props) {
           tableObj.status = "Available";
           await dispatch(saveTable(tableObj));
           // await dispatch(fetchTableListInShop(1));
-          await dispatch(removeTableInfoPeopleNum(tableId));
           // eslint-disable-next-line react/prop-types
           props.history.push("/");
           // copyDishOrder = [];
@@ -414,8 +413,8 @@ function OrderList(props) {
             </div>
           </div>
           <div className="btn-group">
-            <div>Add Dish</div>
-            {!cashierStatus && <div onClick={handleUpdateCashierStatus}>Checkout</div>}
+            <button>Add Dish</button>
+            {!cashierStatus && <button onClick={handleUpdateCashierStatus}>Checkout</button>}
           </div>
         </div>
       </div>

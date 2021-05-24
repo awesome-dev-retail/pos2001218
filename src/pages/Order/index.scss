@@ -230,7 +230,7 @@
           display: flex;
           justify-content: space-between;
           margin-top: 30px;
-          div {
+          button {
             cursor: pointer;
             font-size: 18px;
             text-align: center;
@@ -240,10 +240,16 @@
             border: 1px solid $bizex-pink;
             color: $bizex-pink;
           }
-          > div:last-of-type {
+          > button:last-of-type {
             background: $bizex-pink;
             color: #fff;
             margin-left: 10px;
+          }
+          button:disabled {
+            background: #dddddd;
+            color: #b9b3b3;
+            border: 1px solid #b9b3b3;
+            cursor: default;
           }
         }
       }

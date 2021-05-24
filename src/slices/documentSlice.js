@@ -29,7 +29,6 @@ export const fetchDocument = createAsyncThunk("document/fetchDocument", async (i
     const res = await fetchDocumentRequest(invoiceID);
     if (res.error) throw res.error;
     console.log("fetchDocument--------------", res);
-
     return res;
   } catch (e) {
     return rejectWithValue(e.message);

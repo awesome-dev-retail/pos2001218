@@ -144,6 +144,16 @@ export const fetchDocumentRequest = (invoiceID) => {
 };
 //====================document end
 
+//====================payment start
+export const savePaymentRequest = (payment) => {
+  return api.request({
+    url: "/pos/data/payment/save",
+    method: "post",
+    data: payment,
+  });
+};
+//====================payment end
+
 export const loginRequest = (data) => {
   const { password, username } = data;
   const param = password ? { uname: username, passwd: password } : { barcode: username };

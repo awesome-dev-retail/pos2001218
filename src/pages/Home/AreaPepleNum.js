@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { withRouter } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchTableListInShop, fetchTableListInArea, saveTable, deleteTable, setTableInfoPeopleNum } from "../../slices/tableSlice";
+import { fetchTableListInShop, fetchTableListInArea, saveTable, deleteTable } from "../../slices/tableSlice";
 
 import { Input, Modal, Row, Col, Button } from "antd";
 import PropTypes from "prop-types";
@@ -23,8 +23,6 @@ const Index = (props) => {
     props.history.push(`/order/table/${tableObj.id}`);
     tableObj.status = "Occupied";
     dispatch(saveTable(tableObj));
-    dispatch(setTableInfoPeopleNum({ tableId: tableObj.id, peopleNum: num }));
-    // dispatch(setTableInfo({ unpaidOrder, unpaidAmount, tables: [{ tableId: tableObj.id, peopleNum: num }] }));
   };
 
   const hanldeSetNum = (number) => {

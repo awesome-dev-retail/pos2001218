@@ -13,6 +13,9 @@ import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch } from "react-redux";
 import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
 import { fetchDocument } from "../../slices/documentSlice";
+import { savePayment } from "../../slices/paymentSlice";
+
+import { createPayment } from "../../services/createPayment";
 
 import "./Cashier.scss";
 import { Input } from "antd";
@@ -130,6 +133,8 @@ const Cashier = (props) => {
   const handleClickOperation = (name) => {
     if (name === "CASH") {
       // console.log(name);
+      const payment = createPayment();
+      dispatch(savePayment(payment));
       setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
     }

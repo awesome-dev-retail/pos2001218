@@ -87,18 +87,6 @@ const TableSlice = createSlice({
     setTable: (state, action) => {
       state.table = action.payload;
     },
-
-    setTableInfoPeopleNum: (state, action) => {
-      const copyTableInfo = JSON.parse(JSON.stringify(state.tableInfo));
-      copyTableInfo.tables.push(action.payload);
-      state.tableInfo = copyTableInfo;
-      CacheStorage.setItem("tableInfo", state.tableInfo);
-    },
-    removeTableInfoPeopleNum: (state, action) => {
-      const currentTable = state.tableInfo.tables.find((i) => i.tableId === action.payload);
-      const index = state.tableInfo.tables.indexOf(currentTable);
-      state.tableInfo.tables.splice(index, 1);
-    },
   },
   extraReducers: {
     [fetchTableListInShop.pending]: (state) => {
@@ -199,7 +187,7 @@ const TableSlice = createSlice({
     },
   },
 });
-export const { setTableList, setTable, setTableListInArea, setTableInfoPeopleNum, removeTableInfoPeopleNum } = TableSlice.actions;
+export const { setTableList, setTable, setTableListInArea } = TableSlice.actions;
 export const selectTableList = (state) => state.Table.tableList;
 export const selectTable = (state) => state.Table.table;
 export const selectTableInfo = (state) => state.Table.tableInfo;

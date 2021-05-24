@@ -90,7 +90,7 @@ function DishList(props) {
     let copydishObjInOrder = JSON.parse(JSON.stringify(dishObjInOrder));
     let copyDish = JSON.parse(JSON.stringify(dish));
     if (index > -1) {
-      copydishObjInOrder[index].count = copydishObjInOrder[index].count + 1;
+      copydishObjInOrder[index].count += 1;
     } else {
       copyDish.count = 1;
       copydishObjInOrder.push(copyDish);

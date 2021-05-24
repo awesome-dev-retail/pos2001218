@@ -97,10 +97,11 @@ function TableList(props) {
               {item.combination && <div>Share {item.combination} Tables</div>}
               {/* {item.combination && <div>拼{item.combination}桌</div>} */}
               {item.status === "Available" && <div className="wait-plan-order-text">To be ordered</div>}
-              {item.status === "Occupied" && <div className="wait-plan-order-text">${item.GrossAmount ? item.GrossAmount.toFixed(2) : "0.00"}</div>}
+              {item.status === "Occupied" && <div className="wait-plan-order-text">Amount:${item.GrossAmount ? item.GrossAmount.toFixed(2) : "0.00"}</div>}
               <div>
                 <span>
-                  {item.peopleNum || 0}/{item.capacity}
+                  Capacity: {item.capacity}
+                  {/* {item.peopleNum || 0}/{item.capacity} */}
                 </span>
                 <span></span>
               </div>
