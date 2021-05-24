@@ -5,6 +5,7 @@ import tableReducer from "./slices/tableSlice";
 import menuReducer from "./slices/menuSlice";
 import dishReducer from "./slices/dishSlice";
 import documentReducer from "./slices/documentSlice";
+import publicComponentReduer from "./slices/publicComponentSlice";
 // import invoiceReducer from "./slices/invoiceSlice";
 
 export default configureStore({
@@ -15,6 +16,7 @@ export default configureStore({
     Menu: menuReducer,
     Dish: dishReducer,
     Document: documentReducer,
+    PublicComponent: publicComponentReduer,
     // Invoice: invoiceReducer,
   },
   middleware: getDefaultMiddleware({
@@ -46,6 +48,19 @@ export default configureStore({
         "dish/saveInvoice/fulfilled",
 
         "document/fetchDocument/fulfilled",
+
+        "document/saveTempDoc/fulfilled",
+        "document/saveTempDoc/pending",
+        "document/saveTempDoc/rejected",
+
+        "document/connectSocket/pending",
+        "document/connectSocket/fulfilled",
+        "document/connectSocket/rejected",
+
+        "document/invoke/pending",
+        "document/invoke/fulfilled",
+        "document/invoke/rejected",
+
       ],
       // ignoredActions: [],
     },

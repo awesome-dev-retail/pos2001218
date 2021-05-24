@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import CONSTANT from "../configs/CONSTANT";
-import { loginRequest, listShops, listLanes, getCurrentUser, logout } from "../services";
+import { loginRequest, listShops, listLanes, getCurrentUser, logout, listDevicesInShop } from "../services";
 import { UserCredential } from "../configs/data";
 import CacheStorage from "../lib/cache-storage";
 import { message } from "antd";
@@ -15,6 +15,9 @@ const initialState = {
   shops: [],
   devices: [],
   lanes: [],
+  shop: {},
+  device: {},
+  lane: {},
 };
 
 export const fetchShopList = createAsyncThunk("user/fetchShops", async (data, { rejectWithValue }) => {
@@ -73,12 +76,33 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async (data, { rejec
   }
 });
 
+export const fetchDevices = createAsyncThunk("user/fetchDevices", async (data, {getState, rejectWithValue}) => {
+  try {
+    const { Auth } = getState();
+    const { shop } = Auth;
+    const res = await listDevicesInShop(shop.id);
+    if (res.error) throw res.error;
+    return res;
+  } catch (e) {
+    return rejectWithValue(e.message);
+  }
+});
+
 const authSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     setUser(state, action) {
       state.user = action.payload;
+    },
+    setShop(state, action) {
+      state.shop = action.payload;
+    },
+    setDevice(state, action) {
+      //
+    },
+    setLane(state, action) {
+      state.lane = action.payload;
     },
     logoutLocally(state) {
       state.user = null;
@@ -157,11 +181,25 @@ const authSlice = createSlice({
       //Extract token store token
     });
 
+    builder.addCase(fetchDevices.pending, (state, action) => {
+      state.status = CONSTANT.API_STATUS.LOADING;
+    });
+
+    builder.addCase(fetchDevices.fulfilled, (state, action) => {
+      state.status = CONSTANT.API_STATUS.SUCCEEDED;
+      if (action.payload.data && action.payload.data.length > 0) {
+        state.devices = action.payload.data;
+        //todo: hard coding below to replace later
+        state.device = action.payload.data[1];
+        console.log(action.payload);
+      }
+    });
+
     // Error handle
   },
 });
 
-export const { setUser, logoutLocally, setToken } = authSlice.actions;
+export const { setUser, logoutLocally, setToken, setShop, setDevice, setLane} = authSlice.actions;
 
 export const selectUserToken = (state) => state.Auth.token;
 export const selectIsLogin = (state) => state.Auth.user;
@@ -169,5 +207,9 @@ export const selectCurrentUser = (state) => state.Auth.user;
 export const selectShops = (state) => state.Auth.shops;
 export const selectLanes = (state) => state.Auth.lanes;
 export const selectAuthIsLoading = (state) => state.Auth.status === CONSTANT.API_STATUS.LOADING || state.Auth.status === CONSTANT.API_STATUS.IDLE;
+export const selectShop = state => state.Auth.shop;
+export const selectLane = state => state.Auth.lane;
+export const selectDevices = state => state.Auth.devices;
+export const selectDevice = state => state.Auth.device;
 
 export default authSlice.reducer;

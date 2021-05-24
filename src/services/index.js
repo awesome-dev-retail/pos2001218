@@ -188,6 +188,29 @@ export const listLanes = () => {
   });
 };
 
+export const listDevicesInShop = (shopId) => {
+  return api.request({
+    url: `pos/config/device/list_in_shop?shopId=${shopId}`,
+    method: "GET"
+  });
+};
+
+export const saveTemporaryPayment = (data) => {
+  return api.request({
+    url: "pos/data/temporary_payment/save",
+    method: "POST",
+    data: data
+  });
+};
+
+export const invokePos = params => {
+  return api.request({
+    url: "payment/pos/invoke",
+    data: params,
+    method: "POST"
+  });
+};
+
 // import api from "./api";
 // import { UserCredential } from "../configs/data";
 //

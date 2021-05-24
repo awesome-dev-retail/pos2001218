@@ -5,7 +5,7 @@ import { UserOutlined, LockOutlined} from "@ant-design/icons";
 import CONSTANT from "../../configs/CONSTANT";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import {fetchShopList, fetchLaneList,selectShops,selectLanes, setToken, fetchUser,userLogOut,selectCurrentUser,selectIsLogin, selectAuthIsLoading
+import {fetchShopList, selectShop, selectLane, setShop, setLane, fetchLaneList,selectShops,selectLanes, setToken, fetchUser,userLogOut,selectCurrentUser,selectIsLogin, selectAuthIsLoading
 } from "../../slices/authSlice";
 import CacheStorage from "../../lib/cache-storage";
 import PageLoading from "../../components/PageLoading";
@@ -19,34 +19,31 @@ const SelectShop = (props) => {
 	const dispatch = useDispatch();
 	const shopList = useSelector(state => selectShops(state));
 	const laneList = useSelector(state => selectLanes(state));
-	const [shopValue, setShopValue] = useState();
-	const [laneValue, setLaneValue] = useState();
 	const token = CacheStorage.getItem("token");
 	const isLogin = useSelector(state => selectIsLogin(state));
 	const currentUser = useSelector(state => selectCurrentUser(state));
 	const isLoading = useSelector(state => selectAuthIsLoading(state));
 	// const [isLoading, setIsLoading] = useState(true);
-	const selectShop = CacheStorage.getItem("SELECT_SHOP");
-	const selectLane = CacheStorage.getItem("SELECT_LANE");
+	const localShop = CacheStorage.getItem("SELECT_SHOP");
+	const localLane = CacheStorage.getItem("SELECT_LANE");
+	const shop = useSelector(state => selectShop(state));
+	const lane = useSelector(state => selectLane(state));
 
 
 
 	useEffect(() => {
 		if (token) {
-			console.log(token);
 			dispatch(setToken(token));
 			dispatch(fetchUser());
 		}
 		dispatch(fetchShopList());
 		dispatch(fetchLaneList());
 
-		// setIsLoading(false);
-
-		if(selectShop) {
-			setShopValue(selectShop);	
+		if(localShop) {
+			dispatch(setShop(localShop));
 		}
-		if(selectLane) {
-			setLaneValue(selectLane);
+		if(localLane) {
+			dispatch(setLane(localLane));
 		}
 	}, []);
 
@@ -60,17 +57,24 @@ const SelectShop = (props) => {
     };
 
     const handleShopChange = (value)=> {
-		console.log(`selected ${value}`);
-		CacheStorage.setItem("SELECT_SHOP", value);
-		const selectShop = CacheStorage.getItem("SELECT_SHOP");
-		setShopValue(selectShop);
+    	const selectedShop = shopList.find(shop => shop.shop_name === value);
+    	if (selectedShop) {
+			CacheStorage.setItem("SELECT_SHOP", selectedShop);
+			//const shop = CacheStorage.getItem("SELECT_SHOP");
+			// setShopValue(selectShop);
+			dispatch(setShop(selectedShop));
+		}
 	};
 
 	const handleLaneChange = (value)=> {
-		console.log(`selected ${value}`);
-		CacheStorage.setItem("SELECT_LANE", value);
-		const selectShop = CacheStorage.getItem("SELECT_LANE");
-		setShopValue(selectLane);
+		const selectLane = laneList.find(lane => lane.lane_name === value);
+		if (selectLane) {
+			CacheStorage.setItem("SELECT_LANE", selectLane);
+			dispatch(setLane(selectLane));
+		}
+		// console.log(`selected ${value}`);
+		// const selectShop = CacheStorage.getItem("SELECT_LANE");
+		// setShopValue(selectLane);
 	};
 
 	return (
@@ -99,7 +103,7 @@ const SelectShop = (props) => {
 				>
 				<Select 
 					placeholder="Select a Shop" 
-					value={shopValue}
+					value={shop.shop_name}
                     style={{border: 0}}
                     onChange={handleShopChange}
 				>
@@ -117,7 +121,7 @@ const SelectShop = (props) => {
 
 				<Select 
 					placeholder="Select a Lane" 
-					value={laneValue}
+					value={lane.lane_name}
                     style={{border: 0}}
                     onChange={handleLaneChange}
 				> 

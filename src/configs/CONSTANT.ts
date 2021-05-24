@@ -14,4 +14,8 @@ export default {
     SUCCEEDED: "succeeded",
     FAILED: "failed",
   },
+  TIME_FORMAT: {
+    BACKEND_DATETIME: "YYYY-MM-DD HH:mm:ss",
+    FRONTEND_DATE: "DD/MM/YYYY"
+  }
 };

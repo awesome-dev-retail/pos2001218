@@ -12,7 +12,8 @@ import zfb from "../../assets/images/zfb.png";
 import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch } from "react-redux";
 import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
-import { fetchDocument } from "../../slices/documentSlice";
+import {fetchDocument, saveTempPayment, selectDocument} from "../../slices/documentSlice";
+import { setMessageBox, selectMessageBox } from "../../slices/publicComponentSlice";
 
 import "./Cashier.scss";
 import { Input } from "antd";
@@ -23,8 +24,9 @@ const Cashier = (props) => {
   const [showCalcultor, setShowCalcultor] = useState(true);
   const [money, setMoney] = useState({});
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
-
+  const document = useSelector(state => selectDocument(state));
   const dispatch = useDispatch();
+  const messageBox = useSelector(state => selectMessageBox(state));
 
   useEffect(() => {
     // eslint-disable-next-line react/prop-types
@@ -132,8 +134,34 @@ const Cashier = (props) => {
       // console.log(name);
       setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
+    } else if (name === "EFT-POS") {
+      console.log(document);
+      processEFTPOS();
+      // let initMessageBox = {
+      //   title: "EFTPOS PROCESS",
+      //   contentList: ["PLEASE WAIT", "CONNECTING EFTPOS PROVIDER SERVER"],
+      //   btnList: [
+      //   ],
+      //   processing: "Connecting",
+      //   visible: true,
+      // };
+      // dispatch(setMessageBox(initMessageBox));
     }
   };
+
+  const processEFTPOS = () => {
+
+    dispatch(saveTempPayment({amount: payMoney}));
+    // Save temp payment
+    // Invoke
+    // Socket
+  };
+
+  const handleDevBtnClick = () => {
+    console.log(document);
+  };
+
+
   return (
     <div className="right-container cashier">
       <div className="cashier-container">
@@ -158,6 +186,7 @@ const Cashier = (props) => {
                 </div>
               ))}
             </div>
+            <button onClick={handleDevBtnClick}>Dev</button>
           </div>
         ) : (
           <div className="cash-page">

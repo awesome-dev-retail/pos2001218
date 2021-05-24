@@ -1,0 +1,89 @@
+
+.modalWrapper{
+  position: fixed;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(241, 242, 242, 0.7);
+  filter: alpha(opacity=50);
+
+  .active{
+    display: block;
+  }
+  .hide{
+    display: none;
+  }
+  .antModal{
+    width: 520px;
+    height: 300px;
+    box-sizing: border-box;
+    padding: 0;
+    color: rgba(0,0,0,0.65);
+    font-size: 14px;
+    line-height: 1.5;
+    list-style: none;
+    margin: 0 auto;
+    padding-bottom: 24px;
+  }
+  .connecting{
+    width: 50%;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    .connecting-hints{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  .socket-pop-up-status {
+    width: 100%;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 0;
+    z-index: 9999;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    .new-layout-title{
+
+    }
+
+    .new-body-layout{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 170px;
+      .content-pos-websocket{
+        text-align: center;
+        font-size: 20px;
+      }
+    }
+
+    .new-footer-layout{
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      .ant-card{
+        margin: 0 20px;
+      }
+      .ant-btn{
+        margin: 0 20px;
+      }
+    }
+
+    .cancel-socket-btn{
+      cursor: pointer;
+    }
+  }
+}
+

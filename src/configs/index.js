@@ -9,3 +9,7 @@ export default {
     FAILED: "failed",
   },
 };
+
+export const getWebSocketBaseUrl = (url) => {
+  return url.replace("http", "ws");
+};

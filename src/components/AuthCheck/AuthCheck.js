@@ -7,7 +7,16 @@ import CacheStorage from "../../lib/cache-storage";
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dropdown, Avatar, Layout, Spin } from "antd";
 import UIMenu from "../UIMenu";
-import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectAuthIsLoading } from "../../slices/authSlice";
+import {
+  fetchUser,
+  setUser,
+  setToken,
+  selectIsLogin,
+  selectCurrentUser,
+  selectAuthIsLoading,
+  fetchDevices,
+  setShop, setLane
+} from "../../slices/authSlice";
 import { history } from "../MyRouter";
 
 const AuthCheck = (props) => {
@@ -16,11 +25,23 @@ const AuthCheck = (props) => {
   const isLoading = useSelector((state) => selectAuthIsLoading(state));
   const token = CacheStorage.getItem("token");
   const dispatch = useDispatch();
+  const localShop = CacheStorage.getItem("SELECT_SHOP");
+  const localLane = CacheStorage.getItem("SELECT_LANE");
 
   useEffect(() => {
     if (token) {
       dispatch(setToken(token));
       dispatch(fetchUser());
+
+      if(localShop) {
+        dispatch(setShop(localShop));
+      }
+      if(localLane) {
+        dispatch(setLane(localLane));
+      }
+
+      dispatch(fetchDevices());
+
     } else {
       history.push("./login");
     }

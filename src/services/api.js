@@ -165,7 +165,6 @@ class HttpRequest {
     //     //dd('API request sending to ', options.url);
     // }
     const insideConfig = this.getInsideConfig();
-    console.log(insideConfig);
     const nocache = options.nocache ? options.nocache : insideConfig.nocache;
     if (nocache) {
       options.url = options.url + "?nocache=" + new Date().getTime();
