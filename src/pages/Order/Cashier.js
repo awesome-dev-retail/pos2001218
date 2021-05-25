@@ -10,9 +10,9 @@ import zfb from "../../assets/images/zfb.png";
 // import tag from "../../assets/images/tag.png";
 // import free from "../../assets/images/free.png";
 import banckCard from "../../assets/images/banck-card.png";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, useStore } from "react-redux";
 import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
-import {fetchDocument, saveTempPayment, selectDocument} from "../../slices/documentSlice";
+import {fetchDocument, processEFTPOS, selectDocument} from "../../slices/documentSlice";
 import { setMessageBox, selectMessageBox } from "../../slices/publicComponentSlice";
 
 import "./Cashier.scss";
@@ -26,6 +26,7 @@ const Cashier = (props) => {
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
   const document = useSelector(state => selectDocument(state));
   const dispatch = useDispatch();
+  const store = useStore();
   const messageBox = useSelector(state => selectMessageBox(state));
 
   useEffect(() => {
@@ -136,7 +137,7 @@ const Cashier = (props) => {
     } else if (name === "SPLIT PAYMENT") {
     } else if (name === "EFT-POS") {
       console.log(document);
-      processEFTPOS();
+      processEFTPOSTransaction();
       // let initMessageBox = {
       //   title: "EFTPOS PROCESS",
       //   contentList: ["PLEASE WAIT", "CONNECTING EFTPOS PROVIDER SERVER"],
@@ -149,16 +150,16 @@ const Cashier = (props) => {
     }
   };
 
-  const processEFTPOS = () => {
+  const processEFTPOSTransaction = () => {
 
-    dispatch(saveTempPayment({amount: payMoney}));
+    dispatch(processEFTPOS({amount: payMoney}));
     // Save temp payment
     // Invoke
     // Socket
   };
 
   const handleDevBtnClick = () => {
-    console.log(document);
+    console.log(store.getState());
   };
 
 

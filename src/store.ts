@@ -47,11 +47,12 @@ export default configureStore({
         "dish/calculateInvoice/fulfilled",
         "dish/saveInvoice/fulfilled",
 
+        "document/fetchDocument/pending",
         "document/fetchDocument/fulfilled",
 
-        "document/saveTempDoc/fulfilled",
-        "document/saveTempDoc/pending",
-        "document/saveTempDoc/rejected",
+        "document/processEFTPOS/fulfilled",
+        "document/processEFTPOS/pending",
+        "document/processEFTPOS/rejected",
 
         "document/connectSocket/pending",
         "document/connectSocket/fulfilled",
@@ -60,6 +61,18 @@ export default configureStore({
         "document/invoke/pending",
         "document/invoke/fulfilled",
         "document/invoke/rejected",
+
+        "document/setLastMessage",
+        "document/setCurrentTransactionIsAccepted",
+
+
+
+        "document/setCurrentTransactionId",
+
+        "public-component/setMessageBox",
+        "public-component/setErrorBox",
+        "public-component/resetMessageBox",
+        "public-component/resetErrorBox",
 
       ],
       // ignoredActions: [],

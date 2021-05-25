@@ -14,6 +14,7 @@ import AuthCheck from "./AuthCheck/AuthCheck";
 import SelectShop from "../pages/Login/SelectShop";
 import PageLoading from "./PageLoading";
 import MessageBox from "./MessageBox";
+import ErrorBox from "./ErrorBox";
 
 const history = createBrowserHistory();
 
@@ -29,6 +30,7 @@ const MyRouter = () => {
             <Route path={CONSTANT.ROUTES.ORDER} component={OrderPage} />
             <Route path={CONSTANT.ROUTES.ABOUT} component={AboutPage} />
             <MessageBox />
+            <ErrorBox />
           </Suspense>
         </AuthCheck>
       </Switch>

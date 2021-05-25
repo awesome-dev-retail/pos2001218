@@ -190,7 +190,7 @@ const authSlice = createSlice({
       if (action.payload.data && action.payload.data.length > 0) {
         state.devices = action.payload.data;
         //todo: hard coding below to replace later
-        state.device = action.payload.data[1];
+        state.device = action.payload.data[2];
         console.log(action.payload);
       }
     });

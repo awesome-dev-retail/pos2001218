@@ -42,11 +42,12 @@ export default class Document {
   hasUncompletedTransaction = () => {
     if (this.transactionId) {
       const payment = this.payment_lines.find (item => item .transactionId === this.transactionId);
-      if (payment && payment.is_paid === false) {
-        return true;
-      } else {
-        return true;
-      }
+      return !payment;
+      // if (payment && payment.is_paid === false) {
+      //   return true;
+      // } else {
+      //   return true;
+      // }
     }
     return false;
   }
