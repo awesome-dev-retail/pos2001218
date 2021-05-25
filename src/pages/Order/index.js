@@ -18,6 +18,7 @@ import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, Quest
 import moment from "moment";
 // import "./index.less";
 import "./index.scss";
+import CacheStorage from "../../lib/cache-storage";
 
 const Order = (props) => {
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
@@ -26,6 +27,9 @@ const Order = (props) => {
   const [showMore, setShowMore] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
 
+  useEffect(() => {
+    console.log("invoice---------------?????", CacheStorage.getItem("invoice_1_56"));
+  }, []);
   return (
     // <div className="order-page-container">
     //   <main className="main">

@@ -142,6 +142,13 @@ export const fetchDocumentRequest = (invoiceID) => {
     method: "get",
   });
 };
+
+export const cancelInvoiceRequest = (invoiceID) => {
+  return api.request({
+    url: `/pos/data/invoice/cancel/${invoiceID}`,
+    method: "post",
+  });
+};
 //====================document end
 
 //====================payment start
@@ -150,6 +157,12 @@ export const savePaymentRequest = (payment) => {
     url: "/pos/data/payment/save",
     method: "post",
     data: payment,
+  });
+};
+export const completePaymentRequest = (invoiceID) => {
+  return api.request({
+    url: `/pos/data/invoice/post/${invoiceID}`,
+    method: "post",
   });
 };
 //====================payment end

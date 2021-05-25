@@ -37,7 +37,8 @@ import {
 } from "../../slices/dishSlice";
 import { selectInvoice } from "../../slices/dishSlice";
 
-import { fetchDocument } from "../../slices/documentSlice";
+import { cancelInvoice } from "../../slices/documentSlice";
+import { selectDocument } from "../../slices/documentSlice";
 
 import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
@@ -80,6 +81,8 @@ function OrderList(props) {
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
+
+  const documentFromSlice = useSelector((state) => selectDocument(state));
 
   const { confirm } = Modal;
   useEffect(async () => {
@@ -321,6 +324,10 @@ function OrderList(props) {
     }
     return dom;
   }, [currentMeun, currentTabIndex, currentDish]);
+
+  const handleCancelPayment = () => {
+    dispatch(cancelInvoice(documentFromSlice.id));
+  };
   return (
     <div className="table-info-container">
       <div className="inner">
@@ -413,7 +420,8 @@ function OrderList(props) {
             </div>
           </div>
           <div className="btn-group">
-            <button>Add Dish</button>
+            <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
+            {/* <button>Add Dish</button> */}
             {!cashierStatus && <button onClick={handleUpdateCashierStatus}>Checkout</button>}
           </div>
         </div>

@@ -48,8 +48,10 @@ export default configureStore({
         "dish/saveInvoice/fulfilled",
 
         "document/fetchDocument/fulfilled",
+        "document/cancelInvoice/fulfilled",
 
         "payment/savePayment/fulfilled",
+        "payment/completePayment/fulfilled",
       ],
       // ignoredActions: [],
     },
