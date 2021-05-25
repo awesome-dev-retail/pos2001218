@@ -38,7 +38,6 @@ export const fetchDocument = createAsyncThunk("document/fetchDocument", async (i
 export const cancelInvoice = createAsyncThunk("document/cancelDocument", async (invoiceID, { rejectWithValue }) => {
   try {
     const res = await cancelInvoiceRequest(invoiceID);
-    debugger;
     if (res.error) throw res.error;
     console.log("cancelDocument--------------", res);
     return res;

@@ -15,6 +15,7 @@ import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../..
 import { fetchDocument } from "../../slices/documentSlice";
 import { selectDocument } from "../../slices/documentSlice";
 import { savePayment, completePayment } from "../../slices/paymentSlice";
+import { selectPayment } from "../../slices/paymentSlice";
 
 import { createPayment } from "../../services/createPayment";
 
@@ -28,6 +29,7 @@ const Cashier = (props) => {
   const [money, setMoney] = useState({});
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
   const documentFromSlice = useSelector((state) => selectDocument(state)) || {};
+  const paymentFromSlice = useSelector((state) => selectPayment(state)) || {};
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -136,7 +138,6 @@ const Cashier = (props) => {
       // console.log(name);
       const copyDocument = JSON.parse(JSON.stringify(documentFromSlice));
       const payment = createPayment(copyDocument, payMoney);
-      debugger;
       dispatch(savePayment(payment));
       setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
@@ -144,6 +145,7 @@ const Cashier = (props) => {
   };
 
   const handleCompletePayment = () => {
+    // debugger;
     // eslint-disable-next-line react/prop-types
     const pathname = props.location.pathname + "";
     const invoiceID = pathname.split("/")[3] * 1;
@@ -184,8 +186,9 @@ const Cashier = (props) => {
           <div className="cash-page">
             <div className="title">Finalise Sale</div>
             <div className="cashier-inner">
-              <div className="give-money-tip">Change required from:${payMoney}</div>
-              <Input className="total-input" value={`$${(payMoney - money.price).toFixed(2)}`} />
+              <div className="give-money-tip">Change required from:${documentFromSlice.doc_gross_amount ? (documentFromSlice.doc_gross_amount.toFixed(1) * 1).toFixed(2) : 0}</div>
+              <Input className="total-input" value={paymentFromSlice ? paymentFromSlice.Change : ""} />
+              {/* <Input className="total-input" value={`$${(payMoney - money.price).toFixed(2)}`} /> */}
               <div className="quick-operation-btn">
                 <div>PRINT RECEIPT</div>
                 <div>EMAIL RECEIPT</div>

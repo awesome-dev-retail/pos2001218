@@ -422,7 +422,7 @@ function OrderList(props) {
           <div className="btn-group">
             <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
             {/* <button>Add Dish</button> */}
-            {!cashierStatus && <button onClick={handleUpdateCashierStatus}>Checkout</button>}
+            {!cashierStatus && <button onClick={handleUpdateCashierStatus}>PAY</button>}
           </div>
         </div>
       </div>
