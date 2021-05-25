@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { DownOutlined } from "@ant-design/icons";
 
 import huangguan from "../../assets/images/huangguan.png";
@@ -10,27 +10,36 @@ import zfb from "../../assets/images/zfb.png";
 // import free from "../../assets/images/free.png";
 import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch } from "react-redux";
-import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
+import { selectDishObjInOrder, setDishObjInOrder, selectShowSplitOrder, setShowSplitOrder, setPaidPriceArr, selectPaidPriceArr } from "../../slices/dishSlice";
 
 import "./Cashier.scss";
 import { Input } from "antd";
 
 const Cashier = (props) => {
+  const dispatch = useDispatch();
   const [showCashPage, setShowCashPage] = useState(false);
   const [payMoney, setPayMoney] = useState(0);
-  const [showCalcultor, setShowCalcultor] = useState(true);
   const [money, setMoney] = useState({});
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
+  const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
+  const paidPriceArr = useSelector((state) => selectPaidPriceArr(state));
+
   useEffect(() => {
+    console.log("dishObjFromSlice=====", dishObjFromSlice);
     let price = 0,
       oldPrice = 0;
     dishObjFromSlice.forEach((item) => {
-      price += (item.count || 1) * item.unit_price;
+      if (showSplitOrder && item.checked) {
+        price += (item.count || 1) * item.unit_price;
+      } else if (!showSplitOrder) {
+        price += (item.count || 1) * item.unit_price;
+      }
       oldPrice += (item.count || 1) * item.unit_cost;
     });
     setPayMoney(price);
     setMoney({ price, oldPrice });
   }, [dishObjFromSlice]);
+
 
   const discountList = [
     {
@@ -117,9 +126,21 @@ const Cashier = (props) => {
 
   const handleClickOperation = (name) => {
     if (name === "CASH") {
-      // console.log(name);
+      let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+      let paidPrice = 0;
+      let notPaidOrder = copyDishOrder.filter((i) => {
+        if (i.checked) {
+          paidPrice += (i.count || 1) * i.unit_price;
+        }
+        return i.checked !== true;
+      });
+      let tempPaidPriceArr = [...paidPriceArr];
+      tempPaidPriceArr.push(paidPrice);
+      dispatch(setDishObjInOrder(notPaidOrder));
+      dispatch(setPaidPriceArr(tempPaidPriceArr));
       setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
+      dispatch(setShowSplitOrder(true));
     }
   };
   return (
@@ -157,7 +178,7 @@ const Cashier = (props) => {
                 <div>PRINT RECEIPT</div>
                 <div>EMAIL RECEIPT</div>
               </div>
-              <div className="complete-btn">COMPELETE SALE</div>
+              <div className="complete-btn" onClick={() => setShowCashPage(false)}>COMPELETE SALE</div>
             </div>
           </div>
         )}

@@ -4,7 +4,7 @@ import { history } from "../../components/MyRouter";
 
 import CacheStorage from "../../lib/cache-storage";
 
-import { Badge, Modal, Button } from "antd";
+import { Badge, Modal, Button, Checkbox } from "antd";
 import {
   MenuOutlined,
   PrinterOutlined,
@@ -29,10 +29,12 @@ import {
   setCurrentDish,
   selectCurrentDish,
   selectCashierStatus,
+  selectShowSplitOrder,
   setShowCashier,
   calculateInvoice,
   saveInvoice,
   setCurrentInvoice,
+  selectPaidPriceArr
 } from "../../slices/dishSlice";
 import { selectInvoice } from "../../slices/dishSlice";
 
@@ -55,6 +57,7 @@ function OrderList(props) {
 
   const [showMore, setShowMore] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
+  const [orderTabIndex, setOrderTabIndex] = useState(0);
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const tableMenus = [
     // { name: "规格/做法", key: "spec" },
@@ -73,12 +76,15 @@ function OrderList(props) {
   const tableId = pathname.split("/")[3] * 1;
   const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
+  const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
   const currentDish = useSelector((state) => selectCurrentDish(state));
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
+  const paidPriceArr = useSelector((state) => selectPaidPriceArr(state));
+  console.log("paidPriceArr-------", paidPriceArr);
 
   const { confirm } = Modal;
   useEffect(async () => {
@@ -103,7 +109,6 @@ function OrderList(props) {
     if (currentDish.id) {
       let copyCurrentDish = JSON.parse(JSON.stringify(currentDish));
       copyCurrentDish.count += value;
-      // 数量为0  删除
       if (!copyCurrentDish.count) {
         // setCurrentDish({});
         dispatch(setCurrentDish({}));
@@ -190,7 +195,7 @@ function OrderList(props) {
     let count = 0,
       price = 0,
       oldPrice = 0;
-    dishObjFromSlice.forEach((item) => {
+    dishObjFromSlice.filter(Boolean).forEach((item) => {
       count += item.count || 1;
       price += (item.count || 1) * item.unit_price;
       oldPrice += (item.count || 1) * item.unit_cost;
@@ -275,6 +280,28 @@ function OrderList(props) {
     copyDishObjFromSlice.splice(index, 1, currentDishCopy);
     dispatch(setDishObjInOrder(copyDishObjFromSlice));
   };
+
+  const handleSetTab = (index) => {
+    setOrderTabIndex(index);
+  };
+
+  const handleChangeBox = (e, index) => {
+    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
+    let { checked } = e.target;
+    copyDishObjFromSlice[index].checked = checked;
+    dispatch(setDishObjInOrder(copyDishObjFromSlice));
+  };
+
+  const getCheckDishObjInOrderPrice = useMemo(() => {
+    let price = 0;
+    dishObjFromSlice.forEach(item => {
+      if (item.checked) {
+        price += (item.count || 1) * item.unit_price;
+      }
+    });
+    return price;
+  }, [dishObjFromSlice]);
+
   const drawerDom = useMemo(() => {
     let dom = null;
     if (currentMeun === "feeding") {
@@ -332,9 +359,20 @@ function OrderList(props) {
             {/* <span>桌台1，人数12/12</span> */}
             {/* <CaretDownOutlined /> */}
           </div>
+          {showSplitOrder && <div className="order-tabs">
+            {["Items", "Portion"].map((item, index) => (
+              <div key={item} className={index === orderTabIndex ? "current-order-tab" : ""} onClick={() => handleSetTab(index)}>{item}</div>
+            ))}
+          </div>
+          }
+          {showSplitOrder && paidPriceArr.map((item, index) => (
+            <div key={item} className="paid-line"><span>Payment {index + 1} - Cash</span><span>${item}</span></div>
+          ))
+          }
           <div className="bill-list">
             {dishObjFromSlice.map((item, index) => (
               <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
+                {showSplitOrder && <Checkbox className="check-box" onChange={(e) => handleChangeBox(e, index)}></Checkbox>}
                 <div>
                   <div className="bill-name">
                     <div>{item.description}</div>
@@ -369,47 +407,61 @@ function OrderList(props) {
               <div className="old-price">Price: ${total.oldPrice}</div>
             </div>
           </div> */}
-          <div className="tatal-money-container">
-            <div className="tatal-money-top">
-              <div>
-                <img src={morentouxiang} alt="morentouxiang" />0
-              </div>
-              <div>
+          {!showSplitOrder ?
+            <div className="tatal-money-container">
+              <div className="tatal-money-top">
                 <div>
-                  <img src={sousuo} alt="sousuo" />
+                  <img src={morentouxiang} alt="morentouxiang" />0
+              </div>
+                <div>
+                  <div>
+                    <img src={sousuo} alt="sousuo" />
                   Customer
                 </div>
-                <div className="tatal-top-right">
-                  <div>N/A</div>POINTS
+                  <div className="tatal-top-right">
+                    <div>N/A</div>POINTS
                 </div>
+                </div>
+              </div>
+              <div className="tatal-money-content">
+                <div className="left">
+                  <div className="left-line">
+                    <span className="label">DISCOUNT</span>
+                    <span className="text">$0</span>
+                    {/* <span className="text">${(total.oldPrice - total.price).toFixed(2)}</span> */}
+                  </div>
+                  <div className="left-line">
+                    <span className="label">SUBTOTAL</span>
+                    <span className="text">${(0.85 * total.price).toFixed(2)}</span>
+                  </div>
+                  <div className="left-line">
+                    <span className="label">TAX(GST)</span>
+                    <span className="text">${(0.15 * total.price).toFixed(2)}</span>
+                  </div>
+                </div>
+                <div className="content">
+                  <span>TOTAL</span>
+                  <div className="content-total">${total.price}</div>
+                </div>
+                <div className="right">
+                  <div>NEW CUSTOMER</div>
+                  <div>ORDER DETAILS</div>
+                </div>
+              </div>
+            </div> :
+            <div className="tatal-money-container-split">
+              <div>
+                <span>Total:</span>
+                <div className="total-money">${total.price}</div>
+              </div>
+              <div>
+                <div>Amount paying:<span className="total-money-right">${getCheckDishObjInOrderPrice}</span></div>
+                <div>Remaining Due:<span>${total.price}</span></div>
+                <div>Rounding Amount:<span>${total.price}</span></div>
+                <div>Amount paid:<span>${paidPriceArr[paidPriceArr.length - 1] || 0}</span></div>
               </div>
             </div>
-            <div className="tatal-money-content">
-              <div className="left">
-                <div className="left-line">
-                  <span className="label">DISCOUNT</span>
-                  <span className="text">$0</span>
-                  {/* <span className="text">${(total.oldPrice - total.price).toFixed(2)}</span> */}
-                </div>
-                <div className="left-line">
-                  <span className="label">SUBTOTAL</span>
-                  <span className="text">${(0.85 * total.price).toFixed(2)}</span>
-                </div>
-                <div className="left-line">
-                  <span className="label">TAX(GST)</span>
-                  <span className="text">${(0.15 * total.price).toFixed(2)}</span>
-                </div>
-              </div>
-              <div className="content">
-                <span>TOTAL</span>
-                <div className="content-total">${total.price}</div>
-              </div>
-              <div className="right">
-                <div>NEW CUSTOMER</div>
-                <div>ORDER DETAILS</div>
-              </div>
-            </div>
-          </div>
+          }
           <div className="btn-group">
             <div>Add Dish</div>
             {!cashierStatus && <div onClick={handleUpdateCashierStatus}>Checkout</div>}

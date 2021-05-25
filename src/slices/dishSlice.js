@@ -14,6 +14,9 @@ const initialState = {
   dishObjInOrder: [],
   // addedDish: null,
   invoice: {},
+  showSplitOrder: false,
+  splitOrder: [],
+  paidPriceArr: [],
   showCashier: false,
   currentDish: {},
   status: "",
@@ -118,6 +121,14 @@ const DishSlice = createSlice({
     setCurrentInvoice(state, action) {
       state.invoice = action.payload;
     },
+    setShowSplitOrder(state, action) {
+      state.showSplitOrder = action.payload;
+    },
+    setPaidPriceArr(state, action) {
+      state.paidPriceArr = action.payload;
+    },
+
+
   },
   extraReducers: {
     [calculateInvoice.pending]: (state) => {
@@ -238,10 +249,12 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder, setCurrentDish, setShowCashier, setCurrentInvoice } = DishSlice.actions;
+export const { setDishObjInOrder, setCurrentDish, setShowCashier, setCurrentInvoice, setShowSplitOrder, setPaidPriceArr } = DishSlice.actions;
 
 export const selectInvoice = (state) => state.Dish.invoice;
 export const selectCashierStatus = (state) => state.Dish.showCashier;
+export const selectShowSplitOrder = (state) => state.Dish.showSplitOrder;
+export const selectPaidPriceArr = (state) => state.Dish.paidPriceArr;
 
 export const selectDishList = (state) => state.Dish.dish;
 export const selectCurrentDish = (state) => state.Dish.currentDish;

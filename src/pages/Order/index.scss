@@ -1,4 +1,4 @@
-@import "../../lib.scss";
+@import '../../lib.scss';
 
 .order-page-container {
   // .header {
@@ -80,6 +80,10 @@
             &.bill-item-current {
               background: #c6daf6;
             }
+            .check-box {
+              transform: scale(1.5);
+              margin-right: 20px;
+            }
             .bill-name {
               flex: 1;
               > div:first-of-type {
@@ -108,6 +112,31 @@
             }
           }
         }
+        .order-tabs {
+          display: flex;
+          align-items: center;
+          > div {
+            flex-basis: 50%;
+            text-align: center;
+            background: #ccc;
+            height: 50px;
+            line-height: 50px;
+            cursor: pointer;
+            &.current-order-tab {
+              background: #fff;
+              box-shadow: 0 0 2px 2px #efefef;
+            }
+          }
+        }
+      }
+      .paid-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #efefef;
+        height: 50px;
+        line-height: 50px;
+        padding: 0 15px;
       }
       .table-bottom {
         padding: 15px 20px;
@@ -132,7 +161,7 @@
           }
           .tatal-money-top {
             display: flex;
-            border: 1px solid #efefef;
+            border: 1px solid #ccc;
             height: 40px;
             line-height: 40px;
             font-weight: bold;
@@ -145,7 +174,7 @@
             > div:first-of-type {
               flex-basis: 20%;
               text-align: center;
-              border-right: 1px solid #efefef;
+              border-right: 1px solid #ccc;
             }
             > div:last-of-type {
               flex: 1;
@@ -164,7 +193,7 @@
             }
           }
           .tatal-money-content {
-            border: 1px solid #efefef;
+            border: 1px solid #ccc;
             border-top: none;
             display: flex;
             font-size: 12px;
@@ -174,7 +203,7 @@
             }
             .left {
               flex-basis: 40%;
-              border-right: 1px solid #efefef;
+              border-right: 1px solid #ccc;
               .left-line {
                 display: flex;
                 align-items: center;
@@ -194,7 +223,7 @@
               flex-basis: 26%;
               text-align: right;
               font-weight: bold;
-              border-right: 1px solid #efefef;
+              border-right: 1px solid #ccc;
               div {
                 color: $bizex-pink;
                 font-size: 18px;
@@ -208,12 +237,32 @@
                 text-align: center;
               }
               > div:first-of-type {
-                border-bottom: 1px solid #efefef;
+                border-bottom: 1px solid #ccc;
               }
               > div:last-of-type {
                 padding-top: 15px;
               }
             }
+          }
+        }
+        .tatal-money-container-split {
+          display: flex;
+          justify-content: space-between;
+          color: #999;
+          > div:first-of-type {
+            .total-money {
+              font-weight: bold;
+              font-size: 20px;
+              color: $bizex-pink;
+            }
+          }
+          > div:last-of-type span {
+            color: #000;
+            margin-left: 5px;
+          }
+          .total-money-right {
+            font-weight: bold;
+            font-size: 18px;
           }
         }
         .btn-group {
