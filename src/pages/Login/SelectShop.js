@@ -5,11 +5,11 @@ import { UserOutlined, LockOutlined} from "@ant-design/icons";
 import CONSTANT from "../../configs/CONSTANT";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import {fetchShopList, fetchLaneList,selectShops,selectLanes, setToken, fetchUser,userLogOut,selectCurrentUser,selectIsLogin, selectAuthIsLoading
+import {fetchShopList, fetchLaneList,selectShops,selectLanes, setToken, fetchUser,userLogOut,selectCurrentUser,selectIsLogin, selectAuthIsLoading, setCurrentShop
 } from "../../slices/authSlice";
 import CacheStorage from "../../lib/cache-storage";
 import PageLoading from "../../components/PageLoading";
-
+import {db, message} from "../../lib";
 
 const { Option } = Select;
 
@@ -29,7 +29,10 @@ const SelectShop = (props) => {
 	const selectShop = CacheStorage.getItem("SELECT_SHOP");
 	const selectLane = CacheStorage.getItem("SELECT_LANE");
 
-
+	const handleButton = ()=>{
+		// db.sendLogsToServer();
+		message.error;
+	};
 
 	useEffect(() => {
 		if (token) {
@@ -62,8 +65,9 @@ const SelectShop = (props) => {
     const handleShopChange = (value)=> {
 		console.log(`selected ${value}`);
 		CacheStorage.setItem("SELECT_SHOP", value);
-		const selectShop = CacheStorage.getItem("SELECT_SHOP");
-		setShopValue(selectShop);
+		// const selectShop = CacheStorage.getItem("SELECT_SHOP");
+		setShopValue(value);
+		dispatch(setCurrentShop);
 	};
 
 	const handleLaneChange = (value)=> {
@@ -105,7 +109,7 @@ const SelectShop = (props) => {
 				>
 				{
 					shopList.length > 0 && 
-						shopList.map((shop, index) => <Option key={index} value={shop.shop_name}>{shop.shop_name}</Option>)
+						shopList.map((shop, index) => <Option key={index} value={shop.id}>{shop.shop_name}</Option>)
 				}
                 </Select>
 				</Form.Item>
@@ -137,6 +141,7 @@ const SelectShop = (props) => {
 				</Button>
 				</Form.Item>
     		</Form>	
+			<Button onClick={handleButton}>Add</Button>
 		</Spin>
 		}
 		</div>

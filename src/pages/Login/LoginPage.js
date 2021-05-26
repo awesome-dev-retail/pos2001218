@@ -8,6 +8,7 @@ import CONSTANT from "../../configs/CONSTANT";
 import { useHistory } from "react-router-dom";
 import CacheStorage from "../../lib/cache-storage";
 // import history from "../../components/history";
+import {db, message} from "../../lib";
 
 const LoginPage = () => {
 	const [isLoadind, setIsLoading] = useState(false);
@@ -30,7 +31,21 @@ const LoginPage = () => {
 	// 	}
 	// }, [currentUser]);
 
-	
+	const handleButton = ()=>{
+		let data = {
+			uid: 4,
+			ip: window.location.href,
+			level: 5, 
+			action: "testaction1", 
+			content: {
+				test1: "11111",
+				test2: "222222"
+			},
+			ctime: "2019-11-08T10:43:24+13:00"
+		};
+		db.addLogToDB(data);
+		// db.sendLogsToServer();
+	};
 
 	const onFinish = (values) => {
 		setIsLoading(true);
@@ -75,6 +90,7 @@ const LoginPage = () => {
 					Login In
 				</Button>
 				</Form.Item>
+				<Button onClick={handleButton}>Add</Button>
     		</Form>
 			</div>
 		</div>

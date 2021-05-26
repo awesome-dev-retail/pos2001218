@@ -13,6 +13,7 @@ const initialState = {
   status: CONSTANT.API_STATUS.IDLE,
   error: null,
   shops: [],
+  shop: [],
   devices: [],
   lanes: [],
 };
@@ -95,6 +96,9 @@ const authSlice = createSlice({
     setToken(state, action) {
       state.token = action.payload;
     },
+    setCurrentShop(state, action) {
+      state.shop = action.payload;
+    }
   },
 
   extraReducers: (builder) => {
@@ -161,7 +165,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, logoutLocally, setToken } = authSlice.actions;
+export const { setUser, logoutLocally, setToken, setCurrentShop } = authSlice.actions;
 
 export const selectUserToken = (state) => state.Auth.token;
 export const selectIsLogin = (state) => state.Auth.user;

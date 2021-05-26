@@ -1,4 +1,5 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import appReducer from "./slices/appSlice.js";
 import authReducer from "./slices/authSlice.js";
 import areaReducer from "./slices/areaSlice";
 import tableReducer from "./slices/tableSlice";
@@ -9,6 +10,7 @@ import documentReducer from "./slices/documentSlice";
 
 export default configureStore({
   reducer: {
+    App: appReducer,
     Auth: authReducer,
     Area: areaReducer,
     Table: tableReducer,

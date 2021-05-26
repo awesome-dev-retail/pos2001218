@@ -6,8 +6,10 @@ import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import store from "./store";
 import api from "./services/api.js";
+import { db } from "./lib";
 
 api.setStore(store);
+db.setStore(store);
 
 ReactDOM.render(
   <React.StrictMode>

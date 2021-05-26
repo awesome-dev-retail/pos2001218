@@ -14,4 +14,5 @@ export default {
     SUCCEEDED: "succeeded",
     FAILED: "failed",
   },
+  debug: true,    // Debug info
 };
