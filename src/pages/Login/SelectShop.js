@@ -29,11 +29,6 @@ const SelectShop = (props) => {
 	const selectShop = CacheStorage.getItem("SELECT_SHOP");
 	const selectLane = CacheStorage.getItem("SELECT_LANE");
 
-	const handleButton = ()=>{
-		db.sendLogsToServer();
-		// message.error("Something wrong");
-	};
-
 	useEffect(() => {
 		if (token) {
 			console.log(token);
@@ -141,7 +136,6 @@ const SelectShop = (props) => {
 				</Button>
 				</Form.Item>
     		</Form>	
-			<Button onClick={handleButton}>Add</Button>
 		</Spin>
 		}
 		</div>

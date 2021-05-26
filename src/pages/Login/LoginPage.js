@@ -31,23 +31,6 @@ const LoginPage = () => {
 	// 	}
 	// }, [currentUser]);
 
-	const handleButton = ()=>{
-		let data = {
-			uid: 4,
-			ip: window.location.href,
-			level: 5, 
-			action: "testaction1", 
-			content: {
-				test1: "11111",
-				test2: "222222"
-			},
-			ctime: "2019-11-08T10:43:24+13:00"
-		};
-		db.addLogToDB(data);
-		// db.sendLogsToServer();
-		// message.error();
-	};
-
 	const onFinish = (values) => {
 		setIsLoading(true);
 		dispatch(loginToServer({username: values.bizex_catering_pos_username, password: values.bizex_catering_pos_password}));
@@ -91,7 +74,6 @@ const LoginPage = () => {
 					Login In
 				</Button>
 				</Form.Item>
-				<Button onClick={handleButton}>Add</Button>
     		</Form>
 			</div>
 		</div>
