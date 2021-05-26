@@ -61,6 +61,23 @@ export const deleteTableRequest = (tableId) => {
     method: "delete",
   });
 };
+
+export const startTableRequest = (tableId, guestNumber) => {
+  return api.request({
+    // url: `/pos/data/dinner_table/end/${tableId}`,
+    // url: `/pos/data/dinner_table/start/?tableId=${tableId}&guestNumber=${guestNumber}`,
+    url: `/pos/data/dinner_table/start/?tableId=${tableId}&guestNumber=${guestNumber}`,
+    method: "get",
+  });
+};
+
+export const endTableRequest = (tableId) => {
+  return api.request({
+    url: `/pos/data/dinner_table/end/${tableId}`,
+    // url: "/pos/data/dinner_table/end/?tableId=" + tableId,
+    method: "get",
+  });
+};
 //====================table end
 
 //====================menu start

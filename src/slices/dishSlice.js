@@ -80,7 +80,6 @@ export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async 
     const res = await calculateInvoiceRequest(invoice);
     if (res.error) throw res.error;
     console.log("calculateInvoice--------------", res);
-
     return res;
   } catch (e) {
     return rejectWithValue(e.message);
@@ -89,12 +88,10 @@ export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async 
 
 export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (table, { rejectWithValue }) => {
   try {
-    const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
-    console.log("++++++++++++++++++++", copyInvoice);
+    // const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
     const res = await saveInvoiceRequest(copyInvoice);
     if (res.error) throw res.error;
     history.push(`/order/payment/${res.data.InvoiceID}`);
-
     console.log("saveInvoice--------------", res);
     return res;
   } catch (e) {
@@ -131,11 +128,11 @@ const DishSlice = createSlice({
     [calculateInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
+
       const copydishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
       state.dishObjInOrder = createDishObjInOrder(state, copydishObjInOrder);
-
       CacheStorage.setItem("dishObjInOrder_" + "1_" + state.invoice.TableID, state.dishObjInOrder);
-      CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+      // CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
       // console.log(CacheStorage.getItem("invoice_" + "1_" + res.data.TableID));
 
       state.error = null;
@@ -153,7 +150,7 @@ const DishSlice = createSlice({
     [saveInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
-      CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+      // CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
 
       state.error = null;
       // state.token = action.payload.token;

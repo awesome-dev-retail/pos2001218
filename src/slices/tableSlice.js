@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
 // import { CacheStorage, message } from "../lib";
-import { tableListInShopRequest, tableListInAreaRequest, tableByIdRequest, saveTableRequest, deleteTableRequest } from "../services";
+import { tableListInShopRequest, tableListInAreaRequest, tableByIdRequest, saveTableRequest, deleteTableRequest, startTableRequest, endTableRequest } from "../services";
 import axios from "axios";
 import CacheStorage from "../lib/cache-storage";
 // import { history } from "../App";
@@ -74,6 +74,28 @@ export const deleteTable = createAsyncThunk("table/deleteTable", async (tableId,
   }
 });
 
+export const startTable = createAsyncThunk("table/startTable", async (tableId, { rejectWithValue }) => {
+  try {
+    const res = await startTableRequest(tableId);
+    if (res.error) throw res.error;
+    console.log("endTable--------------", res);
+    return res;
+  } catch (e) {
+    return rejectWithValue(e.message);
+  }
+});
+
+export const endTable = createAsyncThunk("table/endTable", async (tableId, { rejectWithValue }) => {
+  try {
+    const res = await endTableRequest(tableId);
+    if (res.error) throw res.error;
+    console.log("endTable--------------", res);
+    return res;
+  } catch (e) {
+    return rejectWithValue(e.message);
+  }
+});
+
 const TableSlice = createSlice({
   name: "table",
   initialState,
@@ -96,28 +118,15 @@ const TableSlice = createSlice({
       state.status = config.API_STATUS.SUCCEEDED;
       state.tableList = action.payload.data.list;
       state.copyTableListInShop = JSON.parse(JSON.stringify(state.tableList));
+      let totalAmount = 0;
       const newTableList = state.copyTableListInShop.map((item) => {
-        const invoice = CacheStorage.getItem("invoice_" + "1_" + item.id);
-        if (!!invoice) {
-          item.GrossAmount = invoice.GrossAmount;
+        const dishObjInOrder = CacheStorage.getItem("dishObjInOrder_" + "1_" + item.id);
+        if (!!dishObjInOrder) {
+          dishObjInOrder.forEach((i) => (totalAmount += i.Amount));
         } else {
-          item.GrossAmount = 0;
+          totalAmount = 0;
         }
-        if (state.tableInfo) {
-          const currentTable = state.tableInfo.tables.find((i) => i.tableId === item.id);
-          item.peopleNum = currentTable ? currentTable.peopleNum : 0;
-        } else {
-          const tableInfo = CacheStorage.getItem("tableInfo");
-          if (tableInfo) {
-            state.tableInfo = tableInfo;
-            const currentTable = tableInfo.tables.find((i) => i.tableId === item.id);
-            item.peopleNum = currentTable ? currentTable.peopleNum : 0;
-          } else {
-            state.tableInfo = { tables: [] };
-            item.peopleNum = 0;
-          }
-        }
-
+        item.totalAmount = totalAmount;
         return item;
       });
       state.tableList = newTableList;
@@ -182,6 +191,36 @@ const TableSlice = createSlice({
       // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
     },
     [deleteTable.rejected]: (state, action) => {
+      state.status = config.API_STATUS.FAILED;
+      // message.error(action.payload);
+    },
+    [startTable.pending]: (state) => {
+      state.status = config.API_STATUS.LOADING;
+    },
+    [startTable.fulfilled]: (state, action) => {
+      state.status = config.API_STATUS.SUCCEEDED;
+      // state.tableList = action.payload;
+      state.error = null;
+      // state.token = action.payload.token;
+      // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
+      // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
+    },
+    [startTable.rejected]: (state, action) => {
+      state.status = config.API_STATUS.FAILED;
+      // message.error(action.payload);
+    },
+    [endTable.pending]: (state) => {
+      state.status = config.API_STATUS.LOADING;
+    },
+    [endTable.fulfilled]: (state, action) => {
+      state.status = config.API_STATUS.SUCCEEDED;
+      // state.tableList = action.payload;
+      state.error = null;
+      // state.token = action.payload.token;
+      // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
+      // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
+    },
+    [endTable.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
       // message.error(action.payload);
     },

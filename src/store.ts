@@ -30,6 +30,8 @@ export default configureStore({
 
         "table/saveTable/fulfilled",
         "table/deleteTable/fulfilled",
+        "table/startTable/fulfilled",
+        "table/endTable/fulfilled",
         "table/fetchTableListInShop/fulfilled",
         "table/fetchTableListInArea/fulfilled",
         "table/fetchTableById/fulfilled",

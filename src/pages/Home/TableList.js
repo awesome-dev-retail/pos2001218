@@ -22,7 +22,6 @@ function TableList(props) {
   const dispatch = useDispatch();
   const tableListFromSlice = useSelector((state) => selectTableList(state)) || [];
   // const areaId = useSelector((state) => selectAreaId(state));
-  console.log("tableListFromSlice", tableListFromSlice);
 
   useEffect(() => {
     dispatch(fetchTableListInShop(1));
@@ -97,7 +96,7 @@ function TableList(props) {
               {item.combination && <div>Share {item.combination} Tables</div>}
               {/* {item.combination && <div>拼{item.combination}桌</div>} */}
               {item.status === "Available" && <div className="wait-plan-order-text">To be ordered</div>}
-              {item.status === "Occupied" && <div className="wait-plan-order-text">Amount:${item.GrossAmount ? item.GrossAmount.toFixed(2) : "0.00"}</div>}
+              {item.status === "Occupied" && <div className="wait-plan-order-text">Amount:$ {item.totalAmount.toFixed(2)}</div>}
               <div>
                 <span>
                   Capacity: {item.capacity}

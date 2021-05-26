@@ -40,7 +40,7 @@ import { selectInvoice } from "../../slices/dishSlice";
 import { cancelInvoice } from "../../slices/documentSlice";
 import { selectDocument } from "../../slices/documentSlice";
 
-import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
+import { fetchTableById, fetchTableListInShop, saveTable, endTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
 
 import { createInvoice } from "../../services/createInvoice";
@@ -96,10 +96,10 @@ function OrderList(props) {
       dispatch(setDishObjInOrder(arr));
     }
 
-    const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
-    if (obj) {
-      dispatch(setCurrentInvoice(obj));
-    }
+    // const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
+    // if (obj) {
+    //   dispatch(setCurrentInvoice(obj));
+    // }
     dispatch(setCurrentDish({}));
     dispatch(clearCheckedDish());
   }, []);
@@ -152,14 +152,10 @@ function OrderList(props) {
         okType: "danger",
         cancelText: "No",
         async onOk() {
-          let tableObj = Object.assign({}, table);
-          tableObj.status = "Available";
-          await dispatch(saveTable(tableObj));
+          await dispatch(endTable(table.id));
           // await dispatch(fetchTableListInShop(1));
           // eslint-disable-next-line react/prop-types
           props.history.push("/");
-          // copyDishOrder = [];
-          CacheStorage.removeItem("invoice_" + "1_" + table.id);
           CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
         },
         onCancel() {
@@ -230,23 +226,12 @@ function OrderList(props) {
     dispatch(setDishObjInOrder(copyDishObjFromSlice));
   };
 
-  const handleUpdateCashierStatus = () => {
-    // const copyInvoice = JSON.parse(JSON.stringify(invoiceFromSlice));
-    // const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
-    // console.log("=====================copyInvoice", table.id, copyInvoice);
-    // eslint-disable-next-line react/prop-types
-    // props.history.push(`/payment/${copyInvoice.InvoiceID}`);
-    if (invoiceFromSlice.InvoiceID > 0) {
-      history.push(`/order/payment/${invoiceFromSlice.InvoiceID}`);
-    } else {
-      dispatch(saveInvoice(table));
-    }
+  const handlePayment = () => {
+    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+    const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
+    dispatch(saveInvoice(invoice));
     // dispatch(setShowCashier(true));
   };
-  /**
-   *
-   * @param {*} number
-   */
 
   const hanndleUpdateCount = (number) => {
     let materialData = [];
@@ -328,6 +313,7 @@ function OrderList(props) {
   const handleCancelPayment = () => {
     dispatch(cancelInvoice(documentFromSlice.id));
   };
+
   return (
     <div className="table-info-container">
       <div className="inner">
@@ -422,7 +408,7 @@ function OrderList(props) {
           <div className="btn-group">
             <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
             {/* <button>Add Dish</button> */}
-            {!cashierStatus && <button onClick={handleUpdateCashierStatus}>PAY</button>}
+            {!cashierStatus && <button onClick={handlePayment}>PAY</button>}
           </div>
         </div>
       </div>
