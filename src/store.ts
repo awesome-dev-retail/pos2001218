@@ -5,7 +5,7 @@ import tableReducer from "./slices/tableSlice";
 import menuReducer from "./slices/menuSlice";
 import dishReducer from "./slices/dishSlice";
 import documentReducer from "./slices/documentSlice";
-import publicComponentReduer from "./slices/publicComponentSlice";
+import publicComponentReducer from "./slices/publicComponentSlice";
 // import invoiceReducer from "./slices/invoiceSlice";
 
 export default configureStore({
@@ -16,7 +16,7 @@ export default configureStore({
     Menu: menuReducer,
     Dish: dishReducer,
     Document: documentReducer,
-    PublicComponent: publicComponentReduer,
+    PublicComponent: publicComponentReducer,
     // Invoice: invoiceReducer,
   },
   middleware: getDefaultMiddleware({
@@ -66,10 +66,7 @@ export default configureStore({
         "document/setCurrentTransactionIsAccepted",
         "document/setWs",
 
-
-
         "document/setCurrentTransactionId",
-
         "public-component/setMessageBox",
         "public-component/setErrorBox",
         "public-component/resetMessageBox",
