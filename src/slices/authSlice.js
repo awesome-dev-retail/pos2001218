@@ -13,6 +13,7 @@ const initialState = {
   status: CONSTANT.API_STATUS.IDLE,
   error: null,
   shops: [],
+  shop: [],
   devices: [],
   lanes: [],
   shop: {},
@@ -119,6 +120,9 @@ const authSlice = createSlice({
     setToken(state, action) {
       state.token = action.payload;
     },
+    setCurrentShop(state, action) {
+      state.shop = action.payload;
+    }
   },
 
   extraReducers: (builder) => {

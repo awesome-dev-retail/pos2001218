@@ -9,7 +9,7 @@ import {fetchShopList, selectShop, selectLane, setShop, setLane, fetchLaneList,s
 } from "../../slices/authSlice";
 import CacheStorage from "../../lib/cache-storage";
 import PageLoading from "../../components/PageLoading";
-
+import {db, message} from "../../lib";
 
 const { Option } = Select;
 
@@ -28,8 +28,6 @@ const SelectShop = (props) => {
 	const localLane = CacheStorage.getItem("SELECT_LANE");
 	const shop = useSelector(state => selectShop(state));
 	const lane = useSelector(state => selectLane(state));
-
-
 
 	useEffect(() => {
 		if (token) {
@@ -109,7 +107,7 @@ const SelectShop = (props) => {
 				>
 				{
 					shopList.length > 0 && 
-						shopList.map((shop, index) => <Option key={index} value={shop.shop_name}>{shop.shop_name}</Option>)
+						shopList.map((shop, index) => <Option key={index} value={shop.id}>{shop.shop_name}</Option>)
 				}
                 </Select>
 				</Form.Item>

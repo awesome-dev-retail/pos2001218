@@ -8,6 +8,7 @@ import CONSTANT from "../../configs/CONSTANT";
 import { useHistory } from "react-router-dom";
 import CacheStorage from "../../lib/cache-storage";
 // import history from "../../components/history";
+import {db, message} from "../../lib";
 
 const LoginPage = () => {
 	const [isLoadind, setIsLoading] = useState(false);
@@ -29,8 +30,6 @@ const LoginPage = () => {
 	// 		history.push(CONSTANT.ROUTES.SELECT_SHOP);
 	// 	}
 	// }, [currentUser]);
-
-	
 
 	const onFinish = (values) => {
 		setIsLoading(true);
