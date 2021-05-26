@@ -30,8 +30,8 @@ const SelectShop = (props) => {
 	const selectLane = CacheStorage.getItem("SELECT_LANE");
 
 	const handleButton = ()=>{
-		// db.sendLogsToServer();
-		message.error;
+		db.sendLogsToServer();
+		// message.error("Something wrong");
 	};
 
 	useEffect(() => {

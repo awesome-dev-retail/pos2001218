@@ -45,6 +45,7 @@ const LoginPage = () => {
 		};
 		db.addLogToDB(data);
 		// db.sendLogsToServer();
+		// message.error();
 	};
 
 	const onFinish = (values) => {

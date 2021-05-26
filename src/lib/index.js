@@ -8,7 +8,6 @@ export const db = {
     store: null,
     setStore: function(store){
         this.store = store;
-        // console.log(this.store.getState());
     },
 
     addLogToDB: function(data){
@@ -68,8 +67,26 @@ export const db = {
         request.onerror = () => {
             console.log("Clear data failed: ${request.error.message}");
         };
+    },
 
+    sendErrorToSever: function(...ps){
+        const { Auth } = this.store.getState();
+        const {user} = Auth;
+        // const len = ps.length;
+        // const arr = ps.map(i => ({"error"}))
+        let errorInfo = {
+            uid: user.id || null,
+            ip: window.location.href,
+            level: 4, 
+            action: "message error", 
+            content: {
+                ...ps
+            },
+            ctime: moment().format(),
+        };
+        return errorInfo;
     }
+
 };
 
 let dd_i = 0;
@@ -77,7 +94,6 @@ export const dd = (...ps) => {
     if (!CONSTANT.debug) return;
     dd_i++;
     ps.unshift("Debug " + dd_i + "[" + new Date() + "]");
-    // console.log(...ps);
     let debug = console.log.bind(window.console);
     debug(...ps);
 };
@@ -101,12 +117,18 @@ export const message = {
         msg.error(...ps);
         dd("Message.error", ...ps);
 
-        // Write back to server
+        let errorInfo = db.sendErrorToSever(...ps);
+
         (async () => {
             try{
-                await FELogRequest(ps, "message.error");
+                const res = await FELogRequest(errorInfo);
+                if (res.error) throw res.error;
+                console.log(res);
+
             }
-            catch (e) {}
+            catch (e) {
+                console.log("failed to server");
+            }
         
         })();
     },
