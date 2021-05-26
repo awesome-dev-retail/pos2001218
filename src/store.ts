@@ -20,36 +20,36 @@ export default configureStore({
     // Invoice: invoiceReducer,
   },
   middleware: getDefaultMiddleware({
-    serializableCheck: {
-      ignoredActions: [
-        "user/fetchUser/fulfilled",
+    serializableCheck: false
+    // serializableCheck: {
+    //   ignoredActions: [
+    //     "user/fetchUser/fulfilled",
 
-        "area/fetchAreaList/fulfilled",
-        "area/saveArea/fulfilled",
-        "area/deleteArea/fulfilled",
+    //     "area/fetchAreaList/fulfilled",
+    //     "area/saveArea/fulfilled",
+    //     "area/deleteArea/fulfilled",
 
-        "table/saveTable/fulfilled",
-        "table/deleteTable/fulfilled",
-        "table/fetchTableListInShop/fulfilled",
-        "table/fetchTableListInArea/fulfilled",
-        "table/fetchTableById/fulfilled",
+    //     "table/saveTable/fulfilled",
+    //     "table/deleteTable/fulfilled",
+    //     "table/fetchTableListInShop/fulfilled",
+    //     "table/fetchTableListInArea/fulfilled",
+    //     "table/fetchTableById/fulfilled",
 
-        "menu/fetchMenuList/fulfilled",
-        "menu/saveMenu/fulfilled",
-        "menu/deleteMenu/fulfilled",
+    //     "menu/fetchMenuList/fulfilled",
+    //     "menu/saveMenu/fulfilled",
+    //     "menu/deleteMenu/fulfilled",
 
-        "dish/fetchDishList/fulfilled",
-        "dish/fetchDishListInShop/fulfilled",
-        "dish/fetchDishListInMenu/fulfilled",
-        "dish/saveDish/fulfilled",
-        "dish/deleteDish/fulfilled",
+    //     "dish/fetchDishList/fulfilled",
+    //     "dish/fetchDishListInShop/fulfilled",
+    //     "dish/fetchDishListInMenu/fulfilled",
+    //     "dish/saveDish/fulfilled",
+    //     "dish/deleteDish/fulfilled",
 
-        "dish/calculateInvoice/fulfilled",
-        "dish/saveInvoice/fulfilled",
+    //     "dish/calculateInvoice/fulfilled",
+    //     "dish/saveInvoice/fulfilled",
 
-        "document/fetchDocument/fulfilled",
-      ],
-      // ignoredActions: [],
-    },
+    //     "document/fetchDocument/fulfilled",
+    //   ],
+    // },
   }),
 });
