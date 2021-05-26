@@ -146,7 +146,6 @@ class HttpRequest {
             this.errorCount++;
             data.error = new Error(data.msg);
             data.error.code = data.code;
-            message.error(data.msg);
           }
           return data;
         } else {

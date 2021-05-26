@@ -4,10 +4,13 @@ import {  Button, Progress } from "antd";
 // import Apostrophe from "../../components/Apostrophe";
 import { selectMessageBox } from "../../slices/publicComponentSlice";
 import { useSelector } from "react-redux";
+import {selectDevice, selectShop} from "../../slices/authSlice";
 
 const MessageBox = props => {
   const messageBox = useSelector(state => selectMessageBox(state));
-
+  const shop  = useSelector(state => selectShop(state));
+  const device = useSelector(state => selectDevice(state));
+  // console.log(messageBox);
   return (
       <div className="component-wrapper">
         {
@@ -59,7 +62,7 @@ const MessageBox = props => {
                       messageBox.btnList.map((item, index) => (
                           <Button className={"cancel-socket-btn " + ((index === messageBox.btnList.length - 1) ? "primary-button" : "secondary-button")}
                                   key={item.btn_key}
-                                  onClick={(key,val) => item.btn_callback(item.btn_key,item.btn_value)}>
+                                  onClick={(key,val) => item.btn_callback(item.btn_key, item.btn_value, parseInt(shop.id), device.device_id)}>
                             {item.btn_value}
                           </Button>
                       ))

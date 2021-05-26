@@ -64,6 +64,7 @@ export default configureStore({
 
         "document/setLastMessage",
         "document/setCurrentTransactionIsAccepted",
+        "document/setWs",
 
 
 

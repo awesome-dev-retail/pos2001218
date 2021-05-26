@@ -211,6 +211,13 @@ export const invokePos = params => {
   });
 };
 
+export const cancelEftPos = (shopId, deviceId, key, val) => {
+  return api.request ({
+    url: `/payment/pos/button_click/${shopId}/${deviceId}?btn_key=${key}&btn_val=${val}`,
+    method: "GET"
+  });
+};
+
 // import api from "./api";
 // import { UserCredential } from "../configs/data";
 //

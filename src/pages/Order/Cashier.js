@@ -12,7 +12,13 @@ import zfb from "../../assets/images/zfb.png";
 import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch, useStore } from "react-redux";
 import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
-import {fetchDocument, processEFTPOS, selectDocument} from "../../slices/documentSlice";
+import {
+  fetchDocument,
+  processEFTPOS,
+  selectDocument,
+  selectDocumentIsLoading,
+  selectDocumentStatus
+} from "../../slices/documentSlice";
 import { setMessageBox, selectMessageBox } from "../../slices/publicComponentSlice";
 
 import "./Cashier.scss";
@@ -28,6 +34,7 @@ const Cashier = (props) => {
   const dispatch = useDispatch();
   const store = useStore();
   const messageBox = useSelector(state => selectMessageBox(state));
+  const isLoading = useSelector(state => selectDocumentIsLoading(state));
 
   useEffect(() => {
     // eslint-disable-next-line react/prop-types
@@ -151,17 +158,17 @@ const Cashier = (props) => {
   };
 
   const processEFTPOSTransaction = () => {
-
-    dispatch(processEFTPOS({amount: payMoney}));
-    // Save temp payment
-    // Invoke
-    // Socket
+    if (!isLoading) {
+      dispatch(processEFTPOS({amount: payMoney, cashOutAmount:0}));
+      // Save temp payment
+      // Invoke
+      // Socket
+    }
   };
 
   const handleDevBtnClick = () => {
     console.log(store.getState());
   };
-
 
   return (
     <div className="right-container cashier">
