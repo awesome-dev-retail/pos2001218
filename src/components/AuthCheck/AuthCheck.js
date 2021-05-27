@@ -4,7 +4,7 @@ import Logo from "../../assets/images/Bizex_FinalLogo.jpg";
 
 import { Redirect, withRouter } from "react-router-dom";
 import CONSTANT from "../../configs/CONSTANT";
-import { useSelector, useDispatch } from "react-redux";
+import {useSelector, useDispatch, useStore} from "react-redux";
 import CacheStorage from "../../lib/cache-storage";
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dropdown, Avatar, Layout, Spin } from "antd";
@@ -21,6 +21,7 @@ import {
 } from "../../slices/authSlice";
 import { history } from "../MyRouter";
 
+
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
   const currentUser = useSelector((state) => selectCurrentUser(state));
@@ -29,6 +30,8 @@ const AuthCheck = (props) => {
   const dispatch = useDispatch();
   const localShop = CacheStorage.getItem("SELECT_SHOP");
   const localLane = CacheStorage.getItem("SELECT_LANE");
+  const store = useStore();
+
 
   useEffect(() => {
     if (token) {
@@ -49,6 +52,10 @@ const AuthCheck = (props) => {
     }
   }, []);
 
+  const handleDevBtnClick = () => {
+    console.log(store.getState());
+  };
+
   if (isLoading) {
     return (
       <div>
@@ -67,6 +74,8 @@ const AuthCheck = (props) => {
               Table
               <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
             </div>
+            <button onClick={handleDevBtnClick}>Dev</button>
+
             <div style={{ fontSize: "14px", marginLeft: "800px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
             <div>
               <PrinterOutlined />

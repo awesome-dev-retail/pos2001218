@@ -119,7 +119,7 @@ export const message = {
         msg.error(...ps);
         dd("Message.error", ...ps);
 
-        let errorInfo = db.sendErrorToSever(...ps);
+        // let errorInfo = db.sendErrorToSever(...ps);
 
         (async () => {
             try{

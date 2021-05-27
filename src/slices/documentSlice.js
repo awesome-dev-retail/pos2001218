@@ -6,6 +6,7 @@ import {fetchDocumentRequest, saveTemporaryPayment, invokePos, cancelEftPos} fro
 import Document from "../modules/document";
 import { setMessageBox, setErrorBox, resetErrorBox, resetMessageBox } from "../slices/publicComponentSlice";
 import { message, sleep, getMoney } from "../lib/index";
+import _ from "lodash";
 
 const initialState = {
   document: {},
@@ -50,6 +51,12 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
     const approveTransaction = function () {
       transactionApproved = true;
     };
+
+    if (_.isEmpty(shop)) throw new Error("Shop is required");
+    if (_.isEmpty(lane)) throw new Error("Lane is required");
+    if (_.isEmpty(user)) throw new Error("User is required");
+    if (_.isEmpty(device)) throw new Error("Device is required");
+
     console.log(data);
 
     let params = {
@@ -67,10 +74,14 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
       user_id: user.userinfo.id,
       original_id: 0,
     };
+    console.log(params);
     const res = await saveTemporaryPayment(params);
     if (res.error) throw res.error;
+    console.log("Save temp payment success");
+    console.log(approveTransaction);
 
     const invokeRes = await dispatch(invokeTerminal({transaction_amount: amount, cashout_amount: 0, approveTransaction: approveTransaction}));
+
 
     console.log(invokeRes);
     console.log(transactionApproved);
@@ -78,10 +89,12 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
     if(transactionApproved) {
       message.success("Transaction Success");
       //Clean up refetch document
+      dispatch(resetAll());
     }
     return res;
   } catch (e) {
     console.log("processEFTPOS catch");
+    console.log(e.message);
     // pop error
     return rejectWithValue(e.message);
   }
@@ -377,7 +390,7 @@ const DocumentSlice = createSlice({
       state.ws = action.payload;
     },
     resetAll (state, action) {
-      state = {...initialState};
+      return initialState;
     },
     // setDocumentObjInOrder(state, action) {
     //   state.documentObjInOrder = action.payload;
@@ -422,8 +435,8 @@ const DocumentSlice = createSlice({
       console.log("processEFTPOS fulfilled");
     },
     [processEFTPOS.rejected]: (state, action) => {
-      console.error("processEFTPOS rejected");
-      return state.status = config.API_STATUS.FAILED;
+      message.error(`Failed to process payment: ${action.payload}`);
+      state.status = config.API_STATUS.FAILED;
     },
     [invokeTerminal.pending]: (state, action) => {
       console.log("invokeTerminal pending");
