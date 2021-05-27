@@ -64,6 +64,7 @@
           cursor: pointer;
           padding: 15px 20px;
           font-weight: bold;
+          font-size: 15px;
           .anticon {
             color: #535353;
             margin-left: 4px;
@@ -144,6 +145,7 @@
             line-height: 40px;
             font-weight: bold;
             color: #000;
+            font-size: 15px;
             padding-right: 10px;
             img {
               width: 20px;
@@ -174,7 +176,8 @@
             border: 1px solid #efefef;
             border-top: none;
             display: flex;
-            font-size: 12px;
+            justify-content: space-between;
+            font-size: 18px;
             font-weight: bold;
             > div {
               padding: 15px 5px;
@@ -203,11 +206,11 @@
               flex-direction: column;
               flex-basis: 26%;
               text-align: right;
-              font-weight: bold;
+              font-weight: bolder;
               border-right: 1px solid #efefef;
               div {
                 color: $bizex-pink;
-                font-size: 18px;
+                font-size: 24px;
               }
             }
             .right {

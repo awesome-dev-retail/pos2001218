@@ -399,10 +399,10 @@ function OrderList(props) {
                 <span>TOTAL</span>
                 <div className="content-total">${total.price}</div>
               </div>
-              <div className="right">
+              {/* <div className="right">
                 <div>NEW CUSTOMER</div>
                 <div>ORDER DETAILS</div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="btn-group">
