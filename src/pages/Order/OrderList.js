@@ -157,7 +157,7 @@ function OrderList(props) {
           // await dispatch(fetchTableListInShop(1));
           // eslint-disable-next-line react/prop-types
           props.history.push("/");
-          CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
+          // CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
         },
         onCancel() {
           // console.log("Cancel");

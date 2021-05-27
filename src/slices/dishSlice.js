@@ -151,7 +151,6 @@ const DishSlice = createSlice({
     [calculateInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
-
       const copydishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
       state.dishObjInOrder = createDishObjInOrder(state, copydishObjInOrder);
       CacheStorage.setItem("dishObjInOrder_" + "1_" + state.invoice.TableID, state.dishObjInOrder);
