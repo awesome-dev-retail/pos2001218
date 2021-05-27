@@ -16,7 +16,6 @@ const initialState = {
   shop: [],
   devices: [],
   lanes: [],
-  shop: {},
   device: {},
   lane: {},
 };
