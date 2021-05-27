@@ -214,7 +214,7 @@ const Cashier = (props) => {
                 </div>
               ))}
             </div>
-            {/* <button onClick={handleDevBtnClick}>Dev</button> */}
+             {/*<button onClick={handleDevBtnClick}>Dev</button>*/}
           </div>
         ) : (
           <div className="cash-page">

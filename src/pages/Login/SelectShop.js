@@ -107,7 +107,7 @@ const SelectShop = (props) => {
 				>
 				{
 					shopList.length > 0 && 
-						shopList.map((shop, index) => <Option key={index} value={shop.id}>{shop.shop_name}</Option>)
+						shopList.map((shop, index) => <Option key={index} value={shop.shop_name}>{shop.shop_name}</Option>)
 				}
                 </Select>
 				</Form.Item>
