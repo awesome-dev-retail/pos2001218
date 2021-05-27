@@ -12,7 +12,7 @@ import Document from "../modules/document";
 import {fetchDevices} from "./authSlice";
 import { setMessageBox, setErrorBox, resetErrorBox, resetMessageBox } from "../slices/publicComponentSlice";
 import numeral from "numeral";
-import { message } from "antd";
+import { message } from "../lib/index";
 
 const initialState = {
   document: {},

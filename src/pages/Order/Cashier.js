@@ -19,7 +19,7 @@ import {
   selectDocumentIsLoading,
   selectDocumentStatus
 } from "../../slices/documentSlice";
-import { setMessageBox, selectMessageBox } from "../../slices/publicComponentSlice";
+import { setMessageBox, selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 
 import "./Cashier.scss";
 import { Input } from "antd";
@@ -41,6 +41,10 @@ const Cashier = (props) => {
     const pathname = props.location.pathname + "";
     const invoiceID = pathname.split("/")[3] * 1;
     dispatch(fetchDocument(invoiceID));
+    return(() => {
+      // dispatch(resetMessageBox());
+      dispatch(resetErrorBox());
+    });
   }, []);
 
   useEffect(() => {
