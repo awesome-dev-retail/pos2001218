@@ -3,6 +3,8 @@ import CONSTANT from "../configs/CONSTANT";
 import moment from "moment";
 import CacheStorage from "./cache-storage";
 import {FELogsListRequest, FELogRequest} from "../services/logs";
+import numeral from "numeral";
+import config from "../configs";
 
 export const db = {
     store: null,
@@ -154,3 +156,35 @@ export const message = {
         // })();
     },
 };
+
+export const sleep = function(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+export const getMoney = (number) => {
+    return number ? numeral(number).format("$0,0.00") : config.NO_MONEY_CHARACTER;
+};
+
+export const dateToMoment = (data) => {
+    if ( moment(data, "YYYY-MM-DD HH:mm:ss Z").isValid() ){
+        return moment(data, "YYYY-MM-DD HH:mm:ss Z");
+    }
+};
+
+export const getRounding = (number, digit) =>{
+    if ( typeof digit === "undefined")  digit = 2;
+    let final, isNegativeNum;
+    if (number < 0) {
+        isNegativeNum = true;
+        number = - number;
+    }
+    final = Math.round(Math.pow(10, digit) * number + 0.00000001) / Math.pow(10, digit);
+
+    if(isNegativeNum) {
+        final = -final;
+    }
+    return final;
+};
+
+export const getRounding1 = (number) => getRounding(number, 1);  // For NZ Money
+export const getRounding2 = (number) => getRounding(number, 2);

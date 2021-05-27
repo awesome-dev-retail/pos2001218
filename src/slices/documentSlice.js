@@ -1,24 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config, { getWebSocketBaseUrl } from "../configs/index";
 import CONSTANT from "../configs/CONSTANT";
-import CacheStorage from "../lib/cache-storage";
 import moment from "moment";
-
-// import { CacheStorage, message } from "../lib";
 import {fetchDocumentRequest, saveTemporaryPayment, invokePos, cancelEftPos} from "../services";
-import axios from "axios";
-// import { history } from "../App";
 import Document from "../modules/document";
-import {fetchDevices} from "./authSlice";
 import { setMessageBox, setErrorBox, resetErrorBox, resetMessageBox } from "../slices/publicComponentSlice";
-import numeral from "numeral";
-import { message } from "../lib/index";
+import { message, sleep, getMoney } from "../lib/index";
 
 const initialState = {
   document: {},
   showCashier: false,
-  // currentDocument: {},
-  status: "",
+  status: config.API_STATUS.IDLE,
   error: null,
   currentTransactionId:"",
   currentTransactionIsAccepted: false,
@@ -35,14 +27,6 @@ const initialState = {
 //     },
 //   });
 // };
-
-const sleep = function(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
-const getMoney = (number) => {
-  return number ? numeral(number).format("$0,0.00") : config.NO_MONEY_CHARACTER;
-};
 
 export const fetchDocument = createAsyncThunk("document/fetchDocument", async (invoiceID, { rejectWithValue }) => {
   try {
@@ -392,7 +376,10 @@ const DocumentSlice = createSlice({
     },
     setWs(state, action) {
       state.ws = action.payload;
-    }
+    },
+    resetAll (state, action) {
+      state = {...initialState};
+    },
     // setDocumentObjInOrder(state, action) {
     //   state.documentObjInOrder = action.payload;
     // },
@@ -464,7 +451,7 @@ const DocumentSlice = createSlice({
 
 // export const { } = DocumentSlice.actions;
 // export const selectCashierStatus = (state) => state.Document.showCashier;
-export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactionIsAccepted, setLastMessage, resetLastMessage, setWs } = DocumentSlice.actions;
+export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactionIsAccepted, setLastMessage, resetAll, setWs } = DocumentSlice.actions;
 
 export const selectDocument = (state) => state.Document.document;
 export const selectDocumentIsLoading = state => state.Document.status === config.API_STATUS.LOADING;

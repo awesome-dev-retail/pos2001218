@@ -17,9 +17,9 @@ import {
   processEFTPOS,
   selectDocument,
   selectDocumentIsLoading,
-  selectDocumentStatus
+  resetAll,
 } from "../../slices/documentSlice";
-import { setMessageBox, selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
+import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 
 import "./Cashier.scss";
 import { Input } from "antd";
@@ -172,6 +172,7 @@ const Cashier = (props) => {
 
   const handleDevBtnClick = () => {
     console.log(store.getState());
+    dispatch(resetAll());
   };
 
   return (
