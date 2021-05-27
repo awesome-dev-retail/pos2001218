@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { withRouter } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchTableListInShop, fetchTableListInArea, saveTable, deleteTable } from "../../slices/tableSlice";
+import { fetchTableListInShop, fetchTableListInArea, startTable, saveTable, deleteTable } from "../../slices/tableSlice";
 
 import { Input, Modal, Row, Col, Button } from "antd";
 import PropTypes from "prop-types";
 import deleteIcon from "../../assets/images/delete.png";
 import "./index.areapeple.scss";
+import CacheStorage from "../../lib/cache-storage";
 
 const Index = (props) => {
   const [num, setNum] = useState("");
@@ -19,10 +20,13 @@ const Index = (props) => {
   const handleOk = (number = 0) => {
     const { tableObj } = props;
     props.hideModel(number);
+    CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableObj.id);
     // eslint-disable-next-line react/prop-types
     props.history.push(`/order/table/${tableObj.id}`);
-    tableObj.status = "Occupied";
-    dispatch(saveTable(tableObj));
+
+    // tableObj.status = "Occupied";
+    const params = { tableId: tableObj.id, guestNumber: num };
+    dispatch(startTable(params));
   };
 
   const hanldeSetNum = (number) => {

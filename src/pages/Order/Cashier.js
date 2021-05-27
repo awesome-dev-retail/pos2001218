@@ -12,13 +12,7 @@ import zfb from "../../assets/images/zfb.png";
 import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch, useStore } from "react-redux";
 import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
-import {
-  fetchDocument,
-  processEFTPOS,
-  selectDocument,
-  selectDocumentIsLoading,
-  resetAll,
-} from "../../slices/documentSlice";
+import { fetchDocument, processEFTPOS, selectDocument, selectDocumentIsLoading, resetAll } from "../../slices/documentSlice";
 import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 import { savePayment, completePayment } from "../../slices/paymentSlice";
 import { selectPayment } from "../../slices/paymentSlice";
@@ -34,23 +28,23 @@ const Cashier = (props) => {
   const [showCalcultor, setShowCalcultor] = useState(true);
   const [money, setMoney] = useState({});
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
-  const document = useSelector(state => selectDocument(state));
+  const document = useSelector((state) => selectDocument(state));
   const documentFromSlice = useSelector((state) => selectDocument(state)) || {};
   const paymentFromSlice = useSelector((state) => selectPayment(state)) || {};
   const dispatch = useDispatch();
   const store = useStore();
-  const messageBox = useSelector(state => selectMessageBox(state));
-  const isLoading = useSelector(state => selectDocumentIsLoading(state));
+  const messageBox = useSelector((state) => selectMessageBox(state));
+  const isLoading = useSelector((state) => selectDocumentIsLoading(state));
 
   useEffect(() => {
     // eslint-disable-next-line react/prop-types
     const pathname = props.location.pathname + "";
     const invoiceID = pathname.split("/")[3] * 1;
     dispatch(fetchDocument(invoiceID));
-    return(() => {
+    return () => {
       // dispatch(resetMessageBox());
       dispatch(resetErrorBox());
-    });
+    };
   }, []);
 
   // useEffect(() => {
@@ -172,7 +166,7 @@ const Cashier = (props) => {
 
   const processEFTPOSTransaction = () => {
     if (!isLoading) {
-      dispatch(processEFTPOS({amount: payMoney, cashOutAmount:0}));
+      dispatch(processEFTPOS({ amount: payMoney, cashOutAmount: 0 }));
       // Save temp payment
       // Invoke
       // Socket
@@ -220,7 +214,7 @@ const Cashier = (props) => {
                 </div>
               ))}
             </div>
-            <button onClick={handleDevBtnClick}>Dev</button>
+            {/* <button onClick={handleDevBtnClick}>Dev</button> */}
           </div>
         ) : (
           <div className="cash-page">

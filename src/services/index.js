@@ -62,7 +62,7 @@ export const deleteTableRequest = (tableId) => {
   });
 };
 
-export const startTableRequest = (tableId, guestNumber) => {
+export const startTableRequest = ({ tableId, guestNumber }) => {
   return api.request({
     // url: `/pos/data/dinner_table/end/${tableId}`,
     // url: `/pos/data/dinner_table/start/?tableId=${tableId}&guestNumber=${guestNumber}`,
@@ -239,7 +239,7 @@ export const listLanes = () => {
 export const listDevicesInShop = (shopId) => {
   return api.request({
     url: `pos/config/device/list_in_shop?shopId=${shopId}`,
-    method: "GET"
+    method: "GET",
   });
 };
 
@@ -247,22 +247,22 @@ export const saveTemporaryPayment = (data) => {
   return api.request({
     url: "pos/data/temporary_payment/save",
     method: "POST",
-    data: data
+    data: data,
   });
 };
 
-export const invokePos = params => {
+export const invokePos = (params) => {
   return api.request({
     url: "payment/pos/invoke",
     data: params,
-    method: "POST"
+    method: "POST",
   });
 };
 
 export const cancelEftPos = (shopId, deviceId, key, val) => {
-  return api.request ({
+  return api.request({
     url: `/payment/pos/button_click/${shopId}/${deviceId}?btn_key=${key}&btn_val=${val}`,
-    method: "GET"
+    method: "GET",
   });
 };
 
