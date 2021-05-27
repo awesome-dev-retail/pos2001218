@@ -86,7 +86,6 @@ export const startTable = createAsyncThunk("table/startTable", async (tableId, {
 });
 
 export const endTable = createAsyncThunk("table/endTable", async (tableId, { rejectWithValue }) => {
-  // debugger;
   try {
     const res = await endTableRequest(tableId);
     if (res.error) throw res.error;

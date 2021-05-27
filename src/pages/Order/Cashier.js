@@ -145,7 +145,6 @@ const Cashier = (props) => {
   };
 
   const handleCompletePayment = () => {
-    // debugger;
     // eslint-disable-next-line react/prop-types
     const pathname = props.location.pathname + "";
     const invoiceID = pathname.split("/")[3] * 1;

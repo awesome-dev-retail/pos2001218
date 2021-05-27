@@ -3,7 +3,7 @@ import config from "../configs/index";
 import CacheStorage from "../lib/cache-storage";
 
 // import { CacheStorage, message } from "../lib";
-import { fetchDocumentRequest, cancelInvoiceRequest } from "../services";
+import { fetchDocumentRequest } from "../services";
 import axios from "axios";
 // import { history } from "../App";
 
@@ -29,17 +29,6 @@ export const fetchDocument = createAsyncThunk("document/fetchDocument", async (i
     const res = await fetchDocumentRequest(invoiceID);
     if (res.error) throw res.error;
     console.log("fetchDocument--------------", res);
-    return res;
-  } catch (e) {
-    return rejectWithValue(e.message);
-  }
-});
-
-export const cancelInvoice = createAsyncThunk("document/cancelDocument", async (invoiceID, { rejectWithValue }) => {
-  try {
-    const res = await cancelInvoiceRequest(invoiceID);
-    if (res.error) throw res.error;
-    console.log("cancelDocument--------------", res);
     return res;
   } catch (e) {
     return rejectWithValue(e.message);
@@ -83,28 +72,28 @@ const DocumentSlice = createSlice({
       state.status = config.API_STATUS.FAILED;
       // message.error(action.payload);
     },
-    [cancelInvoice.pending]: (state) => {
-      state.status = config.API_STATUS.LOADING;
-    },
-    [cancelInvoice.fulfilled]: (state, action) => {
-      state.status = config.API_STATUS.SUCCEEDED;
-      // state.document = action.payload.data;
+    // [cancelInvoice.pending]: (state) => {
+    //   state.status = config.API_STATUS.LOADING;
+    // },
+    // [cancelInvoice.fulfilled]: (state, action) => {
+    //   state.status = config.API_STATUS.SUCCEEDED;
+    //   // state.document = action.payload.data;
 
-      // const copyDocument = JSON.parse(JSON.stringify(state.document));
+    //   // const copyDocument = JSON.parse(JSON.stringify(state.document));
 
-      // CacheStorage.setItem("document_" + "1_" + copyDocument.id, copyDocument);
+    //   // CacheStorage.setItem("document_" + "1_" + copyDocument.id, copyDocument);
 
-      // console.log("copyDocument from localstorage----------------", CacheStorage.getItem("document_" + "1_" + copyDocument.id));
-      // state.tableList = action.payload.data.data.list;
-      state.error = null;
-      // state.token = action.payload.token;
-      // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
-      // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
-    },
-    [cancelInvoice.rejected]: (state, action) => {
-      state.status = config.API_STATUS.FAILED;
-      // message.error(action.payload);
-    },
+    //   // console.log("copyDocument from localstorage----------------", CacheStorage.getItem("document_" + "1_" + copyDocument.id));
+    //   // state.tableList = action.payload.data.data.list;
+    //   state.error = null;
+    //   // state.token = action.payload.token;
+    //   // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
+    //   // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
+    // },
+    // [cancelInvoice.rejected]: (state, action) => {
+    //   state.status = config.API_STATUS.FAILED;
+    //   // message.error(action.payload);
+    // },
   },
 });
 

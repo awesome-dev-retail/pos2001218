@@ -33,11 +33,12 @@ import {
   setShowCashier,
   calculateInvoice,
   saveInvoice,
+  listDocument,
+  cancelInvoice,
   setCurrentInvoice,
 } from "../../slices/dishSlice";
 import { selectInvoice } from "../../slices/dishSlice";
 
-import { cancelInvoice } from "../../slices/documentSlice";
 import { selectDocument } from "../../slices/documentSlice";
 
 import { fetchTableById, fetchTableListInShop, saveTable, endTable } from "../../slices/tableSlice";
@@ -227,6 +228,7 @@ function OrderList(props) {
   };
 
   const handlePayment = () => {
+    debugger;
     let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
     const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
     dispatch(saveInvoice(invoice));
@@ -310,8 +312,12 @@ function OrderList(props) {
     return dom;
   }, [currentMeun, currentTabIndex, currentDish]);
 
-  const handleCancelPayment = () => {
-    dispatch(cancelInvoice(documentFromSlice.id));
+  const handleCancelPayment = async () => {
+    if (!table.uncomplete_invoices) {
+      return;
+    } else {
+      if (table.uncomplete_invoices.length !== 0) dispatch(cancelInvoice(table.uncomplete_invoices[0].id));
+    }
   };
 
   return (

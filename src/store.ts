@@ -48,9 +48,10 @@ export default configureStore({
 
         "dish/calculateInvoice/fulfilled",
         "dish/saveInvoice/fulfilled",
+        "dish/listDocument/fulfilled",
+        "dish/cancelInvoice/fulfilled",
 
         "document/fetchDocument/fulfilled",
-        "document/cancelInvoice/fulfilled",
 
         "payment/savePayment/fulfilled",
         "payment/completePayment/fulfilled",

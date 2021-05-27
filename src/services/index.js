@@ -73,8 +73,8 @@ export const startTableRequest = (tableId, guestNumber) => {
 
 export const endTableRequest = (tableId) => {
   return api.request({
-    url: `/pos/data/dinner_table/end/${tableId}`,
-    // url: "/pos/data/dinner_table/end/?tableId=" + tableId,
+    // url: `/pos/data/dinner_table/end/${tableId}`,
+    url: "/pos/data/dinner_table/end/?tableId=" + tableId,
     method: "get",
   });
 };
@@ -150,6 +150,13 @@ export const saveInvoiceRequest = (invoice) => {
   });
 };
 
+export const listInvoiceRequest = (tableID) => {
+  return api.request({
+    url: "/pos/data/document_by_table?tableid=" + tableID,
+    method: "get",
+  });
+};
+
 //====================dish end
 
 //====================document start
@@ -166,6 +173,7 @@ export const cancelInvoiceRequest = (invoiceID) => {
     method: "post",
   });
 };
+
 //====================document end
 
 //====================payment start
