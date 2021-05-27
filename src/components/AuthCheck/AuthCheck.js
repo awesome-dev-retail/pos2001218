@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./index.module.scss";
+import Logo from "../../assets/images/Bizex_FinalLogo.jpg";
+
 import { Redirect, withRouter } from "react-router-dom";
 import CONSTANT from "../../configs/CONSTANT";
 import { useSelector, useDispatch } from "react-redux";
@@ -63,6 +65,7 @@ const AuthCheck = (props) => {
             <div>
               <MenuOutlined />
               Table
+              <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
             </div>
             <div style={{ fontSize: "14px", marginLeft: "800px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
             <div>

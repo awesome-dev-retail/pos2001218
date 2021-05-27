@@ -7,6 +7,7 @@ import menuReducer from "./slices/menuSlice";
 import dishReducer from "./slices/dishSlice";
 import documentReducer from "./slices/documentSlice";
 import publicComponentReducer from "./slices/publicComponentSlice";
+import paymentReducer from "./slices/paymentSlice";
 // import invoiceReducer from "./slices/invoiceSlice";
 
 export default configureStore({
@@ -19,6 +20,7 @@ export default configureStore({
     Dish: dishReducer,
     Document: documentReducer,
     PublicComponent: publicComponentReducer,
+    Payment: paymentReducer,
     // Invoice: invoiceReducer,
   },
   middleware: getDefaultMiddleware({
@@ -32,6 +34,8 @@ export default configureStore({
 
         "table/saveTable/fulfilled",
         "table/deleteTable/fulfilled",
+        "table/startTable/fulfilled",
+        "table/endTable/fulfilled",
         "table/fetchTableListInShop/fulfilled",
         "table/fetchTableListInArea/fulfilled",
         "table/fetchTableById/fulfilled",
@@ -48,6 +52,8 @@ export default configureStore({
 
         "dish/calculateInvoice/fulfilled",
         "dish/saveInvoice/fulfilled",
+        "dish/listDocument/fulfilled",
+        "dish/cancelInvoice/fulfilled",
 
         "document/fetchDocument/pending",
         "document/fetchDocument/fulfilled",
@@ -74,6 +80,8 @@ export default configureStore({
         "public-component/resetMessageBox",
         "public-component/resetErrorBox",
 
+        "payment/savePayment/fulfilled",
+        "payment/completePayment/fulfilled",
       ],
     },
   }),

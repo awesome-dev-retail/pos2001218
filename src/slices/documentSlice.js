@@ -33,7 +33,6 @@ export const fetchDocument = createAsyncThunk("document/fetchDocument", async (i
     const res = await fetchDocumentRequest(invoiceID);
     if (res.error) throw res.error;
     console.log("fetchDocument--------------", res);
-
     return res;
   } catch (e) {
     return rejectWithValue(e.message);
@@ -423,8 +422,8 @@ const DocumentSlice = createSlice({
       console.log("processEFTPOS fulfilled");
     },
     [processEFTPOS.rejected]: (state, action) => {
-      return state.status = config.API_STATUS.FAILED;
       console.error("processEFTPOS rejected");
+      return state.status = config.API_STATUS.FAILED;
     },
     [invokeTerminal.pending]: (state, action) => {
       console.log("invokeTerminal pending");
@@ -444,8 +443,6 @@ const DocumentSlice = createSlice({
     [connectSocket.rejected]: (state, action) => {
       console.error("connectSocket rejected");
     }
-
-
   },
 });
 

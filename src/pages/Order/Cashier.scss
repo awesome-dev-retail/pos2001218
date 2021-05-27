@@ -42,9 +42,11 @@
     }
   }
   .complete-btn {
+    cursor: pointer;
+    font-size: 18px;
     margin: 200px auto 0;
     width: 95%;
-    background: #c4000a;
+    background: $bizex-pink;
     color: #fff;
     text-align: center;
     padding: 15px 0;

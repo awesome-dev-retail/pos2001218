@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { history } from "../../components/MyRouter";
 
 import CacheStorage from "../../lib/cache-storage";
-
+import { formatNum, formatNumToTwoDecimal } from "../../services/formatNum";
 import { Badge, Modal, Button } from "antd";
 import {
   MenuOutlined,
@@ -28,17 +28,20 @@ import {
   setDishObjInOrder,
   setCurrentDish,
   selectCurrentDish,
+  clearCheckedDish,
   selectCashierStatus,
   setShowCashier,
   calculateInvoice,
   saveInvoice,
+  listDocument,
+  cancelInvoice,
   setCurrentInvoice,
 } from "../../slices/dishSlice";
 import { selectInvoice } from "../../slices/dishSlice";
 
-import { fetchDocument } from "../../slices/documentSlice";
+import { selectDocument } from "../../slices/documentSlice";
 
-import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
+import { fetchTableById, fetchTableListInShop, saveTable, endTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
 
 import { createInvoice } from "../../services/createInvoice";
@@ -80,6 +83,8 @@ function OrderList(props) {
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
 
+  const documentFromSlice = useSelector((state) => selectDocument(state));
+
   const { confirm } = Modal;
   useEffect(async () => {
     // eslint-disable-next-line react/prop-types
@@ -92,11 +97,12 @@ function OrderList(props) {
       dispatch(setDishObjInOrder(arr));
     }
 
-    const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
-
-    if (obj) {
-      dispatch(setCurrentInvoice(obj));
-    }
+    // const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
+    // if (obj) {
+    //   dispatch(setCurrentInvoice(obj));
+    // }
+    dispatch(setCurrentDish({}));
+    dispatch(clearCheckedDish());
   }, []);
 
   const updateCount = async (value) => {
@@ -147,14 +153,10 @@ function OrderList(props) {
         okType: "danger",
         cancelText: "No",
         async onOk() {
-          let tableObj = Object.assign({}, table);
-          tableObj.status = "Available";
-          await dispatch(saveTable(tableObj));
+          await dispatch(endTable(table.id));
           // await dispatch(fetchTableListInShop(1));
           // eslint-disable-next-line react/prop-types
           props.history.push("/");
-          // copyDishOrder = [];
-          CacheStorage.removeItem("invoice_" + "1_" + table.id);
           CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
         },
         onCancel() {
@@ -225,23 +227,12 @@ function OrderList(props) {
     dispatch(setDishObjInOrder(copyDishObjFromSlice));
   };
 
-  const handleUpdateCashierStatus = () => {
-    // const copyInvoice = JSON.parse(JSON.stringify(invoiceFromSlice));
-    // const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
-    // console.log("=====================copyInvoice", table.id, copyInvoice);
-    // eslint-disable-next-line react/prop-types
-    // props.history.push(`/payment/${copyInvoice.InvoiceID}`);
-    if (invoiceFromSlice.InvoiceID > 0) {
-      history.push(`/order/payment/${invoiceFromSlice.InvoiceID}`);
-    } else {
-      dispatch(saveInvoice(table));
-    }
+  const handlePayment = () => {
+    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+    const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
+    dispatch(saveInvoice(invoice));
     // dispatch(setShowCashier(true));
   };
-  /**
-   *
-   * @param {*} number
-   */
 
   const hanndleUpdateCount = (number) => {
     let materialData = [];
@@ -319,6 +310,15 @@ function OrderList(props) {
     }
     return dom;
   }, [currentMeun, currentTabIndex, currentDish]);
+
+  const handleCancelPayment = async () => {
+    if (!table.uncomplete_invoices) {
+      return;
+    } else {
+      if (table.uncomplete_invoices.length !== 0) dispatch(cancelInvoice(table.uncomplete_invoices[0].id));
+    }
+  };
+
   return (
     <div className="table-info-container">
       <div className="inner">
@@ -335,11 +335,10 @@ function OrderList(props) {
           <div className="bill-list">
             {dishObjFromSlice.map((item, index) => (
               <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
-                <div>
-                  <div className="bill-name">
-                    <div>{item.description}</div>
-                    {item.tip && <div className="food-tip">{item.tip}</div>}
-                  </div>
+                {/* <div> */}
+                <div className="bill-name">
+                  <div>{item.description}</div>
+                  {item.tip && <div className="food-tip">{item.tip}</div>}
                   {item.material && item.material.length > 0 && item.material[0].count > 0 && (
                     <div className="materials">
                       Extras:
@@ -352,9 +351,10 @@ function OrderList(props) {
                   )}
                   {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
                 </div>
+                {/* </div> */}
                 <div className="count">X {item.count}</div>
                 <div className="price">
-                  <div className="new-price">${item.unit_price}</div>
+                  <div className="new-price">${item.unit_price.toFixed(2)}</div>
                   {/* <div className="old-price">$ {item.unit_cost}</div>  */}
                 </div>
               </div>
@@ -388,7 +388,7 @@ function OrderList(props) {
               <div className="left">
                 <div className="left-line">
                   <span className="label">DISCOUNT</span>
-                  <span className="text">$0</span>
+                  <span className="text">$0.00</span>
                   {/* <span className="text">${(total.oldPrice - total.price).toFixed(2)}</span> */}
                 </div>
                 <div className="left-line">
@@ -404,15 +404,16 @@ function OrderList(props) {
                 <span>TOTAL</span>
                 <div className="content-total">${total.price}</div>
               </div>
-              <div className="right">
+              {/* <div className="right">
                 <div>NEW CUSTOMER</div>
                 <div>ORDER DETAILS</div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="btn-group">
-            <div>Add Dish</div>
-            {!cashierStatus && <div onClick={handleUpdateCashierStatus}>Checkout</div>}
+            <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
+            {/* <button>Add Dish</button> */}
+            {!cashierStatus && <button onClick={handlePayment}>PAY</button>}
           </div>
         </div>
       </div>

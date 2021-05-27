@@ -5,7 +5,7 @@ import { history } from "../components/MyRouter";
 import CacheStorage from "../lib/cache-storage";
 
 // import { CacheStorage, message } from "../lib";
-import { dishListRequest, dishListInMenuRequest, saveDishRequest, deleteDishRequest, calculateInvoiceRequest, saveInvoiceRequest } from "../services";
+import { dishListRequest, dishListInMenuRequest, saveDishRequest, deleteDishRequest, calculateInvoiceRequest, saveInvoiceRequest, listInvoiceRequest, cancelInvoiceRequest } from "../services";
 import axios from "axios";
 import { createDishObjInOrder } from "../services/createDishObjInOrder";
 
@@ -14,6 +14,7 @@ const initialState = {
   dishObjInOrder: [],
   // addedDish: null,
   invoice: {},
+  document: {},
   showCashier: false,
   currentDish: {},
   status: "",
@@ -80,22 +81,41 @@ export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async 
     const res = await calculateInvoiceRequest(invoice);
     if (res.error) throw res.error;
     console.log("calculateInvoice--------------", res);
-
     return res;
   } catch (e) {
     return rejectWithValue(e.message);
   }
 });
 
-export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (table, { rejectWithValue }) => {
+export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (invoice, { rejectWithValue }) => {
   try {
-    const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
-    console.log("++++++++++++++++++++", copyInvoice);
-    const res = await saveInvoiceRequest(copyInvoice);
+    // const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
+    const res = await saveInvoiceRequest(invoice);
     if (res.error) throw res.error;
     history.push(`/order/payment/${res.data.InvoiceID}`);
-
     console.log("saveInvoice--------------", res);
+    return res;
+  } catch (e) {
+    return rejectWithValue(e.message);
+  }
+});
+
+export const listDocument = createAsyncThunk("dish/listDocument", async (tableID, { rejectWithValue }) => {
+  try {
+    const res = await listInvoiceRequest(tableID);
+    if (res.error) throw res.error;
+    console.log("listDocument--------------", res);
+    return res;
+  } catch (e) {
+    return rejectWithValue(e.message);
+  }
+});
+
+export const cancelInvoice = createAsyncThunk("dish/cancelDocument", async (invoiceID, { rejectWithValue }) => {
+  try {
+    const res = await cancelInvoiceRequest(invoiceID);
+    if (res.error) throw res.error;
+    console.log("cancelDocument--------------", res);
     return res;
   } catch (e) {
     return rejectWithValue(e.message);
@@ -112,6 +132,11 @@ const DishSlice = createSlice({
     setCurrentDish(state, action) {
       state.currentDish = action.payload;
     },
+    clearCheckedDish(state, action) {
+      state.dishObjInOrder.forEach((item) => {
+        item.checked = false;
+      });
+    },
     setShowCashier(state, action) {
       state.showCashier = action.payload;
     },
@@ -126,11 +151,11 @@ const DishSlice = createSlice({
     [calculateInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
+
       const copydishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
       state.dishObjInOrder = createDishObjInOrder(state, copydishObjInOrder);
-
       CacheStorage.setItem("dishObjInOrder_" + "1_" + state.invoice.TableID, state.dishObjInOrder);
-      CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+      // CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
       // console.log(CacheStorage.getItem("invoice_" + "1_" + res.data.TableID));
 
       state.error = null;
@@ -148,14 +173,48 @@ const DishSlice = createSlice({
     [saveInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
-      CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+      // CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
 
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
       // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
     },
-    [calculateInvoice.rejected]: (state, action) => {
+    [saveInvoice.rejected]: (state, action) => {
+      state.status = config.API_STATUS.FAILED;
+      // message.error(action.payload);
+    },
+    [listDocument.pending]: (state) => {
+      state.status = config.API_STATUS.LOADING;
+    },
+    [listDocument.fulfilled]: (state, action) => {
+      state.status = config.API_STATUS.SUCCEEDED;
+      state.document = action.payload.data;
+      // CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+
+      state.error = null;
+      // state.token = action.payload.token;
+      // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
+      // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
+    },
+    [listDocument.rejected]: (state, action) => {
+      state.status = config.API_STATUS.FAILED;
+      // message.error(action.payload);
+    },
+    [cancelInvoice.pending]: (state) => {
+      state.status = config.API_STATUS.LOADING;
+    },
+    [cancelInvoice.fulfilled]: (state, action) => {
+      state.status = config.API_STATUS.SUCCEEDED;
+      state.invoice = action.payload.data;
+      // CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+
+      state.error = null;
+      // state.token = action.payload.token;
+      // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
+      // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
+    },
+    [cancelInvoice.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
       // message.error(action.payload);
     },
@@ -238,7 +297,7 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder, setCurrentDish, setShowCashier, setCurrentInvoice } = DishSlice.actions;
+export const { setDishObjInOrder, setCurrentDish, clearCheckedDish, setShowCashier, setCurrentInvoice } = DishSlice.actions;
 
 export const selectInvoice = (state) => state.Dish.invoice;
 export const selectCashierStatus = (state) => state.Dish.showCashier;

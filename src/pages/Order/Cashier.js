@@ -20,6 +20,10 @@ import {
   resetAll,
 } from "../../slices/documentSlice";
 import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
+import { savePayment, completePayment } from "../../slices/paymentSlice";
+import { selectPayment } from "../../slices/paymentSlice";
+
+import { createPayment } from "../../services/createPayment";
 
 import "./Cashier.scss";
 import { Input } from "antd";
@@ -31,6 +35,8 @@ const Cashier = (props) => {
   const [money, setMoney] = useState({});
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
   const document = useSelector(state => selectDocument(state));
+  const documentFromSlice = useSelector((state) => selectDocument(state)) || {};
+  const paymentFromSlice = useSelector((state) => selectPayment(state)) || {};
   const dispatch = useDispatch();
   const store = useStore();
   const messageBox = useSelector(state => selectMessageBox(state));
@@ -47,16 +53,16 @@ const Cashier = (props) => {
     });
   }, []);
 
-  useEffect(() => {
-    let price = 0,
-      oldPrice = 0;
-    dishObjFromSlice.forEach((item) => {
-      price += (item.count || 1) * item.unit_price;
-      oldPrice += (item.count || 1) * item.unit_cost;
-    });
-    setPayMoney(price);
-    setMoney({ price, oldPrice });
-  }, [dishObjFromSlice]);
+  // useEffect(() => {
+  //   let price = 0,
+  //     oldPrice = 0;
+  //   dishObjFromSlice.forEach((item) => {
+  //     price += (item.count || 1) * item.unit_price;
+  //     oldPrice += (item.count || 1) * item.unit_cost;
+  //   });
+  //   setPayMoney(price);
+  //   setMoney({ price, oldPrice });
+  // }, [dishObjFromSlice]);
 
   const discountList = [
     {
@@ -71,18 +77,18 @@ const Cashier = (props) => {
       bgColor: "#CB83FF",
       icon: huangguan,
     },
-    {
-      id: "hyyh",
-      name: "VOUCHER",
-      bgColor: "#F80E3E",
-      icon: huangguan,
-    },
-    {
-      id: "hyyh",
-      name: "CRETID ACCOUNT",
-      bgColor: "#A1D1F0",
-      icon: huangguan,
-    },
+    // {
+    //   id: "hyyh",
+    //   name: "VOUCHER",
+    //   bgColor: "#F80E3E",
+    //   icon: huangguan,
+    // },
+    // {
+    //   id: "hyyh",
+    //   name: "CRETID ACCOUNT",
+    //   bgColor: "#A1D1F0",
+    //   icon: huangguan,
+    // },
     {
       id: "hyyh",
       name: "SPLIT PAYMENT",
@@ -91,22 +97,22 @@ const Cashier = (props) => {
     },
     {
       id: "hyyh",
-      name: "REDEEM POINTS",
+      name: "CASH OUT",
       bgColor: "#FDD441",
       icon: huangguan,
     },
-    {
-      id: "hyyh",
-      name: "GIFT CARD",
-      bgColor: "#9600FF",
-      icon: huangguan,
-    },
-    {
-      id: "hyyh",
-      name: "OPTIONS",
-      bgColor: "#98F8CA",
-      icon: huangguan,
-    },
+    // {
+    //   id: "hyyh",
+    //   name: "GIFT CARD",
+    //   bgColor: "#9600FF",
+    //   icon: huangguan,
+    // },
+    // {
+    //   id: "hyyh",
+    //   name: "OPTIONS",
+    //   bgColor: "#98F8CA",
+    //   icon: huangguan,
+    // },
   ];
   const calculatorNum = [
     { key: 1, value: 1 },
@@ -144,6 +150,9 @@ const Cashier = (props) => {
   const handleClickOperation = (name) => {
     if (name === "CASH") {
       // console.log(name);
+      const copyDocument = JSON.parse(JSON.stringify(documentFromSlice));
+      const payment = createPayment(copyDocument, payMoney);
+      dispatch(savePayment(payment));
       setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
     } else if (name === "EFT-POS") {
@@ -175,6 +184,13 @@ const Cashier = (props) => {
     dispatch(resetAll());
   };
 
+  const handleCompletePayment = () => {
+    // eslint-disable-next-line react/prop-types
+    const pathname = props.location.pathname + "";
+    const invoiceID = pathname.split("/")[3] * 1;
+    dispatch(completePayment(invoiceID));
+  };
+
   return (
     <div className="right-container cashier">
       <div className="cashier-container">
@@ -182,7 +198,12 @@ const Cashier = (props) => {
           <div>
             <div className="title">Amount Tendered</div>
             <div className="cashier-inner">
-              <Input className="total-input" value={payMoney && payMoney.toFixed(2)} />
+              Amount:
+              <Input className="total-input" value={documentFromSlice.doc_gross_amount ? documentFromSlice.doc_gross_amount.toFixed(2) : 0} />
+              Cash:
+              <Input className="total-input" value={documentFromSlice.doc_gross_amount ? (documentFromSlice.doc_gross_amount.toFixed(1) * 1).toFixed(2) : 0} />
+              Customer Paid:
+              <Input className="total-input" value={payMoney && payMoney.toFixed(1)} />
               <div className="cashier">
                 {calculatorNum.map((item) => (
                   <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
@@ -205,13 +226,16 @@ const Cashier = (props) => {
           <div className="cash-page">
             <div className="title">Finalise Sale</div>
             <div className="cashier-inner">
-              <div className="give-money-tip">Change required from:${payMoney}</div>
-              <Input className="total-input" value={`$${(payMoney - money.price).toFixed(2)}`} />
+              <div className="give-money-tip">Change required from:${documentFromSlice.doc_gross_amount ? (documentFromSlice.doc_gross_amount.toFixed(1) * 1).toFixed(2) : 0}</div>
+              <Input className="total-input" value={paymentFromSlice ? paymentFromSlice.Change : ""} />
+              {/* <Input className="total-input" value={`$${(payMoney - money.price).toFixed(2)}`} /> */}
               <div className="quick-operation-btn">
                 <div>PRINT RECEIPT</div>
                 <div>EMAIL RECEIPT</div>
               </div>
-              <div className="complete-btn">COMPELETE SALE</div>
+              <div className="complete-btn" onClick={handleCompletePayment}>
+                COMPELETE SALE
+              </div>
             </div>
           </div>
         )}

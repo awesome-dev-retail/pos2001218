@@ -8,7 +8,7 @@ import { fetchAreaList, deleteArea, getAreaId } from "../../slices/areaSlice";
 import { selectAreaList } from "../../slices/areaSlice";
 
 import { fetchTableListInArea, fetchTableListInShop, deleteTable } from "../../slices/tableSlice";
-import { selectTableList } from "../../slices/tableSlice";
+import { selectTableList, setTableListInArea } from "../../slices/tableSlice";
 
 import AddArea from "../../components/AddArea";
 
@@ -68,7 +68,8 @@ export default function MenuList() {
   }, []);
 
   const showTablesInArea = (areaId) => {
-    dispatch(fetchTableListInArea({ shopId: 1, areaId }));
+    // dispatch(fetchTableListInArea({ shopId: 1, areaId }));
+    dispatch(setTableListInArea(areaId));
   };
   const showTablesInShop = () => {
     dispatch(fetchTableListInShop(1));

@@ -9,8 +9,8 @@ export const createDishObjInOrder = (state, copydishObjInOrder) => {
   if (state.invoice && state.invoice.Lines) {
     const newdishObjInOrder = state.invoice.Lines.map((item) => {
       const dish = copydishObjInOrder.find((dish) => dish.dish_code === item.Dish.DishCode);
-      // dish.unit_price = 100;
-      // dish.unit_price = item.unit_price;
+      dish.count = item.Quantity.Qty;
+      dish.Amount = item.Amount;
       return dish;
     });
     return newdishObjInOrder;

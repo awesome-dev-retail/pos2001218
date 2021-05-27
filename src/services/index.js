@@ -61,6 +61,23 @@ export const deleteTableRequest = (tableId) => {
     method: "delete",
   });
 };
+
+export const startTableRequest = (tableId, guestNumber) => {
+  return api.request({
+    // url: `/pos/data/dinner_table/end/${tableId}`,
+    // url: `/pos/data/dinner_table/start/?tableId=${tableId}&guestNumber=${guestNumber}`,
+    url: `/pos/data/dinner_table/start/?tableId=${tableId}&guestNumber=${guestNumber}`,
+    method: "get",
+  });
+};
+
+export const endTableRequest = (tableId) => {
+  return api.request({
+    // url: `/pos/data/dinner_table/end/${tableId}`,
+    url: "/pos/data/dinner_table/end/?tableId=" + tableId,
+    method: "get",
+  });
+};
 //====================table end
 
 //====================menu start
@@ -133,6 +150,13 @@ export const saveInvoiceRequest = (invoice) => {
   });
 };
 
+export const listInvoiceRequest = (tableID) => {
+  return api.request({
+    url: "/pos/data/document_by_table?tableid=" + tableID,
+    method: "get",
+  });
+};
+
 //====================dish end
 
 //====================document start
@@ -142,7 +166,31 @@ export const fetchDocumentRequest = (invoiceID) => {
     method: "get",
   });
 };
+
+export const cancelInvoiceRequest = (invoiceID) => {
+  return api.request({
+    url: `/pos/data/invoice/cancel/${invoiceID}`,
+    method: "post",
+  });
+};
+
 //====================document end
+
+//====================payment start
+export const savePaymentRequest = (payment) => {
+  return api.request({
+    url: "/pos/data/payment/save",
+    method: "post",
+    data: payment,
+  });
+};
+export const completePaymentRequest = (invoiceID) => {
+  return api.request({
+    url: `/pos/data/invoice/post/${invoiceID}`,
+    method: "post",
+  });
+};
+//====================payment end
 
 export const loginRequest = (data) => {
   const { password, username } = data;
