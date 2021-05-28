@@ -8,6 +8,7 @@ import CONSTANT from "../configs/CONSTANT";
 // import Header from "./Header";
 import HomePage from "../pages/Home";
 import OrderPage from "../pages/Order";
+import PaymentPage from "../pages/Payment";
 import AboutPage from "../pages/About/AboutPage";
 import LoginPage from "../pages/Login/LoginPage";
 import AuthCheck from "./AuthCheck/AuthCheck";
@@ -27,7 +28,8 @@ const MyRouter = () => {
         <AuthCheck>
           <Suspense fallback={<PageLoading spinning={true} />}>
             <Route exact path={CONSTANT.ROUTES.HOME} component={HomePage} />
-            <Route path={CONSTANT.ROUTES.ORDER} component={OrderPage} />
+            <Route path={CONSTANT.ROUTES.TABLE} component={OrderPage} />
+            <Route path={CONSTANT.ROUTES.PAYMENT} component={PaymentPage} />
             <Route path={CONSTANT.ROUTES.ABOUT} component={AboutPage} />
             <MessageBox />
             <ErrorBox />

@@ -9,16 +9,7 @@ import CacheStorage from "../../lib/cache-storage";
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dropdown, Avatar, Layout, Spin } from "antd";
 import UIMenu from "../UIMenu";
-import {
-  fetchUser,
-  setUser,
-  setToken,
-  selectIsLogin,
-  selectCurrentUser,
-  selectAuthIsLoading,
-  fetchDevices,
-  setShop, setLane
-} from "../../slices/authSlice";
+import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectAuthIsLoading, fetchDevices, setShop, setLane } from "../../slices/authSlice";
 import { history } from "../MyRouter";
 
 const AuthCheck = (props) => {
@@ -35,15 +26,14 @@ const AuthCheck = (props) => {
       dispatch(setToken(token));
       dispatch(fetchUser());
 
-      if(localShop) {
+      if (localShop) {
         dispatch(setShop(localShop));
       }
-      if(localLane) {
+      if (localLane) {
         dispatch(setLane(localLane));
       }
 
       dispatch(fetchDevices());
-
     } else {
       history.push("./login");
     }
@@ -65,7 +55,9 @@ const AuthCheck = (props) => {
             <div>
               <MenuOutlined />
               Table
-              <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
+              <span>
+                <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
+              </span>
             </div>
             <div style={{ fontSize: "14px", marginLeft: "800px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
             <div>

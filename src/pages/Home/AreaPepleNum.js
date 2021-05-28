@@ -22,7 +22,7 @@ const Index = (props) => {
     props.hideModel(number);
     // CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableObj.id);
     // eslint-disable-next-line react/prop-types
-    props.history.push(`/order/table/${tableObj.id}`);
+    props.history.push(`/table/${tableObj.id}`);
 
     // tableObj.status = "Occupied";
     const params = { tableId: tableObj.id, guestNumber: num };

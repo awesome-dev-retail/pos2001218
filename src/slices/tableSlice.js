@@ -6,6 +6,7 @@ import axios from "axios";
 import CacheStorage from "../lib/cache-storage";
 import { message } from "../lib";
 // import { history } from "../App";
+import { history } from "../components/MyRouter";
 
 const initialState = {
   tableList: [],

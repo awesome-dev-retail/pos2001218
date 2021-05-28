@@ -22,6 +22,7 @@ import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
 import { selectCurrentUser } from "../../slices/authSlice";
+import { fetchDocument } from "../../slices/documentSlice";
 
 import {
   selectDishObjInOrder,
@@ -72,10 +73,6 @@ function OrderList(props) {
   const remarkList = ["Spicy", "Salted", "No nut", "Vegetarian"];
   // const remarkList = ["不加香菜", "不放辣", "不加葱花", "少盐", "素食"];
   const dispatch = useDispatch();
-  // eslint-disable-next-line react/prop-types
-  // const pathname = props.location.pathname + "";
-  // const tableId = pathname.split("/")[3] * 1;
-
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
@@ -87,24 +84,10 @@ function OrderList(props) {
   const documentFromSlice = useSelector((state) => selectDocument(state));
 
   const { confirm } = Modal;
-
-  // eslint-disable-next-line react/prop-types
-  const tableId = props.match.params.tableId;
-
   useEffect(async () => {
     // eslint-disable-next-line react/prop-types
-    // console.log("=====================", props);
-    await dispatch(fetchTableById(tableId));
-    dispatch(setDishObjInOrder([]));
-    const arr = CacheStorage.getItem("dishObjInOrder_" + "1_" + tableId);
-    if (arr) {
-      dispatch(setDishObjInOrder(arr));
-    }
-
-    // const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
-    // if (obj) {
-    //   dispatch(setCurrentInvoice(obj));
-    // }
+    const invoiceId = props.match.params.invoiceId;
+    dispatch(fetchDocument(invoiceId));
     dispatch(setCurrentDish({}));
     dispatch(clearCheckedDish());
   }, []);
@@ -191,17 +174,20 @@ function OrderList(props) {
     }
   };
 
+  // 计算商品总数和总价
   const total = useMemo(() => {
     let count = 0,
       price = 0,
       oldPrice = 0;
-    dishObjFromSlice.forEach((item) => {
-      count += item.count || 1;
-      price += (item.count || 1) * item.unit_price;
-      oldPrice += (item.count || 1) * item.unit_cost;
-    });
+
+    documentFromSlice.invoice_lines &&
+      documentFromSlice.invoice_lines.forEach((item) => {
+        count += item.line_qty || 1;
+        price += (item.count || 1) * item.unit_price;
+        oldPrice += (item.count || 1) * item.unit_cost;
+      });
     return { count, price: price.toFixed(2), oldPrice: oldPrice.toFixed(2) };
-  }, [JSON.stringify(dishObjFromSlice)]);
+  }, [JSON.stringify(documentFromSlice)]);
 
   let currentDishCopy = JSON.parse(JSON.stringify(currentDish));
   const handleCheckRemark = (item) => {
@@ -319,16 +305,14 @@ function OrderList(props) {
   // };
 
   const handleCancelPayment = async () => {
-    if (!table.uncomplete_invoices) {
-      message.warning("No uncompleted invoice");
-      return;
-    } else {
-      // debugger;
-      if (table.uncomplete_invoices.length !== 0) {
-        const params = { invoiceId: table.uncomplete_invoices[0].id };
-        dispatch(cancelInvoice(params));
-      }
-    }
+    // if (!table.uncomplete_invoices) {
+    //   message.warning("No uncompleted invoice");
+    //   return;
+    // } else {
+    //   if (table.uncomplete_invoices.length !== 0) dispatch(cancelInvoice(table.uncomplete_invoices[0].id));
+    // }
+    const params = { invoiceId: documentFromSlice.id, tableId: documentFromSlice.table_id };
+    dispatch(cancelInvoice(params));
   };
 
   return (
@@ -338,20 +322,21 @@ function OrderList(props) {
           <div className="top-info">
             {/* <div className="top-info" onClick={() => setShowTableInfo(false)}> */}
             <span>
-              Table Name: {table.table_name || ""}
+              {/* Table Name: {table.table_name || ""} */}
               {/* Table Name: {table.table_name || ""}，2/{table.capacity} */}
             </span>
             {/* <span>桌台1，人数12/12</span> */}
             {/* <CaretDownOutlined /> */}
           </div>
           <div className="bill-list">
-            {dishObjFromSlice.map((item, index) => (
-              <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
-                {/* <div> */}
-                <div className="bill-name">
-                  <div>{item.description}</div>
-                  {item.tip && <div className="food-tip">{item.tip}</div>}
-                  {item.material && item.material.length > 0 && item.material[0].count > 0 && (
+            {documentFromSlice.invoice_lines &&
+              documentFromSlice.invoice_lines.map((item, index) => (
+                <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
+                  {/* <div> */}
+                  <div className="bill-name">
+                    <div>{item.description}</div>
+                    {/* {item.tip && <div className="food-tip">{item.tip}</div>} */}
+                    {/* {item.material && item.material.length > 0 && item.material[0].count > 0 && (
                     <div className="materials">
                       Extras:
                       {item.material.map((i, index) => (
@@ -360,17 +345,17 @@ function OrderList(props) {
                         </span>
                       ))}
                     </div>
-                  )}
-                  {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
+                  )} */}
+                    {/* {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>} */}
+                  </div>
+                  {/* </div> */}
+                  <div className="count">X {item.line_qty}</div>
+                  <div className="price">
+                    <div className="new-price">${item.unit_price.toFixed(2)}</div>
+                    {/* <div className="old-price">$ {item.unit_cost}</div>  */}
+                  </div>
                 </div>
-                {/* </div> */}
-                <div className="count">X {item.count}</div>
-                <div className="price">
-                  <div className="new-price">${item.unit_price.toFixed(2)}</div>
-                  {/* <div className="old-price">$ {item.unit_cost}</div>  */}
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
         <div className="table-bottom">
@@ -423,19 +408,13 @@ function OrderList(props) {
             </div>
           </div>
           <div className="btn-group">
-            <button
-              onClick={() => {
-                history.push("/");
-              }}>
-              BACK
-            </button>
-            {/* <button onClick={handleCancelPayment}>CANCEL PAYMENT</button> */}
+            <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
             {/* <button>Add Dish</button> */}
-            {!cashierStatus && <button onClick={handlePayment}>PAY</button>}
+            {/* {!cashierStatus && <button onClick={handlePayment}>PAY</button>} */}
           </div>
         </div>
       </div>
-      <div className="table-info-menus">
+      {/* <div className="table-info-menus">
         <Counter count={currentDish.count || 0} updateCount={updateCount} />
         {tableMenus.map((item) => (
           <div className="table-info-menu-item" key={item.key} onClick={() => handleOperation(item.key)}>
@@ -451,16 +430,15 @@ function OrderList(props) {
             <div>Batch</div>
           </div>
         </div>
-      </div>
+      </div> */}
       {/* <div className={"drawer hide"}> */}
-      <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
+      {/* <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
         <div className="drawer-header">
           <h3 className="drawer-title">COMMENT</h3>
-          {/* <h3 className="drawer-title">Comment-Fruit Salad</h3> */}
           <CloseOutlined onClick={() => setShowDrawer(false)} />
         </div>
         <div className="drawer-content">{drawerDom}</div>
-      </div>
+      </div> */}
     </div>
   );
 }

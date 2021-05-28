@@ -6,7 +6,7 @@ import CONSTANT from "../../configs/CONSTANT";
 import Header from "../../components/Header";
 // import UIMenu from "../../components/UIMenu";
 import CashierPage from "./Cashier.js";
-import Dish from "./Dish.js";
+import DishPage from "./Dish.js";
 import OrderList from "./OrderList";
 import DishList from "./DishList";
 import DishCategory from "./DishCategory";
@@ -19,6 +19,7 @@ import moment from "moment";
 // import "./index.less";
 import "./index.scss";
 import CacheStorage from "../../lib/cache-storage";
+import Cashier from "../Payment/Cashier";
 
 const Order = (props) => {
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
@@ -46,7 +47,7 @@ const Order = (props) => {
     <div className="order-page-container">
       <main className="main">
         <OrderList></OrderList>
-        <Dish></Dish>
+        <Cashier></Cashier>
         {/* {cashierStatus ? (
             
             <Cashier />
