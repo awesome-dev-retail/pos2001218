@@ -201,7 +201,6 @@ const authSlice = createSlice({
         state.devices = action.payload.data;
         //todo: hard coding below to replace it whenever device setting page is done
         state.device = action.payload.data[2];
-        console.log(action.payload);
       }
     });
 

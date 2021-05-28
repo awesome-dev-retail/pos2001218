@@ -35,21 +35,29 @@ export default class Document {
     return this.transactionId;
   }
 
-  addPaymentLine = line => {
-    this.payment_lines.push(line);
+  setMessageFromInvoke = message => {
+    this.invokeMessage = message;
   }
 
-  hasUncompletedTransaction = () => {
-    if (this.transactionId) {
-      const payment = this.payment_lines.find (item => item .transactionId === this.transactionId);
-      return !payment;
-      // if (payment && payment.is_paid === false) {
-      //   return true;
-      // } else {
-      //   return true;
-      // }
-    }
-    return false;
+  resetMessage = () => {
+    delete this.invokeMessage;
   }
+
+  // addPaymentLine = line => {
+  //   this.payment_lines.push(line);
+  // }
+  //
+  // hasUncompletedTransaction = () => {
+  //   if (this.transactionId) {
+  //     const payment = this.payment_lines.find (item => item .transactionId === this.transactionId);
+  //     return !payment;
+  //     // if (payment && payment.is_paid === false) {
+  //     //   return true;
+  //     // } else {
+  //     //   return true;
+  //     // }
+  //   }
+  //   return false;
+  // }
 
 }

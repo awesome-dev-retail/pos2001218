@@ -12,15 +12,26 @@ import zfb from "../../assets/images/zfb.png";
 import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch, useStore } from "react-redux";
 import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
-import { fetchDocument, processEFTPOS, selectDocument, selectDocumentIsLoading, resetAll } from "../../slices/documentSlice";
+import {
+  fetchDocument,
+  processEFTPOS,
+  selectDocument,
+  selectDocumentIsLoading,
+  setDocument
+} from "../../slices/documentSlice";
 import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 import { savePayment, completePayment } from "../../slices/paymentSlice";
 import { selectPayment } from "../../slices/paymentSlice";
 
 import { createPayment } from "../../services/createPayment";
+import _ from "lodash";
 
 import "./Cashier.scss";
 import { Input } from "antd";
+import CacheStorage from "../../lib/cache-storage";
+import CONSTANT from "../../configs/CONSTANT";
+import {history} from "../../components/MyRouter";
+import {fetchDevices, selectDevice} from "../../slices/authSlice";
 
 const Cashier = (props) => {
   const [showCashPage, setShowCashPage] = useState(false);
@@ -35,12 +46,32 @@ const Cashier = (props) => {
   const store = useStore();
   const messageBox = useSelector((state) => selectMessageBox(state));
   const isLoading = useSelector((state) => selectDocumentIsLoading(state));
+  const localDocument = CacheStorage.getItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL);
+  const device = useSelector(state => selectDevice(state));
+
+
 
   useEffect(() => {
     // eslint-disable-next-line react/prop-types
     const pathname = props.location.pathname + "";
     const invoiceID = pathname.split("/")[3] * 1;
-    dispatch(fetchDocument(invoiceID));
+    console.log(document);
+    if (localDocument) {
+      console.warn("Find local stored document");
+      console.log(localDocument);
+
+      if (_.isEmpty(device)) {
+        dispatch(fetchDevices());
+      }
+
+      dispatch(setDocument(localDocument));
+      if (localDocument.transactionId) {
+        processEFTPOSTransaction();
+      }
+    } else {
+      dispatch(fetchDocument(invoiceID));
+    }
+
     return () => {
       // dispatch(resetMessageBox());
       dispatch(resetErrorBox());

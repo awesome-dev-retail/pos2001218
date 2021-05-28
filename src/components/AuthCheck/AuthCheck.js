@@ -20,6 +20,9 @@ import {
   setShop, setLane, selectLane, selectShop
 } from "../../slices/authSlice";
 import { history } from "../MyRouter";
+import { connectSocket, setDocument } from "../../slices/documentSlice";
+import _ from "lodash";
+
 
 
 const AuthCheck = (props) => {
@@ -30,12 +33,13 @@ const AuthCheck = (props) => {
   const dispatch = useDispatch();
   const localShop = CacheStorage.getItem("SELECT_SHOP");
   const localLane = CacheStorage.getItem("SELECT_LANE");
+  const localDocument = CacheStorage.getItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL);
   const shop = useSelector(state => selectShop(state));
   const lane = useSelector(state => selectLane(state));
   const store = useStore();
 
 
-  useEffect(() => {
+  const checkAuth = async () => {
     if (token) {
       dispatch(setToken(token));
       dispatch(fetchUser());
@@ -47,11 +51,23 @@ const AuthCheck = (props) => {
         dispatch(setLane(localLane));
       }
 
-      dispatch(fetchDevices());
+      await dispatch(fetchDevices());
 
+      if(localDocument) {
+        const { id } = localDocument;
+        const { location } = props;
+        const url = `/order/payment/${id}`;
+        if (location.pathname !== url) {
+          history.push(url);
+        }
+      }
     } else {
       history.push("./login");
     }
+  };
+
+  useEffect(() => {
+    checkAuth();
   }, []);
 
   const handleDevBtnClick = () => {
@@ -66,7 +82,7 @@ const AuthCheck = (props) => {
     );
   }
 
-  if (isLogin && shop !== {} && lane !== {}) {
+  if (isLogin && !_.isEmpty(shop) && !_.isEmpty(lane)) {
     return (
       <Layout>
         <div className="home-page-container">
