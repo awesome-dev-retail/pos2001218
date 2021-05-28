@@ -136,6 +136,9 @@ const authSlice = createSlice({
       // window.location = "/select-shop";
       //Extract token store token
     });
+    builder.addCase(loginToServer.rejected, (state) => {
+      state.status = CONSTANT.API_STATUS.FAILED;
+    });
     builder.addCase(userLogOut.fulfilled, (state, action) => {
       state.token = null;
       state.user = null;
@@ -147,11 +150,11 @@ const authSlice = createSlice({
     // 	state.user = null;
     // 	//Extract token store token
     // });
-    builder.addCase(fetchShopList.pending, (state) => {
-      state.status = CONSTANT.API_STATUS.LOADING;
-    });
+    // builder.addCase(fetchShopList.pending, (state) => {
+    //   state.status = CONSTANT.API_STATUS.LOADING;
+    // });
     builder.addCase(fetchShopList.fulfilled, (state, action) => {
-      state.status = CONSTANT.API_STATUS.SUCCEEDED;
+      // state.status = CONSTANT.API_STATUS.SUCCEEDED;
       if (action.payload.data && action.payload.data.list) {
         state.shops = action.payload.data.list;
       } else {
@@ -160,11 +163,11 @@ const authSlice = createSlice({
 
       //Extract token store token
     });
-    builder.addCase(fetchLaneList.pending, (state) => {
-      state.status = CONSTANT.API_STATUS.LOADING;
-    });
+    // builder.addCase(fetchLaneList.pending, (state) => {
+    //   state.status = CONSTANT.API_STATUS.LOADING;
+    // });
     builder.addCase(fetchLaneList.fulfilled, (state, action) => {
-      state.status = CONSTANT.API_STATUS.SUCCEEDED;
+      // state.status = CONSTANT.API_STATUS.SUCCEEDED;
       if (action.payload.data && action.payload.data.list) {
         state.lanes = action.payload.data.list;
       } else {
@@ -189,11 +192,11 @@ const authSlice = createSlice({
     });
 
     builder.addCase(fetchDevices.pending, (state, action) => {
-      state.status = CONSTANT.API_STATUS.LOADING;
+      // state.status = CONSTANT.API_STATUS.LOADING;
     });
 
     builder.addCase(fetchDevices.fulfilled, (state, action) => {
-      state.status = CONSTANT.API_STATUS.SUCCEEDED;
+      // state.status = CONSTANT.API_STATUS.SUCCEEDED;
       if (action.payload.data && action.payload.data.length > 0) {
         state.devices = action.payload.data;
         //todo: hard coding below to replace it whenever device setting page is done
