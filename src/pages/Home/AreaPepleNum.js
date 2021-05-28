@@ -20,7 +20,7 @@ const Index = (props) => {
   const handleOk = (number = 0) => {
     const { tableObj } = props;
     props.hideModel(number);
-    CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableObj.id);
+    // CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableObj.id);
     // eslint-disable-next-line react/prop-types
     props.history.push(`/order/table/${tableObj.id}`);
 

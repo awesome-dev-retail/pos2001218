@@ -7,13 +7,12 @@ export function createInvoice(table, dishArr, userID) {
   }, 0);
   //  "InvoiceDate": "2019-10-03 14:52:39", // [required]
   const InvoiceDate = moment().format("YYYY-MM-DD HH:mm:ss");
-  // console.log("time---------------------", InvoiceDate);
   return {
     CID: 1,
     ShopID: 1,
     LaneID: "LE_001",
     TableID: table.id,
-    DivideNo: 1,
+    DivideNo: table.uncomplete_details ? table.uncomplete_details[0].divide_no : 0,
     InvoiceType: "EatIn",
     MemberID: 0,
     TakeawayID: 0,

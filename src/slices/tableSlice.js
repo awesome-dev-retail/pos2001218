@@ -4,6 +4,7 @@ import config from "../configs/index";
 import { tableListInShopRequest, tableListInAreaRequest, tableByIdRequest, saveTableRequest, deleteTableRequest, startTableRequest, endTableRequest } from "../services";
 import axios from "axios";
 import CacheStorage from "../lib/cache-storage";
+import { message } from "../lib";
 // import { history } from "../App";
 
 const initialState = {
@@ -78,7 +79,7 @@ export const startTable = createAsyncThunk("table/startTable", async (params, { 
   try {
     const res = await startTableRequest(params);
     if (res.error) throw res.error;
-    console.log("endTable--------------", res);
+    console.log("startTable--------------", res);
     return res;
   } catch (e) {
     return rejectWithValue(e.message);
@@ -89,7 +90,8 @@ export const endTable = createAsyncThunk("table/endTable", async (tableId, { rej
   try {
     const res = await endTableRequest(tableId);
     if (res.error) throw res.error;
-    CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
+    history.push("/");
+    CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
     console.log("endTable--------------", res);
     return res;
   } catch (e) {
@@ -224,7 +226,7 @@ const TableSlice = createSlice({
     },
     [endTable.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
-      // message.error(action.payload);
+      message.error(action.payload);
     },
   },
 });

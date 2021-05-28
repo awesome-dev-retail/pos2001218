@@ -52,6 +52,7 @@ import morentouxiang from "../../assets/images/morentouxiang.png";
 import sousuo from "../../assets/images/sousuo.png";
 
 import "./OrderList.scss";
+import { message } from "../../lib";
 function OrderList(props) {
   // const [currentDish, setCurrentDish] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
@@ -74,7 +75,6 @@ function OrderList(props) {
   // eslint-disable-next-line react/prop-types
   const pathname = props.location.pathname + "";
   const tableId = pathname.split("/")[3] * 1;
-  const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
@@ -152,11 +152,11 @@ function OrderList(props) {
         okText: "Yes",
         okType: "danger",
         cancelText: "No",
-        async onOk() {
-          await dispatch(endTable(table.id));
+        onOk() {
+          dispatch(endTable(table.id));
           // await dispatch(fetchTableListInShop(1));
           // eslint-disable-next-line react/prop-types
-          props.history.push("/");
+
           // CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
         },
         onCancel() {
@@ -311,8 +311,13 @@ function OrderList(props) {
     return dom;
   }, [currentMeun, currentTabIndex, currentDish]);
 
+  // const handleCancelPayment = () => {
+  //   dispatch(cancelInvoice(table));
+  // };
+
   const handleCancelPayment = async () => {
     if (!table.uncomplete_invoices) {
+      message.warning("No uncompleted invoice");
       return;
     } else {
       if (table.uncomplete_invoices.length !== 0) dispatch(cancelInvoice(table.uncomplete_invoices[0].id));

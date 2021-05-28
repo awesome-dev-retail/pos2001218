@@ -35,68 +35,6 @@ export const calculateInvoice = createAsyncThunk("invoice/calculateInvoice", asy
   }
 });
 
-// export const fetchTableListInArea = createAsyncThunk("table/fetchTableListInArea", async ({ shopId, areaId }, { rejectWithValue }) => {
-//   try {
-//     console.log("-----areaId--- ------", areaId);
-//     const res = await axios({
-//       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/list_in_area?shopId=${shopId}&areaId=${areaId}`,
-//       headers: { Authorization: "Bearer hT8t8ndaNBRgBBa25588ZA==" },
-//     });
-//     if (res.error) throw res.error;
-//     console.log("fetchTableListInArea--------------", res);
-
-//     return res;
-//   } catch (e) {
-//     return rejectWithValue(e.message);
-//   }
-// });
-
-// export const fetchTableById = createAsyncThunk("table/fetchTableById", async (tableId, { rejectWithValue }) => {
-//   try {
-//     const res = await axios({
-//       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/${tableId}`,
-//       headers: { Authorization: "Bearer hT8t8ndaNBRgBBa25588ZA==" },
-//     });
-//     if (res.error) throw res.error;
-//     console.log("fetchTableById--------------", res);
-
-//     return res;
-//   } catch (e) {
-//     return rejectWithValue(e.message);
-//   }
-// });
-
-// export const saveTable = createAsyncThunk("table/saveTable", async (tableObj, { rejectWithValue }) => {
-//   try {
-//     const res = await axios({
-//       method: "post",
-//       url: "https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/save",
-//       headers: { Authorization: "Bearer hT8t8ndaNBRgBBa25588ZA==" },
-//       data: tableObj,
-//     });
-//     if (res.error) throw res.error;
-//     console.log("saveTable--------------", res);
-//     return res;
-//   } catch (e) {
-//     return rejectWithValue(e.message);
-//   }
-// });
-
-// export const deleteTable = createAsyncThunk("table/deleteTable", async (id, { rejectWithValue }) => {
-//   try {
-//     const res = await axios({
-//       method: "delete",
-//       url: `https://pos-restaurant-be-dev.azurewebsites.net/pos/data/dinner_table/delete/${id}`,
-//       headers: { Authorization: "Bearer hT8t8ndaNBRgBBa25588ZA==" },
-//     });
-//     if (res.error) throw res.error;
-//     console.log("deleteTable--------------", res);
-//     return res;
-//   } catch (e) {
-//     return rejectWithValue(e.message);
-//   }
-// });
-
 const InvoiceSlice = createSlice({
   name: "invoice",
   initialState,
@@ -128,8 +66,5 @@ const InvoiceSlice = createSlice({
   },
 });
 export const { setInvoice } = InvoiceSlice.actions;
-// export const selectTableList = (state) => state.Table.tableList;
-export const selectInvoice = (state) => state.Invoice.invoice;
-// export const selectTableById = (state) => state.Table.table;
 
 export default InvoiceSlice.reducer;

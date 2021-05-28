@@ -27,9 +27,6 @@ const Order = (props) => {
   const [showMore, setShowMore] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
 
-  useEffect(() => {
-    console.log("invoice---------------?????", CacheStorage.getItem("invoice_1_56"));
-  }, []);
   return (
     // <div className="order-page-container">
     //   <main className="main">
