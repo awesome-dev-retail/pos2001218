@@ -129,9 +129,9 @@ const authSlice = createSlice({
       state.status = CONSTANT.API_STATUS.LOADING;
     });
     builder.addCase(loginToServer.fulfilled, (state, action) => {
-      state.status = CONSTANT.API_STATUS.SUCCEEDED;
       state.user = action.payload.data;
       state.token = action.payload.token;
+      state.status = CONSTANT.API_STATUS.SUCCEEDED;
       // history.push(CONSTANT.ROUTES.SELECT_SHOP);
       // window.location = "/select-shop";
       //Extract token store token
@@ -178,10 +178,14 @@ const authSlice = createSlice({
     });
 
     builder.addCase(fetchUser.fulfilled, (state, action) => {
-      state.status = CONSTANT.API_STATUS.SUCCEEDED;
       state.user = action.payload.data;
       state.token = action.payload.token;
+      state.status = CONSTANT.API_STATUS.SUCCEEDED;
       //Extract token store token
+    });
+
+    builder.addCase(fetchUser.rejected, (state, action) => {
+      state.status = CONSTANT.API_STATUS.FAILED;
     });
 
     builder.addCase(fetchDevices.pending, (state, action) => {

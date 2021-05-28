@@ -7,6 +7,8 @@ import Document from "../modules/document";
 import { setMessageBox, setErrorBox, resetErrorBox, resetMessageBox } from "../slices/publicComponentSlice";
 import { message, sleep, getMoney } from "../lib/index";
 import _ from "lodash";
+import { notification } from "antd";
+import CacheStorage from "../lib/cache-storage";
 
 const initialState = {
   document: {},
@@ -78,7 +80,6 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
     const res = await saveTemporaryPayment(params);
     if (res.error) throw res.error;
     console.log("Save temp payment success");
-    console.log(approveTransaction);
 
     const invokeRes = await dispatch(invokeTerminal({transaction_amount: amount, cashout_amount: 0, approveTransaction: approveTransaction}));
 
@@ -88,8 +89,8 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
 
     if(transactionApproved) {
       message.success("Transaction Success");
-      //Clean up refetch document
-      dispatch(resetAll());
+      //Clean up re-fetch document
+      await dispatch(fetchDocument(document.id));
     }
     return res;
   } catch (e) {
@@ -97,6 +98,8 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
     console.log(e.message);
     // pop error
     return rejectWithValue(e.message);
+  } finally {
+    CacheStorage.removeItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL);
   }
 });
 
@@ -132,6 +135,10 @@ export const invokeTerminal = createAsyncThunk("document/invoke", async (data, {
 
     const res = await invokePos(params);
     if (res.error) throw res.error;
+
+    CacheStorage.setItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL, document);
+    console.log(document);
+
     dispatch(setCurrentTransactionId(document.transactionId));
 
     console.log(res);
@@ -293,42 +300,57 @@ const openEFTPOSWebSocket = (getStore, dispatch, previousMsg, approveTransaction
   });
 };
 
-const processWSMessage = (message, dispatch) => {
+const processWSMessage = (msg, dispatch) => {
+  // code 200 returned means FE and BE communication correctly
+  // Any returned data without code 200 will be ignored or treat as error connection
+  // Transaction status change, completed or accepted MUST BE in code 200. Otherwise ask backend to provide a full documentation including all possible returned data structure.
+
   let arrayContent = [], arrayBTNs = [];
   let isCompleted = false;
   let isAccepted =  false;
   let isCreditCard, cardType, surchargeAmount;
-  if (message.code === 204) return {isCompleted: isAccepted, arrayContent}; //Ignore 204 code
-  if ( message.code === 200 ) {
-    if (!message.pos_info.complete) {
+  if (msg.code === 204) return {isCompleted: isAccepted, arrayContent}; //Ignore 204 code
+  if ( msg.code === 200 ) {
+    if (!msg.pos_info.complete) {
       isCompleted = false;
       //UNCOMPLETED
-      arrayContent = message.pos_info.process.lines;
-      arrayBTNs = message.pos_info.process.buttons;
+      arrayContent = msg.pos_info.process.lines;
+      arrayBTNs = msg.pos_info.process.buttons;
     } else {
+      //COMPLETED
+      if (msg.msg) {
+        // Warning message most likely backend failed to post invoice return a warning
+        // Better to save as log here
+        notification.warning({
+          message: "Warning",
+          description: msg.msg,
+          duration: 0,
+        });
+        //message.warning(msg.msg);
+      }
       isCompleted = true;
-      if (!message.pos_info.recipe.accept) {
+      if (!msg.pos_info.recipe.accept) {
         //COMPLETED FAILURE
-        arrayContent = message.pos_info.recipe.lines;
+        arrayContent = msg.pos_info.recipe.lines;
         isAccepted = false;
       } else {
         //COMPLETED SUCCESS
-        arrayContent = message.pos_info.recipe.lines;
+        arrayContent = msg.pos_info.recipe.lines;
         isAccepted = true;
-        isCreditCard = message.pos_info.recipe.credit_card;
-        cardType = message.pos_info.recipe.card_type;
-        surchargeAmount = message.pos_info.recipe.surcharge_amount || 0;
+        isCreditCard = msg.pos_info.recipe.credit_card;
+        cardType = msg.pos_info.recipe.card_type;
+        surchargeAmount = msg.pos_info.recipe.surcharge_amount || 0;
       }
       setTimeout(() => {
         dispatch(setMessageBox({visible: false}));
       }, 1000);
     }
 
-  } else if (message.code === 1100) {
+  } else if (msg.code === 1100) {
     //Alert Error
-    arrayContent = [message.msg];
+    arrayContent = [msg.msg];
   } else {
-    arrayContent = [message.msg];
+    arrayContent = [msg.msg];
     //Alert Error message.error(message.msg)
   }
 
@@ -404,7 +426,7 @@ const DocumentSlice = createSlice({
   },
   extraReducers: {
     [fetchDocument.pending]: (state) => {
-      state.status = config.API_STATUS.LOADING;
+      return initialState;
     },
     [fetchDocument.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;

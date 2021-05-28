@@ -17,7 +17,7 @@ import {
   selectCurrentUser,
   selectAuthIsLoading,
   fetchDevices,
-  setShop, setLane
+  setShop, setLane, selectLane, selectShop
 } from "../../slices/authSlice";
 import { history } from "../MyRouter";
 
@@ -30,6 +30,8 @@ const AuthCheck = (props) => {
   const dispatch = useDispatch();
   const localShop = CacheStorage.getItem("SELECT_SHOP");
   const localLane = CacheStorage.getItem("SELECT_LANE");
+  const shop = useSelector(state => selectShop(state));
+  const lane = useSelector(state => selectLane(state));
   const store = useStore();
 
 
@@ -64,7 +66,7 @@ const AuthCheck = (props) => {
     );
   }
 
-  if (isLogin) {
+  if (isLogin && shop !== {} && lane !== {}) {
     return (
       <Layout>
         <div className="home-page-container">
