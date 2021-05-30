@@ -25,5 +25,6 @@ export default {
   },
   LOCALSTORAGE_SYMBOL: {
     DOCUMENT_SYMBOL: frontEndUrlSymbol() + "BIZEX_CATERING_POS_DOCUMENT",
+    DEVICE_SYMBOL: frontEndUrlSymbol() + "BIZEX_CATERING_POS_DEVICE",
   }
 };

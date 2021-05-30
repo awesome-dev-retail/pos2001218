@@ -44,6 +44,7 @@ export const fetchDocument = createAsyncThunk("document/fetchDocument", async (i
 
 export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (data, { getState, dispatch, rejectWithValue }) => {
   try {
+    console.warn("Start process EFTPOS transaction...");
     console.log(getState());
     const { Document, Auth } = getState();
     const { document, currentTransactionId, currentTransactionIsAccepted } = Document;
@@ -61,6 +62,7 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
 
     console.log(data);
     const isNewTransaction = !document.transactionId;
+    // console.log(document);
     if (isNewTransaction) {
       // Old transaction jump over this block
       let params = {
@@ -78,26 +80,32 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
         user_id: user.userinfo.id,
         original_id: 0,
       };
-      console.log(params);
+      // console.log(params);
       const res = await saveTemporaryPayment(params);
       if (res.error) throw res.error;
       console.log("Save temp payment success");
+    } else {
+      console.log("Skipped save temp payment...");
     }
 
     const invokeRes = await dispatch(invokeTerminal({isNewTransaction, transaction_amount: amount, cashout_amount: 0, approveTransaction: approveTransaction}));
 
     console.log(invokeRes);
-    console.log(transactionApproved);
+    // console.log(transactionApproved);
 
     if(transactionApproved) {
       message.success("Transaction Success");
+      console.warn("Transaction completed successfully");
       //Clean up re-fetch document
+    } else {
+      console.warn("Transaction completed with error");
     }
     await dispatch(fetchDocument(document.id));
 
   } catch (e) {
     console.log("processEFTPOS catch");
     console.log(e.message);
+    console.warn("Transaction completed with error");
     // pop error
     return rejectWithValue(e.message);
   } finally {
@@ -141,7 +149,7 @@ export const invokeTerminal = createAsyncThunk("document/invoke", async (data, {
 
       const res = await invokePos(params);
       if (res.error) throw res.error;
-      console.log(res);
+      // console.log(res);
       if (res.data && res.data.pos_info) {
         const { pos_info } = res.data;
         let contentList = pos_info.process.lines;
@@ -159,6 +167,7 @@ export const invokeTerminal = createAsyncThunk("document/invoke", async (data, {
       }
     } else {
       // Reconnection initial message before first valid socket message return
+      console.log("Skipped invoke terminal....");
       dispatch(setMessageBox({
         title: "EFTPOS PROCESS",
         contentList: ["PLEASE WAIT", "CONNECTING EFTPOS PROVIDER SERVER"],
@@ -221,11 +230,11 @@ export const connectSocket = createAsyncThunk("document/connectSocket", async (d
 });
 
 const reconnectSocket = async (dispatch, source, socketReconnectTimesRemain, approveTransaction, getState) => {
-  console.log(source);
+  // console.log(source);
   const { lastMsgGetFromSocket } = source;
   const { Document } = getState();
   const { document } = Document;
-  console.log(document);
+  // console.log(document);
   const socketCode = lastMsgGetFromSocket.code;
   const socketIsComplete = lastMsgGetFromSocket.pos_info && lastMsgGetFromSocket.pos_info.complete;
   console.log(`socket is complete: ${socketIsComplete} socket code: ${socketCode} reconnect remain times ${socketReconnectTimesRemain}`);
@@ -245,13 +254,13 @@ const openEFTPOSWebSocket = (getStore, dispatch, previousMsg, approveTransaction
     const { document } = Document;
     const { transactionId } = document;
     const ws_url = `${getWebSocketBaseUrl(config.BASE_URL)}/payment/pos/progress?shopId=${shop.id}&deviceId=${device.device_id}&transactionId=${transactionId}&token=${token}`;
-    console.log(ws_url);
+    console.log(`Opening socket to ${ws_url}...`);
     const ws = new WebSocket(ws_url);
     dispatch(setWs(ws));
     let timer;
     let heartBeatInterval;
     let lastMsgGetFromSocket = previousMsg || {};
-    console.log(ws);
+    // console.log(ws);
     ws.onopen =  e => {
       // Save log
       console.log("ws is open");
@@ -283,7 +292,7 @@ const openEFTPOSWebSocket = (getStore, dispatch, previousMsg, approveTransaction
       }
       if (isCompleted) {
         // dispatch(resetTransactionId());
-        console.log("got completed message from socket");
+        console.log("Got completed message from socket");
         console.log({isCompleted, isAccepted, arrayContent});
         clearInterval(heartBeatInterval);
         if (isAccepted) {
@@ -387,7 +396,7 @@ const processWSMessage = (msg, dispatch, getStore) => {
 
 const handleCancelBtnClick = async (key, val, shopId, deviceId) => {
   try {
-    console.log("cancel btn clicked" + key + val + shopId + deviceId);
+    console.log("Cancel btn clicked" + key + val + shopId + deviceId);
     const res = await cancelEftPos(shopId, deviceId, key, val);
     if (res.error) throw res.error;
   } catch (e) {

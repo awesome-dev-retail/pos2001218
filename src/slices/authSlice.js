@@ -99,7 +99,7 @@ const authSlice = createSlice({
       state.shop = action.payload;
     },
     setDevice(state, action) {
-      //
+      state.device = action.payload;
     },
     setLane(state, action) {
       state.lane = action.payload;
@@ -201,6 +201,7 @@ const authSlice = createSlice({
         state.devices = action.payload.data;
         //todo: hard coding below to replace it whenever device setting page is done
         state.device = action.payload.data[2];
+        CacheStorage.setItem(CONSTANT.LOCALSTORAGE_SYMBOL.DEVICE_SYMBOL);
       }
     });
 

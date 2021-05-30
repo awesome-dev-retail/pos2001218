@@ -17,7 +17,7 @@ import {
   selectCurrentUser,
   selectAuthIsLoading,
   fetchDevices,
-  setShop, setLane, selectLane, selectShop
+  setShop, setLane, selectLane, selectShop, setDevice
 } from "../../slices/authSlice";
 import { history } from "../MyRouter";
 import { connectSocket, setDocument } from "../../slices/documentSlice";
@@ -33,6 +33,9 @@ const AuthCheck = (props) => {
   const dispatch = useDispatch();
   const localShop = CacheStorage.getItem("SELECT_SHOP");
   const localLane = CacheStorage.getItem("SELECT_LANE");
+
+
+
   const localDocument = CacheStorage.getItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL);
   const shop = useSelector(state => selectShop(state));
   const lane = useSelector(state => selectLane(state));
@@ -50,6 +53,7 @@ const AuthCheck = (props) => {
       if(localLane) {
         dispatch(setLane(localLane));
       }
+
 
       await dispatch(fetchDevices());
 
