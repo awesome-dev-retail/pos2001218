@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { history } from "../../components/MyRouter";
 
 import CacheStorage from "../../lib/cache-storage";
-import { formatNum, formatNumToTwoDecimal } from "../../services/formatNum";
+
 import { Badge, Modal, Button, Checkbox } from "antd";
 import {
   MenuOutlined,
@@ -22,27 +22,25 @@ import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
 import { selectCurrentUser } from "../../slices/authSlice";
-import { fetchDocument, selectShowSplitOrder, selectPaidPriceArr } from "../../slices/documentSlice";
 
 import {
   selectDishObjInOrder,
   setDishObjInOrder,
   setCurrentDish,
   selectCurrentDish,
-  clearCheckedDish,
   selectCashierStatus,
+  selectShowSplitOrder,
   setShowCashier,
   calculateInvoice,
   saveInvoice,
-  listDocument,
-  cancelInvoice,
   setCurrentInvoice,
+  selectPaidPriceArr,
 } from "../../slices/dishSlice";
 import { selectInvoice } from "../../slices/dishSlice";
 
-import { selectDocument } from "../../slices/documentSlice";
+import { fetchDocument } from "../../slices/documentSlice";
 
-import { fetchTableById, fetchTableListInShop, saveTable, endTable } from "../../slices/tableSlice";
+import { fetchTableById, fetchTableListInShop, saveTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
 
 import { createInvoice } from "../../services/createInvoice";
@@ -53,7 +51,6 @@ import morentouxiang from "../../assets/images/morentouxiang.png";
 import sousuo from "../../assets/images/sousuo.png";
 
 import "./OrderList.scss";
-import { message } from "../../lib";
 function OrderList(props) {
   // const [currentDish, setCurrentDish] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
@@ -74,36 +71,44 @@ function OrderList(props) {
   const remarkList = ["Spicy", "Salted", "No nut", "Vegetarian"];
   // const remarkList = ["不加香菜", "不放辣", "不加葱花", "少盐", "素食"];
   const dispatch = useDispatch();
+  // eslint-disable-next-line react/prop-types
+  const pathname = props.location.pathname + "";
+  const tableId = pathname.split("/")[3] * 1;
+  const invoiceFromSlice = useSelector((state) => selectInvoice(state)) || {};
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
+  const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
   const currentDish = useSelector((state) => selectCurrentDish(state));
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
-
-  const documentFromSlice = useSelector((state) => selectDocument(state)) || {};
-
-  const billList = JSON.parse(JSON.stringify(documentFromSlice.invoice_lines || [])) || [];
-
-  const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
-
   const paidPriceArr = useSelector((state) => selectPaidPriceArr(state));
+  console.log("paidPriceArr-------", paidPriceArr);
 
   const { confirm } = Modal;
   useEffect(async () => {
     // eslint-disable-next-line react/prop-types
-    const invoiceId = props.match.params.invoiceId;
-    dispatch(fetchDocument(invoiceId));
-    dispatch(setCurrentDish({}));
-    dispatch(clearCheckedDish());
+    // console.log("=====================", props);
+    // console.log(tableId);
+    await dispatch(fetchTableById(tableId));
+    dispatch(setDishObjInOrder([]));
+    const arr = CacheStorage.getItem("dishObjInOrder_" + "1_" + tableId);
+    if (arr) {
+      dispatch(setDishObjInOrder(arr));
+    }
+
+    const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
+
+    if (obj) {
+      dispatch(setCurrentInvoice(obj));
+    }
   }, []);
 
   const updateCount = async (value) => {
     if (currentDish.id) {
       let copyCurrentDish = JSON.parse(JSON.stringify(currentDish));
       copyCurrentDish.count += value;
-      // 数量为0  删除
       if (!copyCurrentDish.count) {
         // setCurrentDish({});
         dispatch(setCurrentDish({}));
@@ -146,12 +151,16 @@ function OrderList(props) {
         okText: "Yes",
         okType: "danger",
         cancelText: "No",
-        onOk() {
-          dispatch(endTable(table.id));
+        async onOk() {
+          let tableObj = Object.assign({}, table);
+          tableObj.status = "Available";
+          await dispatch(saveTable(tableObj));
           // await dispatch(fetchTableListInShop(1));
           // eslint-disable-next-line react/prop-types
-
-          // CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
+          props.history.push("/");
+          // copyDishOrder = [];
+          CacheStorage.removeItem("invoice_" + "1_" + table.id);
+          CacheStorage.removeItem("dishObjInOrder_" + "1_" + table.id);
         },
         onCancel() {
           // console.log("Cancel");
@@ -186,36 +195,13 @@ function OrderList(props) {
     let count = 0,
       price = 0,
       oldPrice = 0;
-
-    billList &&
-      billList.forEach((item) => {
-        count += item.line_qty || 1;
-        price += (item.count || 1) * item.unit_price;
-        oldPrice += (item.count || 1) * item.unit_cost;
-      });
-    return { count, price: price.toFixed(2), oldPrice: oldPrice.toFixed(2) };
-  }, [JSON.stringify(billList)]);
-
-  const handleSetTab = (index) => {
-    setOrderTabIndex(index);
-  };
-
-  const handleChangeBox = (e, index) => {
-    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
-    let { checked } = e.target;
-    copyDishObjFromSlice[index].checked = checked;
-    dispatch(setDishObjInOrder(copyDishObjFromSlice));
-  };
-
-  const getCheckDishObjInOrderPrice = useMemo(() => {
-    let price = 0;
-    dishObjFromSlice.forEach((item) => {
-      if (item.checked) {
-        price += (item.count || 1) * item.unit_price;
-      }
+    dishObjFromSlice.filter(Boolean).forEach((item) => {
+      count += item.count || 1;
+      price += (item.count || 1) * item.unit_price;
+      oldPrice += (item.count || 1) * item.unit_cost;
     });
-    return price;
-  }, [dishObjFromSlice]);
+    return { count, price: price.toFixed(2), oldPrice: oldPrice.toFixed(2) };
+  }, [JSON.stringify(dishObjFromSlice)]);
 
   let currentDishCopy = JSON.parse(JSON.stringify(currentDish));
   const handleCheckRemark = (item) => {
@@ -244,12 +230,23 @@ function OrderList(props) {
     dispatch(setDishObjInOrder(copyDishObjFromSlice));
   };
 
-  // const handlePayment = () => {
-  //   let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
-  //   const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
-  //   dispatch(saveInvoice(invoice));
-  //   // dispatch(setShowCashier(true));
-  // };
+  const handleUpdateCashierStatus = () => {
+    // const copyInvoice = JSON.parse(JSON.stringify(invoiceFromSlice));
+    // const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
+    // console.log("=====================copyInvoice", table.id, copyInvoice);
+    // eslint-disable-next-line react/prop-types
+    // props.history.push(`/payment/${copyInvoice.InvoiceID}`);
+    if (invoiceFromSlice.InvoiceID > 0) {
+      history.push(`/order/payment/${invoiceFromSlice.InvoiceID}`);
+    } else {
+      dispatch(saveInvoice(table));
+    }
+    // dispatch(setShowCashier(true));
+  };
+  /**
+   *
+   * @param {*} number
+   */
 
   const hanndleUpdateCount = (number) => {
     let materialData = [];
@@ -283,6 +280,28 @@ function OrderList(props) {
     copyDishObjFromSlice.splice(index, 1, currentDishCopy);
     dispatch(setDishObjInOrder(copyDishObjFromSlice));
   };
+
+  const handleSetTab = (index) => {
+    setOrderTabIndex(index);
+  };
+
+  const handleChangeBox = (e, index) => {
+    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
+    let { checked } = e.target;
+    copyDishObjFromSlice[index].checked = checked;
+    dispatch(setDishObjInOrder(copyDishObjFromSlice));
+  };
+
+  const getCheckDishObjInOrderPrice = useMemo(() => {
+    let price = 0;
+    dishObjFromSlice.forEach((item) => {
+      if (item.checked) {
+        price += (item.count || 1) * item.unit_price;
+      }
+    });
+    return price;
+  }, [dishObjFromSlice]);
+
   const drawerDom = useMemo(() => {
     let dom = null;
     if (currentMeun === "feeding") {
@@ -327,26 +346,19 @@ function OrderList(props) {
     }
     return dom;
   }, [currentMeun, currentTabIndex, currentDish]);
-
-  // const handleCancelPayment = () => {
-  //   dispatch(cancelInvoice(table));
-  // };
-
-  const handleCancelPayment = async () => {
-    // if (!table.uncomplete_invoices) {
-    //   message.warning("No uncompleted invoice");
-    //   return;
-    // } else {
-    //   if (table.uncomplete_invoices.length !== 0) dispatch(cancelInvoice(table.uncomplete_invoices[0].id));
-    // }
-    const params = { invoiceId: documentFromSlice.id, tableId: documentFromSlice.table_id };
-    dispatch(cancelInvoice(params));
-  };
-
   return (
     <div className="table-info-container">
       <div className="inner">
         <div className="table-info-inner">
+          <div className="top-info">
+            {/* <div className="top-info" onClick={() => setShowTableInfo(false)}> */}
+            <span>
+              Table Name: {table.table_name || ""}
+              {/* Table Name: {table.table_name || ""}，2/{table.capacity} */}
+            </span>
+            {/* <span>桌台1，人数12/12</span> */}
+            {/* <CaretDownOutlined /> */}
+          </div>
           {showSplitOrder && (
             <div className="order-tabs">
               {["Items", "Portion"].map((item, index) => (
@@ -466,13 +478,12 @@ function OrderList(props) {
             </div>
           )}
           <div className="btn-group">
-            <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
-            {/* <button>Add Dish</button> */}
-            {/* {!cashierStatus && <button onClick={handlePayment}>PAY</button>} */}
+            <div>Add Dish</div>
+            {!cashierStatus && <div onClick={handleUpdateCashierStatus}>Checkout</div>}
           </div>
         </div>
       </div>
-      {/* <div className="table-info-menus">
+      <div className="table-info-menus">
         <Counter count={currentDish.count || 0} updateCount={updateCount} />
         {tableMenus.map((item) => (
           <div className="table-info-menu-item" key={item.key} onClick={() => handleOperation(item.key)}>
@@ -488,7 +499,7 @@ function OrderList(props) {
             <div>Batch</div>
           </div>
         </div>
-      </div> */}
+      </div>
       {/* <div className={"drawer hide"}> */}
       <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
         <div className="drawer-header">

@@ -11,8 +11,18 @@ import zfb from "../../assets/images/zfb.png";
 // import free from "../../assets/images/free.png";
 import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch, useStore } from "react-redux";
-import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
-import { fetchDocument, processEFTPOS, selectDocument, selectDocumentIsLoading, resetAll } from "../../slices/documentSlice";
+import {
+  fetchDocument,
+  processEFTPOS,
+  selectDocument,
+  selectDocumentIsLoading,
+  resetAll,
+  setBillList,
+  selectShowSplitOrder,
+  setShowSplitOrder,
+  setPaidPriceArr,
+  selectPaidPriceArr,
+} from "../../slices/documentSlice";
 import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 import { savePayment, completePayment } from "../../slices/paymentSlice";
 import { selectPayment } from "../../slices/paymentSlice";
@@ -27,7 +37,6 @@ const Cashier = (props) => {
   const [payMoney, setPayMoney] = useState(0);
   const [showCalcultor, setShowCalcultor] = useState(true);
   const [money, setMoney] = useState({});
-  const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state));
   const document = useSelector((state) => selectDocument(state));
   const documentFromSlice = useSelector((state) => selectDocument(state)) || {};
   const paymentFromSlice = useSelector((state) => selectPayment(state)) || {};
@@ -35,6 +44,10 @@ const Cashier = (props) => {
   const store = useStore();
   const messageBox = useSelector((state) => selectMessageBox(state));
   const isLoading = useSelector((state) => selectDocumentIsLoading(state));
+  const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
+  const paidPriceArr = useSelector((state) => selectPaidPriceArr(state));
+
+  const billList = JSON.parse(JSON.stringify(documentFromSlice.invoice_lines || [])) || [];
 
   useEffect(() => {
     return () => {
@@ -138,13 +151,27 @@ const Cashier = (props) => {
   };
 
   const handleClickOperation = (name) => {
+    debugger;
     if (name === "CASH") {
-      // console.log(name);
-      const copyDocument = JSON.parse(JSON.stringify(documentFromSlice));
-      const payment = createPayment(copyDocument, payMoney);
-      dispatch(savePayment(payment));
+      let paidPrice = 0;
+      let notPaidOrder = billList.filter((i) => {
+        if (i.checked) {
+          paidPrice += i.line_amount;
+          // paidPrice += (i.count || 1) * i.unit_price;
+        }
+        return i.checked !== true;
+      });
+      let tempPaidPriceArr = [...paidPriceArr];
+      tempPaidPriceArr.push(paidPrice);
+      dispatch(setBillList(notPaidOrder));
+      // dispatch(setDishObjInOrder(notPaidOrder));
+      dispatch(setPaidPriceArr(tempPaidPriceArr));
+      // const copyDocument = JSON.parse(JSON.stringify(documentFromSlice));
+      // const payment = createPayment(copyDocument, payMoney);
+      // dispatch(savePayment(payment));
       setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
+      dispatch(setShowSplitOrder(true));
     } else if (name === "EFT-POS") {
       console.log(document);
       processEFTPOSTransaction();
@@ -175,10 +202,10 @@ const Cashier = (props) => {
   };
 
   const handleCompletePayment = () => {
+    setShowCashPage(false);
     // eslint-disable-next-line react/prop-types
-    const pathname = props.location.pathname + "";
-    const invoiceID = pathname.split("/")[3] * 1;
-    dispatch(completePayment(invoiceID));
+    const invoiceId = props.match.params.invoiceId;
+    dispatch(completePayment(invoiceId));
   };
 
   return (
@@ -226,6 +253,9 @@ const Cashier = (props) => {
               <div className="complete-btn" onClick={handleCompletePayment}>
                 COMPELETE SALE
               </div>
+              {/* <div className="complete-btn" onClick={() => setShowCashPage(false)}>
+                COMPELETE SALE
+              </div> */}
             </div>
           </div>
         )}

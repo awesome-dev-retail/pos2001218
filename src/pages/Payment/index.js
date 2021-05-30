@@ -29,35 +29,10 @@ const Order = (props) => {
   const [showCheckout, setShowCheckout] = useState(false);
 
   return (
-    // <div className="order-page-container">
-    //   <main className="main">
-    //     <OrderList></OrderList>
-    //     {cashierStatus ? (
-    //       <div className="right-container cashier">
-    //         <Cashier />
-    //       </div>
-    //     ) : (
-    //       <div className="right-container">
-    //         <DishList></DishList>
-    //         <DishCategory></DishCategory>
-    //       </div>
-    //     )}
-    //   </main>
-    // </div>
     <div className="order-page-container">
       <main className="main">
         <OrderList></OrderList>
         <Cashier></Cashier>
-        {/* {cashierStatus ? (
-            
-            <Cashier />
-          </div>
-        ) : (
-          <div className="right-container">
-            <DishList></DishList>
-            <DishCategory></DishCategory>
-          </div>
-        )} */}
       </main>
     </div>
   );

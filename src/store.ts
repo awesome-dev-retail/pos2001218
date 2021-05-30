@@ -1,5 +1,5 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
-import appReducer from "./slices/appSlice.js";
+import appReducer from "./slices/appSlice";
 import authReducer from "./slices/authSlice.js";
 import areaReducer from "./slices/areaSlice";
 import tableReducer from "./slices/tableSlice";
@@ -57,6 +57,7 @@ export default configureStore({
 
         "document/fetchDocument/pending",
         "document/fetchDocument/fulfilled",
+        "document/setShowSplitOrder/fulfilled",
 
         "document/processEFTPOS/fulfilled",
         "document/processEFTPOS/pending",

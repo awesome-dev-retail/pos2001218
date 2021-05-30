@@ -9,6 +9,10 @@ import { message, sleep, getMoney } from "../lib/index";
 
 const initialState = {
   document: {},
+  billList: [],
+  showSplitOrder: false,
+  splitOrder: [],
+  paidPriceArr: [],
   showCashier: false,
   status: config.API_STATUS.IDLE,
   error: null,
@@ -383,6 +387,15 @@ const DocumentSlice = createSlice({
     resetAll(state, action) {
       state = { ...initialState };
     },
+    setBillList(state, action) {
+      state.billList = action.payload;
+    },
+    setShowSplitOrder(state, action) {
+      state.showSplitOrder = action.payload;
+    },
+    setPaidPriceArr(state, action) {
+      state.paidPriceArr = action.payload;
+    },
     // setDocumentObjInOrder(state, action) {
     //   state.documentObjInOrder = action.payload;
     // },
@@ -452,9 +465,11 @@ const DocumentSlice = createSlice({
 
 // export const { } = DocumentSlice.actions;
 // export const selectCashierStatus = (state) => state.Document.showCashier;
-export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactionIsAccepted, setLastMessage, resetAll, setWs } = DocumentSlice.actions;
+export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactionIsAccepted, setLastMessage, resetAll, setWs, setShowSplitOrder, setPaidPriceArr, setBillList } = DocumentSlice.actions;
 
 export const selectDocument = (state) => state.Document.document;
 export const selectDocumentIsLoading = (state) => state.Document.status === config.API_STATUS.LOADING;
+export const selectShowSplitOrder = (state) => state.Document.showSplitOrder;
+export const selectPaidPriceArr = (state) => state.Document.paidPriceArr;
 
 export default DocumentSlice.reducer;

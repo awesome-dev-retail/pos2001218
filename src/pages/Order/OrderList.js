@@ -429,7 +429,7 @@ function OrderList(props) {
               }}>
               BACK
             </button>
-            {/* <button onClick={handleCancelPayment}>CANCEL PAYMENT</button> */}
+            <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
             {/* <button>Add Dish</button> */}
             {!cashierStatus && <button onClick={handlePayment}>PAY</button>}
           </div>
