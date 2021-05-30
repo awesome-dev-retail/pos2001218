@@ -25,6 +25,7 @@ export default class Document {
     this.invoice_lines = doc.invoice_lines;
     this.payment_lines = doc.payment_lines;
     this.suspect_payment_lines = doc.suspect_payment_lines;
+    this.transactionId = doc.transactionId || "";
   }
 
   generateTransactionId = (deviceId) => {
@@ -39,7 +40,7 @@ export default class Document {
     this.invokeMessage = message;
   }
 
-  resetMessage = () => {
+  resetMessage = function() {
     delete this.invokeMessage;
   }
 
