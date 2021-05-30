@@ -367,11 +367,10 @@ function OrderList(props) {
             {dishObjFromSlice.map((item, index) => (
               <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
                 {showSplitOrder && <Checkbox className="check-box" onChange={(e) => handleChangeBox(e, index)}></Checkbox>}
-                <div>
-                  <div className="bill-name">
-                    <div>{item.description}</div>
-                    {item.tip && <div className="food-tip">{item.tip}</div>}
-                  </div>
+                <div className="bill-name">
+                  <div>{item.description}</div>
+                  {item.tip && <div className="food-tip">{item.tip}</div>}
+                  {/* </div> */}
                   {item.material && item.material.length > 0 && item.material[0].count > 0 && (
                     <div className="materials">
                       Extras:

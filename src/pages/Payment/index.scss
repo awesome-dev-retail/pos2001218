@@ -64,6 +64,7 @@
           cursor: pointer;
           padding: 15px 20px;
           font-weight: bold;
+          font-size: 15px;
           .anticon {
             color: #535353;
             margin-left: 4px;
@@ -81,12 +82,14 @@
               background: #c6daf6;
             }
             .check-box {
+              // flex-basis: 20px;
               transform: scale(1.5);
-              margin-right: 20px;
+              // margin-right: 20px;
             }
             .bill-name {
               // flex: 1;
-              flex-basis: 140px;
+              // text-align: left;
+              flex-basis: 250px;
               > div:first-of-type {
                 font-weight: bold;
               }
