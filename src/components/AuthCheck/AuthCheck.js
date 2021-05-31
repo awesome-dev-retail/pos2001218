@@ -45,7 +45,7 @@ const AuthCheck = (props) => {
       if (localDocument) {
         const { id } = localDocument;
         const { location } = props;
-        const url = `/order/payment/${id}`;
+        const url = `/payment/${id}`;
         if (location.pathname !== url) {
           history.push(url);
         }

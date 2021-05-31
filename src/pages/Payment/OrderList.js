@@ -95,7 +95,7 @@ function OrderList(props) {
     // console.log(history);
     // eslint-disable-next-line react/prop-types
     const invoiceId = props.match.params.invoiceId;
-    dispatch(fetchDocument(invoiceId));
+    // dispatch(fetchDocument(invoiceId));
     dispatch(setCurrentDish({}));
     dispatch(clearCheckedDish());
   }, []);

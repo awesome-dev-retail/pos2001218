@@ -479,8 +479,8 @@ const DocumentSlice = createSlice({
     },
     [fetchDocument.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.document = action.payload.data;
-      // state.document = new Document(action.payload.data);
+      // state.document = action.payload.data;
+      state.document = new Document(action.payload.data);
 
       // const copyDocument = JSON.parse(JSON.stringify(state.document));
 

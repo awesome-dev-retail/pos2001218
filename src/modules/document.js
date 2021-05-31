@@ -16,6 +16,7 @@ export default class Document {
     this.document_date = doc.document_date;
     this.status = doc.status;
     this.description = doc.description;
+    this.doc_gross_amount = doc.doc_gross_amount;
     this.doc_net_amount = doc.doc_net_amount;
     this.doc_GST_amount = doc.doc_GST_amount;
     this.user_id = doc.user_id;

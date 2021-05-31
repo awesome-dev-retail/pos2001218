@@ -77,8 +77,7 @@ const Cashier = (props) => {
 
   const initialDoc = async () => {
     // eslint-disable-next-line react/prop-types
-    const pathname = props.location.pathname + "";
-    const invoiceID = pathname.split("/")[3] * 1;
+    const invoiceId = props.match.params.invoiceId;
 
     //todo: hard coding below to replace it whenever device setting page is ready
     if (localDevice) {
@@ -99,7 +98,7 @@ const Cashier = (props) => {
       }
     } else {
       console.log("Document build from cloud...");
-      await dispatch(fetchDocument(invoiceID));
+      await dispatch(fetchDocument(invoiceId));
     }
   };
 
