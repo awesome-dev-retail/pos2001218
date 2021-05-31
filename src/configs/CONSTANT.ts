@@ -8,9 +8,11 @@ export default {
     HOME: "/",
     ABOUT: "/about",
     LOGIN: "/login",
-    ORDER: "/order",
-    ORDER_LIST: "/order/table/:tableId",
-    ORDER_PAYMENT: "/order/payment/:invoiceId",
+    // ORDER: "/order",
+    // ORDER_LIST: "/order/table/:tableId",
+    // ORDER_PAYMENT: "/order/payment/:invoiceId",
+    TABLE: "/table/:tableId",
+    PAYMENT: "/payment/:invoiceId",
     SELECT_SHOP: "/select-shop",
   },
   API_STATUS: {
@@ -21,10 +23,10 @@ export default {
   },
   TIME_FORMAT: {
     BACKEND_DATETIME: "YYYY-MM-DD HH:mm:ss",
-    FRONTEND_DATE: "DD/MM/YYYY"
+    FRONTEND_DATE: "DD/MM/YYYY",
   },
   LOCALSTORAGE_SYMBOL: {
     DOCUMENT_SYMBOL: frontEndUrlSymbol() + "BIZEX_CATERING_POS_DOCUMENT",
     DEVICE_SYMBOL: frontEndUrlSymbol() + "BIZEX_CATERING_POS_DEVICE",
-  }
+  },
 };

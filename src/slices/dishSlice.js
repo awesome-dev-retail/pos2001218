@@ -3,8 +3,8 @@ import config from "../configs/index";
 import { history } from "../components/MyRouter";
 
 import CacheStorage from "../lib/cache-storage";
+import { message } from "../lib";
 
-// import { CacheStorage, message } from "../lib";
 import { dishListRequest, dishListInMenuRequest, saveDishRequest, deleteDishRequest, calculateInvoiceRequest, saveInvoiceRequest, listInvoiceRequest, cancelInvoiceRequest } from "../services";
 import axios from "axios";
 import { createDishObjInOrder } from "../services/createDishObjInOrder";
@@ -13,23 +13,14 @@ const initialState = {
   dish: [],
   dishObjInOrder: [],
   // addedDish: null,
-  invoice: {},
-  document: {},
+  // invoice: {},
+  // document: {},
   showCashier: false,
   currentDish: {},
   status: "",
   error: null,
 };
 
-// export const dishListRequest = (shopId: any) => {
-//   return api.request({
-//     url: `/pos/data/dish/list_in_shop?shopId=${shopId}`,
-//     method: "get",
-//     headers: {
-//       Authorization: "2fse783mcEIlui4pN5i7WQ==",
-//     },
-//   });
-// };
 export const fetchDishListInShop = createAsyncThunk("dish/fetchDishListInShop", async (shopId, { rejectWithValue }) => {
   try {
     const res = await dishListRequest(shopId);
@@ -92,7 +83,7 @@ export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (invoice, 
     // const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
     const res = await saveInvoiceRequest(invoice);
     if (res.error) throw res.error;
-    history.push(`/order/payment/${res.data.InvoiceID}`);
+    history.push(`/payment/${res.data.InvoiceID}`);
     console.log("saveInvoice--------------", res);
     return res;
   } catch (e) {
@@ -111,13 +102,17 @@ export const listDocument = createAsyncThunk("dish/listDocument", async (tableID
   }
 });
 
-export const cancelInvoice = createAsyncThunk("dish/cancelDocument", async (invoiceID, { rejectWithValue }) => {
+export const cancelInvoice = createAsyncThunk("dish/cancelDocument", async ({ invoiceId, tableId }, { rejectWithValue }) => {
   try {
-    const res = await cancelInvoiceRequest(invoiceID);
+    const res = await cancelInvoiceRequest(invoiceId);
     if (res.error) throw res.error;
+    message.success("Cancel Invoice successfully!");
+    history.push("/");
+    CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
     console.log("cancelDocument--------------", res);
     return res;
   } catch (e) {
+    // console.log("cancelDocument,message--------------", e.message);
     return rejectWithValue(e.message);
   }
 });
@@ -181,7 +176,7 @@ const DishSlice = createSlice({
     },
     [saveInvoice.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
-      // message.error(action.payload);
+      message.error(action.payload);
     },
     [listDocument.pending]: (state) => {
       state.status = config.API_STATUS.LOADING;
@@ -205,17 +200,15 @@ const DishSlice = createSlice({
     },
     [cancelInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.invoice = action.payload.data;
-      // CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
-
       state.error = null;
+
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
       // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
     },
     [cancelInvoice.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
-      // message.error(action.payload);
+      message.error(action.payload);
     },
     [fetchDishListInShop.pending]: (state) => {
       state.status = config.API_STATUS.LOADING;
@@ -298,7 +291,6 @@ const DishSlice = createSlice({
 
 export const { setDishObjInOrder, setCurrentDish, clearCheckedDish, setShowCashier, setCurrentInvoice } = DishSlice.actions;
 
-export const selectInvoice = (state) => state.Dish.invoice;
 export const selectCashierStatus = (state) => state.Dish.showCashier;
 
 export const selectDishList = (state) => state.Dish.dish;

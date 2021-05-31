@@ -4,26 +4,15 @@ import Logo from "../../assets/images/Bizex_FinalLogo.jpg";
 
 import { Redirect, withRouter } from "react-router-dom";
 import CONSTANT from "../../configs/CONSTANT";
-import {useSelector, useDispatch, useStore} from "react-redux";
+import { useSelector, useDispatch, useStore } from "react-redux";
 import CacheStorage from "../../lib/cache-storage";
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dropdown, Avatar, Layout, Spin } from "antd";
 import UIMenu from "../UIMenu";
-import {
-  fetchUser,
-  setUser,
-  setToken,
-  selectIsLogin,
-  selectCurrentUser,
-  selectAuthIsLoading,
-  fetchDevices,
-  setShop, setLane, selectLane, selectShop, setDevice
-} from "../../slices/authSlice";
+import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectAuthIsLoading, fetchDevices, setShop, setLane, selectLane, selectShop, setDevice } from "../../slices/authSlice";
 import { history } from "../MyRouter";
 import { connectSocket, setDocument } from "../../slices/documentSlice";
 import _ from "lodash";
-
-
 
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
@@ -34,30 +23,26 @@ const AuthCheck = (props) => {
   const localShop = CacheStorage.getItem("SELECT_SHOP");
   const localLane = CacheStorage.getItem("SELECT_LANE");
 
-
-
   const localDocument = CacheStorage.getItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL);
-  const shop = useSelector(state => selectShop(state));
-  const lane = useSelector(state => selectLane(state));
+  const shop = useSelector((state) => selectShop(state));
+  const lane = useSelector((state) => selectLane(state));
   const store = useStore();
-
 
   const checkAuth = async () => {
     if (token) {
       dispatch(setToken(token));
       dispatch(fetchUser());
 
-      if(localShop) {
+      if (localShop) {
         dispatch(setShop(localShop));
       }
-      if(localLane) {
+      if (localLane) {
         dispatch(setLane(localLane));
       }
 
-
       await dispatch(fetchDevices());
 
-      if(localDocument) {
+      if (localDocument) {
         const { id } = localDocument;
         const { location } = props;
         const url = `/order/payment/${id}`;
@@ -94,7 +79,9 @@ const AuthCheck = (props) => {
             <div>
               <MenuOutlined />
               Table
-              <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
+              <span>
+                <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
+              </span>
             </div>
             <button onClick={handleDevBtnClick}>Dev</button>
 

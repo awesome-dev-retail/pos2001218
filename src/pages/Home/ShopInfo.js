@@ -30,7 +30,7 @@ const ShopInfo = () => {
     tableListFromSlice.map((item) => {
       if (item.status === "Occupied") {
         unpaidOrder += 1;
-        unpaidAmount += item.GrossAmount;
+        unpaidAmount += item.totalAmount;
       }
     });
     setUnpaidOrder(unpaidOrder);
@@ -43,7 +43,7 @@ const ShopInfo = () => {
       <div className="week">
         {date} {week}
       </div>
-      <div>Skytower 1291928129012012</div>
+      <div>BizCafe 1291928129012012</div>
       <div className="statistics-inner">
         <div>
           <span>Unpaid Order</span>

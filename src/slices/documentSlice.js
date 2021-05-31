@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config, { getWebSocketBaseUrl } from "../configs/index";
 import CONSTANT from "../configs/CONSTANT";
 import moment from "moment";
-import {fetchDocumentRequest, saveTemporaryPayment, invokePos, cancelEftPos} from "../services";
+import { fetchDocumentRequest, saveTemporaryPayment, invokePos, cancelEftPos } from "../services";
 import Document from "../modules/document";
 import { setMessageBox, setErrorBox, resetErrorBox, resetMessageBox } from "../slices/publicComponentSlice";
 import { message, sleep, getMoney } from "../lib/index";
@@ -12,10 +12,14 @@ import CacheStorage from "../lib/cache-storage";
 
 const initialState = {
   document: {},
+  billList: [],
+  showSplitOrder: false,
+  splitOrder: [],
+  paidPriceArr: [],
   showCashier: false,
   status: config.API_STATUS.IDLE,
   error: null,
-  currentTransactionId:"",
+  currentTransactionId: "",
   currentTransactionIsAccepted: false,
   lastSocketMsg: {},
   ws: null,
@@ -31,9 +35,9 @@ const initialState = {
 //   });
 // };
 
-export const fetchDocument = createAsyncThunk("document/fetchDocument", async (invoiceID, { rejectWithValue }) => {
+export const fetchDocument = createAsyncThunk("document/fetchDocument", async (invoiceId, { rejectWithValue }) => {
   try {
-    const res = await fetchDocumentRequest(invoiceID);
+    const res = await fetchDocumentRequest(invoiceId);
     if (res.error) throw res.error;
     console.log("fetchDocument--------------", res);
     return res;
@@ -88,12 +92,12 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
       console.log("Skipped save temp payment...");
     }
 
-    const invokeRes = await dispatch(invokeTerminal({isNewTransaction, transaction_amount: amount, cashout_amount: 0, approveTransaction: approveTransaction}));
+    const invokeRes = await dispatch(invokeTerminal({ isNewTransaction, transaction_amount: amount, cashout_amount: 0, approveTransaction: approveTransaction }));
 
     console.log(invokeRes);
     // console.log(transactionApproved);
 
-    if(transactionApproved) {
+    if (transactionApproved) {
       message.success("Transaction Success");
       console.warn("Transaction completed successfully");
       //Clean up re-fetch document
@@ -101,7 +105,6 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
       console.warn("Transaction completed with error");
     }
     await dispatch(fetchDocument(document.id));
-
   } catch (e) {
     console.log("processEFTPOS catch");
     console.log(e.message);
@@ -137,13 +140,15 @@ export const invokeTerminal = createAsyncThunk("document/invoke", async (data, {
       };
 
       // Pop processing modal up
-      dispatch(setMessageBox({
-        title: "EFTPOS PROCESS",
-        contentList: ["PLEASE WAIT", "CONNECTING EFTPOS PROVIDER SERVER"],
-        btnList: [],
-        processing: "Connecting",
-        visible: true,
-      }));
+      dispatch(
+        setMessageBox({
+          title: "EFTPOS PROCESS",
+          contentList: ["PLEASE WAIT", "CONNECTING EFTPOS PROVIDER SERVER"],
+          btnList: [],
+          processing: "Connecting",
+          visible: true,
+        })
+      );
 
       CacheStorage.setItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL, document);
 
@@ -156,60 +161,67 @@ export const invokeTerminal = createAsyncThunk("document/invoke", async (data, {
         contentList.unshift(getMoney(transaction_amount + cashout_amount));
         const btnList = pos_info.process.buttons;
         // Update processing modal content with invoke returned data
-        dispatch(setMessageBox({
-          title: "EFTPOS PROCESS",
-          contentList: contentList,
-          btnList: addCancelBtnCallBack(btnList),
-          processing: "Connecting",
-          visible: true,
-        }));
+        dispatch(
+          setMessageBox({
+            title: "EFTPOS PROCESS",
+            contentList: contentList,
+            btnList: addCancelBtnCallBack(btnList),
+            processing: "Connecting",
+            visible: true,
+          })
+        );
         document.setMessageFromInvoke(res.data);
       }
     } else {
       // Reconnection initial message before first valid socket message return
       console.log("Skipped invoke terminal....");
-      dispatch(setMessageBox({
-        title: "EFTPOS PROCESS",
-        contentList: ["PLEASE WAIT", "CONNECTING EFTPOS PROVIDER SERVER"],
-        btnList: [],
-        processing: "Connecting",
-        visible: true,
-      }));
+      dispatch(
+        setMessageBox({
+          title: "EFTPOS PROCESS",
+          contentList: ["PLEASE WAIT", "CONNECTING EFTPOS PROVIDER SERVER"],
+          btnList: [],
+          processing: "Connecting",
+          visible: true,
+        })
+      );
     }
 
     // dispatch(setCurrentTransactionId(document.transactionId));
 
-    const socketRes = await dispatch(connectSocket({approveTransaction:approveTransaction}));
+    const socketRes = await dispatch(connectSocket({ approveTransaction: approveTransaction }));
     console.log(getState());
 
     console.log(socketRes);
 
     if (socketRes.error) {
       dispatch(resetMessageBox());
-      dispatch(setErrorBox({
-        visible: true,
-        title: "Transaction Error",
-        content: `Failed to process payment. Error returned from EFTPOS: ${socketRes.payload}`,
-      }));
+      dispatch(
+        setErrorBox({
+          visible: true,
+          title: "Transaction Error",
+          content: `Failed to process payment. Error returned from EFTPOS: ${socketRes.payload}`,
+        })
+      );
     }
     return socketRes;
   } catch (e) {
     dispatch(resetMessageBox());
-    dispatch(setErrorBox({
-      visible: true,
-      title: "Transaction Error",
-      content: `Failed to process payment. Error returned from EFTPOS: ${e.message}`,
-    }));
+    dispatch(
+      setErrorBox({
+        visible: true,
+        title: "Transaction Error",
+        content: `Failed to process payment. Error returned from EFTPOS: ${e.message}`,
+      })
+    );
     console.log("invokeTerminal catch");
     console.log(e);
     return rejectWithValue(e.message);
   }
 });
 
-
 export const connectSocket = createAsyncThunk("document/connectSocket", async (data, { getState, dispatch, rejectWithValue }) => {
-  let socketReconnectTimesRemain = data.hasOwnProperty("socketReconnectTimesRemain")  ? data.socketReconnectTimesRemain : config.SOCKET_RECONNECT_TIMES;
-  const {approveTransaction} = data;
+  let socketReconnectTimesRemain = data.hasOwnProperty("socketReconnectTimesRemain") ? data.socketReconnectTimesRemain : config.SOCKET_RECONNECT_TIMES;
+  const { approveTransaction } = data;
   try {
     console.log(data);
     const previousMsg = data.previousMsg || {};
@@ -240,9 +252,9 @@ const reconnectSocket = async (dispatch, source, socketReconnectTimesRemain, app
   console.log(`socket is complete: ${socketIsComplete} socket code: ${socketCode} reconnect remain times ${socketReconnectTimesRemain}`);
   if ((socketCode === 900 || socketCode === 200 || socketCode === 1006 || document.invokeMessage) && !socketIsComplete && socketReconnectTimesRemain > 0) {
     await sleep(5000);
-    message.warning(`Try to reconnect the socket... remain times = ${socketReconnectTimesRemain-1}`);
+    message.warning(`Try to reconnect the socket... remain times = ${socketReconnectTimesRemain - 1}`);
     console.log(`Try to reconnect the socket... remain times = ${socketReconnectTimesRemain}`);
-    await dispatch(connectSocket({socketReconnectTimesRemain: socketReconnectTimesRemain - 1, previousMsg: lastMsgGetFromSocket, approveTransaction}));
+    await dispatch(connectSocket({ socketReconnectTimesRemain: socketReconnectTimesRemain - 1, previousMsg: lastMsgGetFromSocket, approveTransaction }));
   }
 };
 
@@ -261,15 +273,15 @@ const openEFTPOSWebSocket = (getStore, dispatch, previousMsg, approveTransaction
     let heartBeatInterval;
     let lastMsgGetFromSocket = previousMsg || {};
     // console.log(ws);
-    ws.onopen =  e => {
+    ws.onopen = (e) => {
       // Save log
       console.log("ws is open");
       timer = setTimeout(() => {
         console.log("heart bit time out");
         ws.close();
-        reject({error: new Error("connection time out"), lastMsgGetFromSocket});
+        reject({ error: new Error("connection time out"), lastMsgGetFromSocket });
         // Save log
-      },3000);
+      }, 3000);
       ws.send(new Date().toString());
       heartBeatInterval = setInterval(() => {
         if (ws.readyState === 1) {
@@ -278,14 +290,14 @@ const openEFTPOSWebSocket = (getStore, dispatch, previousMsg, approveTransaction
       }, 500);
     };
 
-    ws.onmessage = e => {
+    ws.onmessage = (e) => {
       let res = JSON.parse(e.data);
       if (res.code !== 204) {
         lastMsgGetFromSocket = res;
       }
       clearTimeout(timer);
-      const {isCompleted, isAccepted, arrayContent} = processWSMessage(res, dispatch, getStore);
-      if(isAccepted) {
+      const { isCompleted, isAccepted, arrayContent } = processWSMessage(res, dispatch, getStore);
+      if (isAccepted) {
         console.log("Accepted");
         dispatch(setCurrentTransactionIsAccepted(true));
         approveTransaction();
@@ -293,35 +305,35 @@ const openEFTPOSWebSocket = (getStore, dispatch, previousMsg, approveTransaction
       if (isCompleted) {
         // dispatch(resetTransactionId());
         console.log("Got completed message from socket");
-        console.log({isCompleted, isAccepted, arrayContent});
+        console.log({ isCompleted, isAccepted, arrayContent });
         clearInterval(heartBeatInterval);
         if (isAccepted) {
-          resolve({lastMsgGetFromSocket, msg:"Transaction approved"});
+          resolve({ lastMsgGetFromSocket, msg: "Transaction approved" });
         } else {
-          reject({error: new Error(arrayContent.toString()), lastMsgGetFromSocket});
+          reject({ error: new Error(arrayContent.toString()), lastMsgGetFromSocket });
         }
         ws.close(1000);
       }
       timer = setTimeout(() => {
-        reject({error: new Error("Connection time out"), lastMsgGetFromSocket});
+        reject({ error: new Error("Connection time out"), lastMsgGetFromSocket });
         // Save log
       }, 3000);
       // Save log
     };
-    ws.onerror = e => {
+    ws.onerror = (e) => {
       // Save log
       console.log("socket error");
       console.log(JSON.stringify(e));
       clearInterval(heartBeatInterval);
-      reject({e, lastMsgGetFromSocket});
+      reject({ e, lastMsgGetFromSocket });
     };
-    ws.onclose = e => {
+    ws.onclose = (e) => {
       console.log("socket closed");
       console.log(JSON.stringify(e));
       clearInterval(heartBeatInterval);
       clearTimeout(timer);
       // save log
-      resolve({lastMsgGetFromSocket, msg:"socket is closed by server"});
+      resolve({ lastMsgGetFromSocket, msg: "socket is closed by server" });
     };
   });
 };
@@ -330,14 +342,15 @@ const processWSMessage = (msg, dispatch, getStore) => {
   // code 200 returned means FE and BE communication correctly
   // Any returned data without code 200 will be ignored or treat as error connection
   // Transaction status change, completed or accepted MUST BE in code 200. Otherwise ask backend to provide a full documentation including all possible returned data structure.
-  const {  Document } = getStore();
+  const { Document } = getStore();
   const { document } = Document;
-  let arrayContent = [], arrayBTNs = [];
+  let arrayContent = [],
+    arrayBTNs = [];
   let isCompleted = false;
-  let isAccepted =  false;
+  let isAccepted = false;
   let isCreditCard, cardType, surchargeAmount;
-  if (msg.code === 204) return {isCompleted: isAccepted, arrayContent}; //Ignore 204 code
-  if ( msg.code === 200 ) {
+  if (msg.code === 204) return { isCompleted: isAccepted, arrayContent }; //Ignore 204 code
+  if (msg.code === 200) {
     document.resetMessage();
     if (!msg.pos_info.complete) {
       isCompleted = false;
@@ -370,10 +383,9 @@ const processWSMessage = (msg, dispatch, getStore) => {
         surchargeAmount = msg.pos_info.recipe.surcharge_amount || 0;
       }
       setTimeout(() => {
-        dispatch(setMessageBox({visible: false}));
+        dispatch(setMessageBox({ visible: false }));
       }, 1000);
     }
-
   } else if (msg.code === 1100) {
     //Alert Error
     arrayContent = [msg.msg];
@@ -391,7 +403,7 @@ const processWSMessage = (msg, dispatch, getStore) => {
   };
   dispatch(setMessageBox(messageBox));
   // console.log("Completed message process");
-  return {isCompleted, isAccepted, isCreditCard, cardType, surchargeAmount, arrayContent};
+  return { isCompleted, isAccepted, isCreditCard, cardType, surchargeAmount, arrayContent };
 };
 
 const handleCancelBtnClick = async (key, val, shopId, deviceId) => {
@@ -406,16 +418,13 @@ const handleCancelBtnClick = async (key, val, shopId, deviceId) => {
 
 const addCancelBtnCallBack = (arrayBtn) => {
   if (arrayBtn.length > 0) {
-    arrayBtn = arrayBtn.map(btn => {
+    arrayBtn = arrayBtn.map((btn) => {
       btn["btn_callback"] = handleCancelBtnClick;
       return btn;
     });
   }
   return arrayBtn;
 };
-
-
-
 
 const DocumentSlice = createSlice({
   name: "document",
@@ -439,9 +448,21 @@ const DocumentSlice = createSlice({
     setWs(state, action) {
       state.ws = action.payload;
     },
+    resetAll(state, action) {
+      state = { ...initialState };
+    },
+    setBillList(state, action) {
+      state.billList = action.payload;
+    },
+    setShowSplitOrder(state, action) {
+      state.showSplitOrder = action.payload;
+    },
+    setPaidPriceArr(state, action) {
+      state.paidPriceArr = action.payload;
+    },
     setDocument(state, action) {
       state.document = action.payload;
-    }
+    },
     // setDocumentObjInOrder(state, action) {
     //   state.documentObjInOrder = action.payload;
     // },
@@ -458,8 +479,8 @@ const DocumentSlice = createSlice({
     },
     [fetchDocument.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      // state.document = action.payload.data;
-      state.document = new Document(action.payload.data);
+      state.document = action.payload.data;
+      // state.document = new Document(action.payload.data);
 
       // const copyDocument = JSON.parse(JSON.stringify(state.document));
 
@@ -505,15 +526,19 @@ const DocumentSlice = createSlice({
     },
     [connectSocket.rejected]: (state, action) => {
       console.error("connectSocket rejected");
-    }
+    },
   },
 });
 
 // export const { } = DocumentSlice.actions;
 // export const selectCashierStatus = (state) => state.Document.showCashier;
-export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactionIsAccepted, setLastMessage, setDocument, setWs } = DocumentSlice.actions;
+
+export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactionIsAccepted, setLastMessage, setDocument, resetAll, setWs, setShowSplitOrder, setPaidPriceArr, setBillList } =
+  DocumentSlice.actions;
 
 export const selectDocument = (state) => state.Document.document;
-export const selectDocumentIsLoading = state => state.Document.status === config.API_STATUS.LOADING;
+export const selectDocumentIsLoading = (state) => state.Document.status === config.API_STATUS.LOADING;
+export const selectShowSplitOrder = (state) => state.Document.showSplitOrder;
+export const selectPaidPriceArr = (state) => state.Document.paidPriceArr;
 
 export default DocumentSlice.reducer;

@@ -1,5 +1,5 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
-import appReducer from "./slices/appSlice.js";
+import appReducer from "./slices/appSlice";
 import authReducer from "./slices/authSlice.js";
 import areaReducer from "./slices/areaSlice";
 import tableReducer from "./slices/tableSlice";
@@ -24,7 +24,7 @@ export default configureStore({
     // Invoice: invoiceReducer,
   },
   middleware: getDefaultMiddleware({
-    serializableCheck: false
+    serializableCheck: false,
 
     //   ignoredActions: [
     //     "user/fetchUser/fulfilled",

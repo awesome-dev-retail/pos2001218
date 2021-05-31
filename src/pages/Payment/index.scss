@@ -81,10 +81,15 @@
             &.bill-item-current {
               background: #c6daf6;
             }
-
+            .check-box {
+              // flex-basis: 20px;
+              transform: scale(1.5);
+              // margin-right: 20px;
+            }
             .bill-name {
               // flex: 1;
-              flex-basis: 140px;
+              // text-align: left;
+              flex-basis: 250px;
               > div:first-of-type {
                 font-weight: bold;
               }
@@ -98,7 +103,6 @@
               color: #999;
             }
             .count {
-              // flex: 1;
               flex-basis: 50px;
               text-align: right;
             }
@@ -111,11 +115,33 @@
                 text-decoration: line-through;
               }
             }
-            // div:nth-of-type(1) {
-            //   // flex-basis: 140px;
-            // }
           }
         }
+        .order-tabs {
+          display: flex;
+          align-items: center;
+          > div {
+            flex-basis: 50%;
+            text-align: center;
+            background: #ccc;
+            height: 50px;
+            line-height: 50px;
+            cursor: pointer;
+            &.current-order-tab {
+              background: #fff;
+              box-shadow: 0 0 2px 2px #efefef;
+            }
+          }
+        }
+      }
+      .paid-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #efefef;
+        height: 50px;
+        line-height: 50px;
+        padding: 0 15px;
       }
       .table-bottom {
         padding: 15px 20px;
@@ -140,7 +166,7 @@
           }
           .tatal-money-top {
             display: flex;
-            border: 1px solid #efefef;
+            border: 1px solid #ccc;
             height: 40px;
             line-height: 40px;
             font-weight: bold;
@@ -154,7 +180,7 @@
             > div:first-of-type {
               flex-basis: 20%;
               text-align: center;
-              border-right: 1px solid #efefef;
+              border-right: 1px solid #ccc;
             }
             > div:last-of-type {
               flex: 1;
@@ -173,9 +199,10 @@
             }
           }
           .tatal-money-content {
-            border: 1px solid #efefef;
+            border: 1px solid #ccc;
             border-top: none;
             display: flex;
+            font-size: 12px;
             justify-content: space-between;
             font-size: 18px;
             font-weight: bold;
@@ -184,7 +211,7 @@
             }
             .left {
               flex-basis: 40%;
-              border-right: 1px solid #efefef;
+              border-right: 1px solid #ccc;
               .left-line {
                 display: flex;
                 align-items: center;
@@ -194,9 +221,7 @@
                 .text {
                   font-weight: bold;
                   color: #000;
-                  // display: inline-block;
                   width: 40px;
-                  margin-right: 15px;
                   text-align: left;
                 }
               }
@@ -208,7 +233,7 @@
               flex-basis: 26%;
               text-align: right;
               font-weight: bolder;
-              border-right: 1px solid #efefef;
+              border-right: 1px solid #ccc;
               div {
                 color: $bizex-pink;
                 font-size: 24px;
@@ -222,12 +247,32 @@
                 text-align: center;
               }
               > div:first-of-type {
-                border-bottom: 1px solid #efefef;
+                border-bottom: 1px solid #ccc;
               }
               > div:last-of-type {
                 padding-top: 15px;
               }
             }
+          }
+        }
+        .tatal-money-container-split {
+          display: flex;
+          justify-content: space-between;
+          color: #999;
+          > div:first-of-type {
+            .total-money {
+              font-weight: bold;
+              font-size: 20px;
+              color: $bizex-pink;
+            }
+          }
+          > div:last-of-type span {
+            color: #000;
+            margin-left: 5px;
+          }
+          .total-money-right {
+            font-weight: bold;
+            font-size: 18px;
           }
         }
         .btn-group {
@@ -238,18 +283,22 @@
             cursor: pointer;
             font-size: 18px;
             text-align: center;
-            flex: 1;
-            padding: 10px 5px;
-            margin-right: 5px;
+            flex-basis: 30px;
+            padding: 10px 1px;
             // border-radius: 4px;
             border: 1px solid $bizex-pink;
             color: $bizex-pink;
           }
-          > button:last-of-type {
-            background: $bizex-pink;
-            color: #fff;
-            margin-left: 10px;
-          }
+          // > div:last-of-type {
+          //   background: $bizex-pink;
+          //   color: #fff;
+          //   margin-left: 10px;
+          // }
+          // > button:last-of-type {
+          //   background: $bizex-pink;
+          //   color: #fff;
+          //   margin-left: 10px;
+          // }
           button:disabled {
             background: #dddddd;
             color: #b9b3b3;

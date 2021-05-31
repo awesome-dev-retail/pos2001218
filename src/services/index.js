@@ -66,7 +66,7 @@ export const startTableRequest = ({ tableId, guestNumber }) => {
   return api.request({
     // url: `/pos/data/dinner_table/end/${tableId}`,
     // url: `/pos/data/dinner_table/start/?tableId=${tableId}&guestNumber=${guestNumber}`,
-    url: `/pos/data/dinner_table/start/?tableId=${tableId}&guestNumber=${guestNumber}`,
+    url: `/pos/data/dinner_table/start?tableId=${tableId}&guestNumber=${guestNumber}`,
     method: "get",
   });
 };
@@ -74,7 +74,7 @@ export const startTableRequest = ({ tableId, guestNumber }) => {
 export const endTableRequest = (tableId) => {
   return api.request({
     // url: `/pos/data/dinner_table/end/${tableId}`,
-    url: "/pos/data/dinner_table/end/?tableId=" + tableId,
+    url: "/pos/data/dinner_table/end?tableId=" + tableId,
     method: "get",
   });
 };
@@ -150,6 +150,13 @@ export const saveInvoiceRequest = (invoice) => {
   });
 };
 
+export const cancelInvoiceRequest = (invoiceID) => {
+  return api.request({
+    url: `/pos/data/invoice/cancel/${invoiceID}`,
+    method: "post",
+  });
+};
+
 export const listInvoiceRequest = (tableID) => {
   return api.request({
     url: "/pos/data/document_by_table?tableid=" + tableID,
@@ -164,13 +171,6 @@ export const fetchDocumentRequest = (invoiceID) => {
   return api.request({
     url: `/pos/data/document/${invoiceID}`,
     method: "get",
-  });
-};
-
-export const cancelInvoiceRequest = (invoiceID) => {
-  return api.request({
-    url: `/pos/data/invoice/cancel/${invoiceID}`,
-    method: "post",
   });
 };
 
