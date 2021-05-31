@@ -14,6 +14,8 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { selectDishObjInOrder, setDishObjInOrder, setCurrentDish, selectCurrentDish, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
 
+import { fetchDocument, selectShowSplitOrder, selectPaidPriceArr } from "../../slices/documentSlice";
+
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 import moment from "moment";
 // import "./index.less";
@@ -27,7 +29,11 @@ const Order = (props) => {
 
   const [showMore, setShowMore] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const dispatch = useDispatch();
+  // useEffect(() => {
+  //   // debugger;
 
+  // }, []);
   return (
     <div className="order-page-container">
       <main className="main">

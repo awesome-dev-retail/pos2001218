@@ -8,6 +8,7 @@ export function createInvoice(table, dishArr, userID) {
   //  "InvoiceDate": "2019-10-03 14:52:39", // [required]
   const InvoiceDate = moment().format("YYYY-MM-DD HH:mm:ss");
   return {
+    InvoiceID: table.uncomplete_invoices ? table.uncomplete_invoices[0].id : 0,
     CID: 1,
     ShopID: 1,
     LaneID: "LE_001",

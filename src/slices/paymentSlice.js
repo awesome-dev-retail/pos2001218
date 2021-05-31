@@ -5,7 +5,8 @@ import CacheStorage from "../lib/cache-storage";
 // import { CacheStorage, message } from "../lib";
 import { savePaymentRequest, completePaymentRequest } from "../services";
 import axios from "axios";
-// import { history } from "../App";
+import { message } from "../lib";
+import { history } from "../components/MyRouter";
 
 const initialState = {
   payment: {},
@@ -33,10 +34,13 @@ export const savePayment = createAsyncThunk("payment/savePayment", async (paymen
   }
 });
 
-export const completePayment = createAsyncThunk("payment/completePayment", async (invoiceID, { rejectWithValue }) => {
+export const completePayment = createAsyncThunk("payment/completePayment", async ({ invoiceId, tableId }, { rejectWithValue }) => {
   try {
-    const res = await completePaymentRequest(invoiceID);
+    const res = await completePaymentRequest(invoiceId);
     if (res.error) throw res.error;
+    message.success("payment completed successfully!");
+    history.push("/");
+    CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
     console.log("completePayment--------------", res);
     return res;
   } catch (e) {
@@ -82,13 +86,14 @@ const PaymentSlice = createSlice({
       state.status = config.API_STATUS.SUCCEEDED;
       state.payment = action.payload.data;
       state.error = null;
+
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
       // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
     },
     [completePayment.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
-      // message.error(action.payload);
+      message.error(action.payload);
     },
   },
 });

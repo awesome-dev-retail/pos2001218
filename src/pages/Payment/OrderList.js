@@ -84,7 +84,7 @@ function OrderList(props) {
 
   const documentFromSlice = useSelector((state) => selectDocument(state)) || {};
 
-  const billList = JSON.parse(JSON.stringify(documentFromSlice.invoice_lines || [])) || [];
+  const billList = JSON.parse(JSON.stringify(documentFromSlice.invoice_lines || []));
 
   const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
 
@@ -92,6 +92,7 @@ function OrderList(props) {
 
   const { confirm } = Modal;
   useEffect(async () => {
+    // console.log(history);
     // eslint-disable-next-line react/prop-types
     const invoiceId = props.match.params.invoiceId;
     dispatch(fetchDocument(invoiceId));
@@ -190,7 +191,7 @@ function OrderList(props) {
     billList &&
       billList.forEach((item) => {
         count += item.line_qty || 1;
-        price += (item.count || 1) * item.unit_price;
+        price += (item.line_qty || 1) * item.unit_price;
         oldPrice += (item.count || 1) * item.unit_cost;
       });
     return { count, price: price.toFixed(2), oldPrice: oldPrice.toFixed(2) };
@@ -364,7 +365,7 @@ function OrderList(props) {
               </div>
             ))}
           <div className="bill-list">
-            {dishObjFromSlice.map((item, index) => (
+            {billList.map((item, index) => (
               <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
                 {showSplitOrder && <Checkbox className="check-box" onChange={(e) => handleChangeBox(e, index)}></Checkbox>}
                 <div className="bill-name">
@@ -374,18 +375,18 @@ function OrderList(props) {
                   {item.material && item.material.length > 0 && item.material[0].count > 0 && (
                     <div className="materials">
                       Extras:
-                      {item.material.map((i, index) => (
+                      {item.dish_extra.map((i, index) => (
                         <span key={index}>
-                          {i.name} x {i.count} ${i.count * i.unitPrice}
+                          {i.ExtraInventoryID} x {i.ExtraQty} ${i.ExtraQty * i.unit_extra_amount}
                         </span>
                       ))}
                     </div>
                   )}
                   {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
                 </div>
-                <div className="count">X {item.count}</div>
+                <div className="count">X {item.line_qty}</div>
                 <div className="price">
-                  <div className="new-price">${item.unit_price}</div>
+                  <div className="new-price">${item.line_amount.toFixed(2)}</div>
                   {/* <div className="old-price">$ {item.unit_cost}</div>  */}
                 </div>
               </div>
@@ -420,7 +421,7 @@ function OrderList(props) {
                 <div className="left">
                   <div className="left-line">
                     <span className="label">DISCOUNT</span>
-                    <span className="text">$0</span>
+                    <span className="text">$0.00</span>
                     {/* <span className="text">${(total.oldPrice - total.price).toFixed(2)}</span> */}
                   </div>
                   <div className="left-line">
@@ -465,6 +466,13 @@ function OrderList(props) {
             </div>
           )}
           <div className="btn-group">
+            <button
+              onClick={() => {
+                // console.log(history);
+                history.goBack();
+              }}>
+              BACK
+            </button>
             <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
             {/* <button>Add Dish</button> */}
             {/* {!cashierStatus && <button onClick={handlePayment}>PAY</button>} */}

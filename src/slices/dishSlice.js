@@ -104,7 +104,6 @@ export const listDocument = createAsyncThunk("dish/listDocument", async (tableID
 
 export const cancelInvoice = createAsyncThunk("dish/cancelDocument", async ({ invoiceId, tableId }, { rejectWithValue }) => {
   try {
-    // debugger;
     const res = await cancelInvoiceRequest(invoiceId);
     if (res.error) throw res.error;
     message.success("Cancel Invoice successfully!");

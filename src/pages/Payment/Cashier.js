@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+
+import { withRouter } from "react-router";
 
 import { DownOutlined } from "@ant-design/icons";
 
@@ -31,13 +33,13 @@ import { createPayment } from "../../services/createPayment";
 
 import "./Cashier.scss";
 import { Input } from "antd";
+import { message } from "../../lib";
 
 const Cashier = (props) => {
   const [showCashPage, setShowCashPage] = useState(false);
   const [payMoney, setPayMoney] = useState(0);
   const [showCalcultor, setShowCalcultor] = useState(true);
   const [money, setMoney] = useState({});
-  const document = useSelector((state) => selectDocument(state));
   const documentFromSlice = useSelector((state) => selectDocument(state)) || {};
   const paymentFromSlice = useSelector((state) => selectPayment(state)) || {};
   const dispatch = useDispatch();
@@ -151,29 +153,31 @@ const Cashier = (props) => {
   };
 
   const handleClickOperation = (name) => {
-    debugger;
     if (name === "CASH") {
-      let paidPrice = 0;
-      let notPaidOrder = billList.filter((i) => {
-        if (i.checked) {
-          paidPrice += i.line_amount;
-          // paidPrice += (i.count || 1) * i.unit_price;
-        }
-        return i.checked !== true;
-      });
-      let tempPaidPriceArr = [...paidPriceArr];
-      tempPaidPriceArr.push(paidPrice);
-      dispatch(setBillList(notPaidOrder));
-      // dispatch(setDishObjInOrder(notPaidOrder));
-      dispatch(setPaidPriceArr(tempPaidPriceArr));
-      // const copyDocument = JSON.parse(JSON.stringify(documentFromSlice));
-      // const payment = createPayment(copyDocument, payMoney);
-      // dispatch(savePayment(payment));
+      if (result.amount > payMoney) {
+        message.warning("Tendered must be greater than due!");
+        return;
+      }
+      const copyDocument = JSON.parse(JSON.stringify(documentFromSlice));
+      const payment = createPayment(copyDocument, payMoney);
+      dispatch(savePayment(payment));
       setShowCashPage(true);
+      // let paidPrice = 0;
+      // let notPaidOrder = billList.filter((i) => {
+      //   if (i.checked) {
+      //     paidPrice += i.line_amount;
+      //   }
+      //   return i.checked !== true;
+      // });
+      // let tempPaidPriceArr = [...paidPriceArr];
+      // tempPaidPriceArr.push(paidPrice);
+      // dispatch(setBillList(notPaidOrder));
+      // dispatch(setPaidPriceArr(tempPaidPriceArr));
+      // setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
       dispatch(setShowSplitOrder(true));
     } else if (name === "EFT-POS") {
-      console.log(document);
+      // console.log(document);
       processEFTPOSTransaction();
       // let initMessageBox = {
       //   title: "EFTPOS PROCESS",
@@ -202,25 +206,35 @@ const Cashier = (props) => {
   };
 
   const handleCompletePayment = () => {
-    setShowCashPage(false);
+    // setShowCashPage(false);
+
     // eslint-disable-next-line react/prop-types
     const invoiceId = props.match.params.invoiceId;
-    dispatch(completePayment(invoiceId));
+    const tableId = documentFromSlice.table_id;
+    dispatch(completePayment({ invoiceId, tableId }));
   };
+
+  const result = useMemo(() => {
+    const amountInDoc = documentFromSlice.doc_gross_amount;
+    const amount = amountInDoc ? amountInDoc.toFixed(2) : "0.00";
+    let change = (payMoney - (amountInDoc ? amountInDoc.toFixed(1) : 0)).toFixed(1);
+    change = change < 0 ? 0 : change;
+    return { amount, change };
+  }, [documentFromSlice, payMoney]);
 
   return (
     <div className="right-container cashier">
       <div className="cashier-container">
         {!showCashPage ? (
           <div>
-            <div className="title">Amount Tendered</div>
+            {/* <div className="title">Amount Tendered</div>   */}
             <div className="cashier-inner">
-              Amount:
-              <Input className="total-input" value={documentFromSlice.doc_gross_amount ? documentFromSlice.doc_gross_amount.toFixed(2) : 0} />
-              Cash:
-              <Input className="total-input" value={documentFromSlice.doc_gross_amount ? (documentFromSlice.doc_gross_amount.toFixed(1) * 1).toFixed(2) : 0} />
-              Customer Paid:
+              <div className="title">Amount Due:</div>
+              <Input className="total-input" value={result.amount} />
+              <div className="title">Amount Tendered:</div>
               <Input className="total-input" value={payMoney && payMoney.toFixed(1)} />
+              <div className="title">Changes:</div>
+              <Input className="total-input" value={result.change} />
               <div className="cashier">
                 {calculatorNum.map((item) => (
                   <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>
@@ -243,8 +257,9 @@ const Cashier = (props) => {
           <div className="cash-page">
             <div className="title">Finalise Sale</div>
             <div className="cashier-inner">
-              <div className="give-money-tip">Change required from:${documentFromSlice.doc_gross_amount ? (documentFromSlice.doc_gross_amount.toFixed(1) * 1).toFixed(2) : 0}</div>
-              <Input className="total-input" value={paymentFromSlice ? paymentFromSlice.Change : ""} />
+              <div className="give-money-tip">PAYMENT ACCEPTED</div>
+              {/* <div className="give-money-tip">Change required from:${documentFromSlice.doc_gross_amount ? (documentFromSlice.doc_gross_amount.toFixed(1) * 1).toFixed(2) : 0}</div> */}
+              {/* <Input className="total-input" value={paymentFromSlice ? paymentFromSlice.Change : ""} /> */}
               {/* <Input className="total-input" value={`$${(payMoney - money.price).toFixed(2)}`} /> */}
               <div className="quick-operation-btn">
                 <div>PRINT RECEIPT</div>
@@ -264,4 +279,4 @@ const Cashier = (props) => {
   );
 };
 
-export default Cashier;
+export default withRouter(Cashier);

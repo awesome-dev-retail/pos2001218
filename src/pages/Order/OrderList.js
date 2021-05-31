@@ -200,7 +200,7 @@ function OrderList(props) {
       price += (item.count || 1) * item.unit_price;
       oldPrice += (item.count || 1) * item.unit_cost;
     });
-    return { count, price: price.toFixed(2), oldPrice: oldPrice.toFixed(2) };
+    return { count, price: price.toFixed(2) };
   }, [JSON.stringify(dishObjFromSlice)]);
 
   let currentDishCopy = JSON.parse(JSON.stringify(currentDish));
@@ -325,7 +325,7 @@ function OrderList(props) {
     } else {
       // debugger;
       if (table.uncomplete_invoices.length !== 0) {
-        const params = { invoiceId: table.uncomplete_invoices[0].id };
+        const params = { invoiceId: table.uncomplete_invoices[0].id, tableId: table.id };
         dispatch(cancelInvoice(params));
       }
     }
@@ -429,7 +429,7 @@ function OrderList(props) {
               }}>
               BACK
             </button>
-            <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>
+            {/* <button onClick={handleCancelPayment}>CANCEL PAYMENT</button> */}
             {/* <button>Add Dish</button> */}
             {!cashierStatus && <button onClick={handlePayment}>PAY</button>}
           </div>
