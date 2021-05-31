@@ -5,7 +5,6 @@ import CONSTANT from "../../configs/CONSTANT";
 
 import Header from "../../components/Header";
 // import UIMenu from "../../components/UIMenu";
-import CashierPage from "./Cashier.js";
 import Dish from "./Dish.js";
 import OrderList from "./OrderList";
 import DishList from "./DishList";
