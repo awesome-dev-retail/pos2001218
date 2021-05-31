@@ -4,13 +4,15 @@ import Logo from "../../assets/images/Bizex_FinalLogo.jpg";
 
 import { Redirect, withRouter } from "react-router-dom";
 import CONSTANT from "../../configs/CONSTANT";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, useStore } from "react-redux";
 import CacheStorage from "../../lib/cache-storage";
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dropdown, Avatar, Layout, Spin } from "antd";
 import UIMenu from "../UIMenu";
-import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectAuthIsLoading, fetchDevices, setShop, setLane } from "../../slices/authSlice";
+import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectAuthIsLoading, fetchDevices, setShop, setLane, selectLane, selectShop, setDevice } from "../../slices/authSlice";
 import { history } from "../MyRouter";
+import { connectSocket, setDocument } from "../../slices/documentSlice";
+import _ from "lodash";
 
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
@@ -21,7 +23,12 @@ const AuthCheck = (props) => {
   const localShop = CacheStorage.getItem("SELECT_SHOP");
   const localLane = CacheStorage.getItem("SELECT_LANE");
 
-  useEffect(() => {
+  const localDocument = CacheStorage.getItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL);
+  const shop = useSelector((state) => selectShop(state));
+  const lane = useSelector((state) => selectLane(state));
+  const store = useStore();
+
+  const checkAuth = async () => {
     if (token) {
       dispatch(setToken(token));
       dispatch(fetchUser());
@@ -33,11 +40,28 @@ const AuthCheck = (props) => {
         dispatch(setLane(localLane));
       }
 
-      dispatch(fetchDevices());
+      await dispatch(fetchDevices());
+
+      if (localDocument) {
+        const { id } = localDocument;
+        const { location } = props;
+        const url = `/order/payment/${id}`;
+        if (location.pathname !== url) {
+          history.push(url);
+        }
+      }
     } else {
       history.push("./login");
     }
+  };
+
+  useEffect(() => {
+    checkAuth();
   }, []);
+
+  const handleDevBtnClick = () => {
+    console.log(store.getState());
+  };
 
   if (isLoading) {
     return (
@@ -47,7 +71,7 @@ const AuthCheck = (props) => {
     );
   }
 
-  if (isLogin) {
+  if (isLogin && !_.isEmpty(shop) && !_.isEmpty(lane)) {
     return (
       <Layout>
         <div className="home-page-container">
@@ -59,6 +83,8 @@ const AuthCheck = (props) => {
                 <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
               </span>
             </div>
+            <button onClick={handleDevBtnClick}>Dev</button>
+
             <div style={{ fontSize: "14px", marginLeft: "800px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
             <div>
               <PrinterOutlined />

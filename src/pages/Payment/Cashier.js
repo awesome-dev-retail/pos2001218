@@ -13,6 +13,7 @@ import zfb from "../../assets/images/zfb.png";
 // import free from "../../assets/images/free.png";
 import banckCard from "../../assets/images/banck-card.png";
 import { useSelector, useDispatch, useStore } from "react-redux";
+import { selectDishObjInOrder, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
 import {
   fetchDocument,
   processEFTPOS,
@@ -24,16 +25,24 @@ import {
   setShowSplitOrder,
   setPaidPriceArr,
   selectPaidPriceArr,
+  setDocument,
 } from "../../slices/documentSlice";
 import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 import { savePayment, completePayment } from "../../slices/paymentSlice";
 import { selectPayment } from "../../slices/paymentSlice";
 
 import { createPayment } from "../../services/createPayment";
+import _ from "lodash";
 
 import "./Cashier.scss";
 import { Input } from "antd";
 import { message } from "../../lib";
+import CacheStorage from "../../lib/cache-storage";
+import CONSTANT from "../../configs/CONSTANT";
+import { history } from "../../components/MyRouter";
+import { fetchDevices, selectDevice, setDevice } from "../../slices/authSlice";
+import Document from "../../modules/document";
+import { sleep } from "../../lib/index";
 
 const Cashier = (props) => {
   const [showCashPage, setShowCashPage] = useState(false);
@@ -51,12 +60,48 @@ const Cashier = (props) => {
 
   const billList = JSON.parse(JSON.stringify(documentFromSlice.invoice_lines || [])) || [];
 
+  const localDocument = CacheStorage.getItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL);
+  const device = useSelector((state) => selectDevice(state));
+
+  //todo: hard coding below to replace it whenever device setting page is ready
+  const localDevice = CacheStorage.getItem(CONSTANT.LOCALSTORAGE_SYMBOL.DEVICE_SYMBOL);
+
   useEffect(() => {
+    initialDoc();
+
     return () => {
       // dispatch(resetMessageBox());
       dispatch(resetErrorBox());
     };
   }, []);
+
+  const initialDoc = async () => {
+    // eslint-disable-next-line react/prop-types
+    const pathname = props.location.pathname + "";
+    const invoiceID = pathname.split("/")[3] * 1;
+
+    //todo: hard coding below to replace it whenever device setting page is ready
+    if (localDevice) {
+      dispatch(setDevice(localDevice));
+    } else if (_.isEmpty(device)) {
+      await dispatch(fetchDevices());
+    }
+
+    console.log(document);
+    if (localDocument) {
+      console.log("document build from local...");
+      console.log(localDocument);
+
+      dispatch(setDocument(new Document(localDocument)));
+      if (localDocument.transactionId) {
+        await sleep(100);
+        await processEFTPOSTransaction();
+      }
+    } else {
+      console.log("Document build from cloud...");
+      await dispatch(fetchDocument(invoiceID));
+    }
+  };
 
   // useEffect(() => {
   //   let price = 0,
@@ -251,7 +296,7 @@ const Cashier = (props) => {
                 </div>
               ))}
             </div>
-            {/* <button onClick={handleDevBtnClick}>Dev</button> */}
+            {/*<button onClick={handleDevBtnClick}>Dev</button>*/}
           </div>
         ) : (
           <div className="cash-page">

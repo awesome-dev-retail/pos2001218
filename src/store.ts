@@ -24,66 +24,66 @@ export default configureStore({
     // Invoice: invoiceReducer,
   },
   middleware: getDefaultMiddleware({
-    serializableCheck: {
-      ignoredActions: [
-        "user/fetchUser/fulfilled",
+    serializableCheck: false,
 
-        "area/fetchAreaList/fulfilled",
-        "area/saveArea/fulfilled",
-        "area/deleteArea/fulfilled",
-
-        "table/saveTable/fulfilled",
-        "table/deleteTable/fulfilled",
-        "table/startTable/fulfilled",
-        "table/endTable/fulfilled",
-        "table/fetchTableListInShop/fulfilled",
-        "table/fetchTableListInArea/fulfilled",
-        "table/fetchTableById/fulfilled",
-
-        "menu/fetchMenuList/fulfilled",
-        "menu/saveMenu/fulfilled",
-        "menu/deleteMenu/fulfilled",
-
-        "dish/fetchDishList/fulfilled",
-        "dish/fetchDishListInShop/fulfilled",
-        "dish/fetchDishListInMenu/fulfilled",
-        "dish/saveDish/fulfilled",
-        "dish/deleteDish/fulfilled",
-
-        "dish/calculateInvoice/fulfilled",
-        "dish/saveInvoice/fulfilled",
-        "dish/listDocument/fulfilled",
-        "dish/cancelInvoice/fulfilled",
-
-        "document/fetchDocument/pending",
-        "document/fetchDocument/fulfilled",
-        "document/setShowSplitOrder/fulfilled",
-
-        "document/processEFTPOS/fulfilled",
-        "document/processEFTPOS/pending",
-        "document/processEFTPOS/rejected",
-
-        "document/connectSocket/pending",
-        "document/connectSocket/fulfilled",
-        "document/connectSocket/rejected",
-
-        "document/invoke/pending",
-        "document/invoke/fulfilled",
-        "document/invoke/rejected",
-
-        "document/setLastMessage",
-        "document/setCurrentTransactionIsAccepted",
-        "document/setWs",
-
-        "document/setCurrentTransactionId",
-        "public-component/setMessageBox",
-        "public-component/setErrorBox",
-        "public-component/resetMessageBox",
-        "public-component/resetErrorBox",
-
-        "payment/savePayment/fulfilled",
-        "payment/completePayment/fulfilled",
-      ],
-    },
+    //   ignoredActions: [
+    //     "user/fetchUser/fulfilled",
+    //
+    //     "area/fetchAreaList/fulfilled",
+    //     "area/saveArea/fulfilled",
+    //     "area/deleteArea/fulfilled",
+    //
+    //     "table/saveTable/fulfilled",
+    //     "table/deleteTable/fulfilled",
+    //     "table/startTable/fulfilled",
+    //     "table/endTable/fulfilled",
+    //     "table/fetchTableListInShop/fulfilled",
+    //     "table/fetchTableListInArea/fulfilled",
+    //     "table/fetchTableById/fulfilled",
+    //
+    //     "menu/fetchMenuList/fulfilled",
+    //     "menu/saveMenu/fulfilled",
+    //     "menu/deleteMenu/fulfilled",
+    //
+    //     "dish/fetchDishList/fulfilled",
+    //     "dish/fetchDishListInShop/fulfilled",
+    //     "dish/fetchDishListInMenu/fulfilled",
+    //     "dish/saveDish/fulfilled",
+    //     "dish/deleteDish/fulfilled",
+    //
+    //     "dish/calculateInvoice/fulfilled",
+    //     "dish/saveInvoice/fulfilled",
+    //     "dish/listDocument/fulfilled",
+    //     "dish/cancelInvoice/fulfilled",
+    //
+    //     "document/fetchDocument/pending",
+    //     "document/fetchDocument/fulfilled",
+    //
+    //     "document/processEFTPOS/fulfilled",
+    //     "document/processEFTPOS/pending",
+    //     "document/processEFTPOS/rejected",
+    //
+    //     "document/connectSocket/pending",
+    //     "document/connectSocket/fulfilled",
+    //     "document/connectSocket/rejected",
+    //
+    //     "document/invoke/pending",
+    //     "document/invoke/fulfilled",
+    //     "document/invoke/rejected",
+    //
+    //     "document/setLastMessage",
+    //     "document/setCurrentTransactionIsAccepted",
+    //     "document/setWs",
+    //
+    //     "document/setCurrentTransactionId",
+    //     "public-component/setMessageBox",
+    //     "public-component/setErrorBox",
+    //     "public-component/resetMessageBox",
+    //     "public-component/resetErrorBox",
+    //
+    //     "payment/savePayment/fulfilled",
+    //     "payment/completePayment/fulfilled",
+    //   ],
+    // },
   }),
 });

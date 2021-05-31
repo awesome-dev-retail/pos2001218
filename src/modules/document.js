@@ -25,6 +25,7 @@ export default class Document {
     this.invoice_lines = doc.invoice_lines;
     this.payment_lines = doc.payment_lines;
     this.suspect_payment_lines = doc.suspect_payment_lines;
+    this.transactionId = doc.transactionId || "";
   }
 
   generateTransactionId = (deviceId) => {
@@ -35,21 +36,29 @@ export default class Document {
     return this.transactionId;
   }
 
-  addPaymentLine = line => {
-    this.payment_lines.push(line);
+  setMessageFromInvoke = message => {
+    this.invokeMessage = message;
   }
 
-  hasUncompletedTransaction = () => {
-    if (this.transactionId) {
-      const payment = this.payment_lines.find (item => item .transactionId === this.transactionId);
-      return !payment;
-      // if (payment && payment.is_paid === false) {
-      //   return true;
-      // } else {
-      //   return true;
-      // }
-    }
-    return false;
+  resetMessage = function() {
+    delete this.invokeMessage;
   }
+
+  // addPaymentLine = line => {
+  //   this.payment_lines.push(line);
+  // }
+  //
+  // hasUncompletedTransaction = () => {
+  //   if (this.transactionId) {
+  //     const payment = this.payment_lines.find (item => item .transactionId === this.transactionId);
+  //     return !payment;
+  //     // if (payment && payment.is_paid === false) {
+  //     //   return true;
+  //     // } else {
+  //     //   return true;
+  //     // }
+  //   }
+  //   return false;
+  // }
 
 }

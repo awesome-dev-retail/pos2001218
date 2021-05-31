@@ -1,3 +1,8 @@
+const frontEndUrlSymbol = () => {
+  const urlArr = window.location.href.split("/");
+  return urlArr.length > 2 ? urlArr[2] + "/" : "/";
+};
+
 export default {
   ROUTES: {
     HOME: "/",
@@ -19,5 +24,9 @@ export default {
   TIME_FORMAT: {
     BACKEND_DATETIME: "YYYY-MM-DD HH:mm:ss",
     FRONTEND_DATE: "DD/MM/YYYY",
+  },
+  LOCALSTORAGE_SYMBOL: {
+    DOCUMENT_SYMBOL: frontEndUrlSymbol() + "BIZEX_CATERING_POS_DOCUMENT",
+    DEVICE_SYMBOL: frontEndUrlSymbol() + "BIZEX_CATERING_POS_DEVICE",
   },
 };

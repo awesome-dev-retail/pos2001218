@@ -177,7 +177,7 @@ class HttpRequest {
     //     // console.log('API request sending to: ' + options.baseURL + '/' + options.url);
     //     //dd('API request sending to: ', options);
     // }
-    console.log(options);
+    // console.log(options);
 
     this.interceptors(instance, options.url);
     return instance(options);
