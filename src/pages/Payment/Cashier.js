@@ -205,7 +205,7 @@ const Cashier = (props) => {
     if (name === "CASH") {
       const due = dueContainer.current.props.value * 1;
       const tendered = tenderedContainer.current.props.value * 1;
-      console.log(due, tendered);
+      // console.log(due, tendered);
       let payment = null;
       if (due > tendered) {
         message.warning("Tendered must be greater than due!");

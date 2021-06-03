@@ -35,7 +35,7 @@ export const createPayment = (document, due, tendered, change) => {
     // Amount: document.doc_gross_amount.toFixed(1) * 1, // [required] [Amount is the number after rounding]
     ActualAmount: tendered * 1, // [required] [it is the real amount client give]
     Change: change, // [required] [ActualAmount - Amount]
-    RoundingAmount: (due - Math.round(due * 10) / 10).toFixed(2) * 1, // [required] [Amount of Rounding]
+    RoundingAmount: (Math.round(due * 10) / 10 - due).toFixed(2) * 1, // [required] [Amount of Rounding]
     CashoutAmount: 0, // [required] [can't be less than 0] [if >0, PaymentMethod should be "EFTPOS", "VISA" or "MASTERCARD"] [can't have cent digit like $12.34, should be $12.30]
     SurchargeAmount: 0, //[required] [usually is 0]
     TransactionID: "", // [required for EFTPOS]

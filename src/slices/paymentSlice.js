@@ -89,7 +89,7 @@ const PaymentSlice = createSlice({
       state.payment = action.payload.data;
       state.error = null;
       state.showCashPage = true;
-      const amountPaid = state.payment.Amount + state.payment.RoundingAmount;
+      const amountPaid = (state.payment.Amount - state.payment.RoundingAmount).toFixed(2) * 1;
       state.amountPaidArr.push(amountPaid);
       // const { document } = getState();
       // const { billList } = document;

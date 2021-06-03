@@ -138,9 +138,13 @@ function OrderList(props) {
         amountPaying += item.line_amount;
       }
     });
+    amountPaying = amountPaying.toFixed(2) * 1;
+
     amountPaid = amountPaidArr.reduce((total, current) => total + current, 0);
-    remainingDue = documentFromSlice.doc_gross_amount - amountPaid;
-    console.log("----------", amountPaid === documentFromSlice.doc_gross_amount);
+    amountPaid = amountPaid.toFixed(2) * 1;
+
+    remainingDue = (documentFromSlice.doc_gross_amount - amountPaid).toFixed(2) * 1;
+    console.log(amountPaidArr);
     dispatch(setAmountPaying(amountPaying));
     dispatch(setAmountPaid(amountPaid));
     return { amountPaying, remainingDue, amountPaid, total };
