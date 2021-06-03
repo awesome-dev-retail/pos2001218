@@ -10,6 +10,10 @@ import { history } from "../components/MyRouter";
 
 const initialState = {
   payment: {},
+  amountPaying: 0,
+  amountPaid: 0,
+  amountPaidArr: [],
+  showCashPage: false,
   status: "",
   error: null,
 };
@@ -52,6 +56,12 @@ const PaymentSlice = createSlice({
   name: "payment",
   initialState,
   reducers: {
+    setAmountPaying(state, action) {
+      state.amountPaying = action.payload;
+    },
+    setAmountPaid(state, action) {
+      state.amountPaid = action.payload;
+    },
     // setPaymentObjInOrder(state, action) {
     //   state.PaymentObjInOrder = action.payload;
     // },
@@ -70,13 +80,17 @@ const PaymentSlice = createSlice({
       state.status = config.API_STATUS.SUCCEEDED;
       state.payment = action.payload.data;
       state.error = null;
+      state.showCashPage = true;
+      state.amountPaid = state.payment.Amount + state.payment.RoundingAmount;
+      state.amountPaidArr = state.amountPaidArr.push(state.amountPaid);
+
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
       // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
     },
     [savePayment.rejected]: (state, action) => {
       state.status = config.API_STATUS.FAILED;
-      // message.error(action.payload);
+      message.error(action.payload);
     },
 
     [completePayment.pending]: (state) => {
@@ -98,9 +112,12 @@ const PaymentSlice = createSlice({
   },
 });
 
-// export const { } = PaymentSlice.actions;
+export const { setAmountPaying, setAmountPaid } = PaymentSlice.actions;
 // export const selectCashierStatus = (state) => state.Payment.showCashier;
 
 export const selectPayment = (state) => state.Payment.payment;
+export const selectAmountPaying = (state) => state.Payment.amountPaying;
+export const selectAmountPaid = (state) => state.Payment.amountPaid;
+export const selectShowCashPage = (state) => state.Payment.showCashPage;
 
 export default PaymentSlice.reducer;

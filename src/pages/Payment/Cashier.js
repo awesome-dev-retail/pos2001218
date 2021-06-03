@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 
 import { withRouter } from "react-router";
 
@@ -29,9 +29,9 @@ import {
 } from "../../slices/documentSlice";
 import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 import { savePayment, completePayment } from "../../slices/paymentSlice";
-import { selectPayment } from "../../slices/paymentSlice";
+import { selectPayment, selectAmountPaying, selectAmountPaid, selectShowCashPage } from "../../slices/paymentSlice";
 
-import { createPayment } from "../../services/createPayment";
+import { createPayment, createPaymentForSplit } from "../../services/createPayment";
 import _ from "lodash";
 
 import "./Cashier.scss";
@@ -45,7 +45,6 @@ import Document from "../../modules/document";
 import { sleep } from "../../lib/index";
 
 const Cashier = (props) => {
-  const [showCashPage, setShowCashPage] = useState(false);
   const [payMoney, setPayMoney] = useState(0);
   const [showCalcultor, setShowCalcultor] = useState(true);
   const [money, setMoney] = useState({});
@@ -56,9 +55,15 @@ const Cashier = (props) => {
   const messageBox = useSelector((state) => selectMessageBox(state));
   const isLoading = useSelector((state) => selectDocumentIsLoading(state));
   const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
+  const amountPaying = useSelector((state) => selectAmountPaying(state));
+  const amountPaid = useSelector((state) => selectAmountPaid(state));
   const paidPriceArr = useSelector((state) => selectPaidPriceArr(state));
+  const showCashPage = useSelector((state) => selectShowCashPage(state));
 
   const billList = JSON.parse(JSON.stringify(documentFromSlice.invoice_lines || [])) || [];
+
+  const dueContainer = useRef();
+  const tenderedContainer = useRef();
 
   const localDocument = CacheStorage.getItem(CONSTANT.LOCALSTORAGE_SYMBOL.DOCUMENT_SYMBOL);
   const device = useSelector((state) => selectDevice(state));
@@ -86,7 +91,7 @@ const Cashier = (props) => {
       await dispatch(fetchDevices());
     }
 
-    console.log(document);
+    // console.log(document);
     if (localDocument) {
       console.log("document build from local...");
       console.log(localDocument);
@@ -198,40 +203,23 @@ const Cashier = (props) => {
 
   const handleClickOperation = (name) => {
     if (name === "CASH") {
-      if (result.amount > payMoney) {
+      const due = dueContainer.current.props.value;
+      const tendered = tenderedContainer.current.props.value;
+      // console.log(due, tendered);
+      let payment = null;
+      if (due > tendered) {
         message.warning("Tendered must be greater than due!");
         return;
       }
-      const copyDocument = JSON.parse(JSON.stringify(documentFromSlice));
-      const payment = createPayment(copyDocument, payMoney);
+      const change = (tendered - due).toFixed(1) * 1;
+      payment = createPayment(documentFromSlice, due, tendered, change);
       dispatch(savePayment(payment));
-      setShowCashPage(true);
-      // let paidPrice = 0;
-      // let notPaidOrder = billList.filter((i) => {
-      //   if (i.checked) {
-      //     paidPrice += i.line_amount;
-      //   }
-      //   return i.checked !== true;
-      // });
-      // let tempPaidPriceArr = [...paidPriceArr];
-      // tempPaidPriceArr.push(paidPrice);
-      // dispatch(setBillList(notPaidOrder));
-      // dispatch(setPaidPriceArr(tempPaidPriceArr));
       // setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
+      setPayMoney(0);
       dispatch(setShowSplitOrder(true));
     } else if (name === "EFT-POS") {
-      // console.log(document);
       processEFTPOSTransaction();
-      // let initMessageBox = {
-      //   title: "EFTPOS PROCESS",
-      //   contentList: ["PLEASE WAIT", "CONNECTING EFTPOS PROVIDER SERVER"],
-      //   btnList: [
-      //   ],
-      //   processing: "Connecting",
-      //   visible: true,
-      // };
-      // dispatch(setMessageBox(initMessageBox));
     }
   };
 
@@ -259,12 +247,18 @@ const Cashier = (props) => {
   };
 
   const result = useMemo(() => {
-    const amountInDoc = documentFromSlice.doc_gross_amount;
-    const amount = amountInDoc ? amountInDoc.toFixed(2) : "0.00";
-    let change = (payMoney - (amountInDoc ? amountInDoc.toFixed(1) : 0)).toFixed(1);
+    let change = 0;
+    if (showSplitOrder) {
+      change = (payMoney - Math.round(amountPaying * 10) / 10).toFixed(1);
+    } else {
+      const amountInDoc = documentFromSlice.doc_gross_amount;
+      // const amount = amountInDoc ? amountInDoc.toFixed(2) : "0.00";
+      change = (payMoney - Math.round(amountInDoc * 10) / 10).toFixed(1) * 1;
+    }
     change = change < 0 ? 0 : change;
-    return { amount, change };
-  }, [documentFromSlice, payMoney]);
+    change = change ? change : 0;
+    return { change };
+  }, [documentFromSlice, amountPaying, payMoney]);
 
   return (
     <div className="right-container cashier">
@@ -273,12 +267,12 @@ const Cashier = (props) => {
           <div>
             {/* <div className="title">Amount Tendered</div>   */}
             <div className="cashier-inner">
-              <div className="title">Amount Due:</div>
-              <Input className="total-input" value={result.amount} />
+              <div className="title">{showSplitOrder ? "Amount Paying" : "Amount Due"}:</div>
+              <Input ref={dueContainer} className="total-input" value={showSplitOrder ? amountPaying.toFixed(2) : documentFromSlice.doc_gross_amount} />
               <div className="title">Amount Tendered:</div>
-              <Input className="total-input" value={payMoney && payMoney.toFixed(1)} />
-              <div className="title">Changes:</div>
-              <Input className="total-input" value={result.change} />
+              <Input ref={tenderedContainer} className="total-input" value={payMoney && payMoney.toFixed(1)} />
+              <div className="title">Cash Change:</div>
+              <Input className="total-input" defaultValue={0} value={result.change ? result.change : 0} />
               <div className="cashier">
                 {calculatorNum.map((item) => (
                   <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>

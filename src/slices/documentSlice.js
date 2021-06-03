@@ -9,6 +9,7 @@ import { message, sleep, getMoney } from "../lib/index";
 import _ from "lodash";
 import { notification } from "antd";
 import CacheStorage from "../lib/cache-storage";
+import { history } from "../components/MyRouter";
 
 const initialState = {
   document: {},
@@ -101,6 +102,7 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
       message.success("Transaction Success");
       console.warn("Transaction completed successfully");
       //Clean up re-fetch document
+      history.push("/");
     } else {
       console.warn("Transaction completed with error");
     }
@@ -481,6 +483,7 @@ const DocumentSlice = createSlice({
       state.status = config.API_STATUS.SUCCEEDED;
       // state.document = action.payload.data;
       state.document = new Document(action.payload.data);
+      state.billList = state.document.invoice_lines;
 
       // const copyDocument = JSON.parse(JSON.stringify(state.document));
 
@@ -537,6 +540,7 @@ export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactio
   DocumentSlice.actions;
 
 export const selectDocument = (state) => state.Document.document;
+export const selectBillList = (state) => state.Document.billList;
 export const selectDocumentIsLoading = (state) => state.Document.status === config.API_STATUS.LOADING;
 export const selectShowSplitOrder = (state) => state.Document.showSplitOrder;
 export const selectPaidPriceArr = (state) => state.Document.paidPriceArr;

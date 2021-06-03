@@ -259,20 +259,26 @@
           display: flex;
           justify-content: space-between;
           color: #999;
+          font-size: 24px;
+          .amount {
+            display: inline-block;
+            width: 170px;
+            text-align: right;
+          }
           > div:first-of-type {
             .total-money {
               font-weight: bold;
-              font-size: 20px;
               color: $bizex-pink;
             }
           }
           > div:last-of-type span {
             color: #000;
             margin-left: 5px;
+            margin-right: 20px;
           }
           .total-money-right {
-            font-weight: bold;
-            font-size: 18px;
+            // font-weight: bold;
+            // font-size: 18px;
           }
         }
         .btn-group {

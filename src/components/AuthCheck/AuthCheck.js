@@ -83,7 +83,7 @@ const AuthCheck = (props) => {
                 <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
               </span>
             </div>
-            <button onClick={handleDevBtnClick}>Dev</button>
+            {/* <button onClick={handleDevBtnClick}>Dev</button> */}
 
             <div style={{ fontSize: "14px", marginLeft: "800px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
             <div>
