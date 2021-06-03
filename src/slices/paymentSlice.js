@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
 import CacheStorage from "../lib/cache-storage";
-
+import { setBillList } from "../slices/documentSlice";
 // import { CacheStorage, message } from "../lib";
 import { savePaymentRequest, completePaymentRequest } from "../services";
 import axios from "axios";
@@ -27,10 +27,14 @@ const initialState = {
 //     },
 //   });
 // };
-export const savePayment = createAsyncThunk("payment/savePayment", async (payment, { rejectWithValue }) => {
+export const savePayment = createAsyncThunk("payment/savePayment", async (payment, { getState, dispatch, rejectWithValue }) => {
   try {
     const res = await savePaymentRequest(payment);
     if (res.error) throw res.error;
+    const { Document } = getState();
+    const { billList } = Document;
+    const unpaidBillList = billList.filter((item) => !item.checked);
+    dispatch(setBillList(unpaidBillList));
     console.log("savePayment--------------", res);
     return res;
   } catch (e) {
@@ -62,6 +66,10 @@ const PaymentSlice = createSlice({
     setAmountPaid(state, action) {
       state.amountPaid = action.payload;
     },
+    setShowCashPage(state, action) {
+      state.showCashPage = action.payload;
+    },
+
     // setPaymentObjInOrder(state, action) {
     //   state.PaymentObjInOrder = action.payload;
     // },
@@ -81,8 +89,11 @@ const PaymentSlice = createSlice({
       state.payment = action.payload.data;
       state.error = null;
       state.showCashPage = true;
-      state.amountPaid = state.payment.Amount + state.payment.RoundingAmount;
-      state.amountPaidArr = state.amountPaidArr.push(state.amountPaid);
+      const amountPaid = state.payment.Amount + state.payment.RoundingAmount;
+      state.amountPaidArr.push(amountPaid);
+      // const { document } = getState();
+      // const { billList } = document;
+      // billList.filter((item) => !item.checked);
 
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
@@ -112,12 +123,13 @@ const PaymentSlice = createSlice({
   },
 });
 
-export const { setAmountPaying, setAmountPaid } = PaymentSlice.actions;
+export const { setAmountPaying, setAmountPaid, setShowCashPage } = PaymentSlice.actions;
 // export const selectCashierStatus = (state) => state.Payment.showCashier;
 
 export const selectPayment = (state) => state.Payment.payment;
 export const selectAmountPaying = (state) => state.Payment.amountPaying;
 export const selectAmountPaid = (state) => state.Payment.amountPaid;
+export const selectAmountPaidArr = (state) => state.Payment.amountPaidArr;
 export const selectShowCashPage = (state) => state.Payment.showCashPage;
 
 export default PaymentSlice.reducer;

@@ -29,7 +29,7 @@ import {
 } from "../../slices/documentSlice";
 import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 import { savePayment, completePayment } from "../../slices/paymentSlice";
-import { selectPayment, selectAmountPaying, selectAmountPaid, selectShowCashPage } from "../../slices/paymentSlice";
+import { selectPayment, selectAmountPaying, selectAmountPaid, selectAmountPaidArr, selectShowCashPage, setShowCashPage } from "../../slices/paymentSlice";
 
 import { createPayment, createPaymentForSplit } from "../../services/createPayment";
 import _ from "lodash";
@@ -57,10 +57,10 @@ const Cashier = (props) => {
   const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
   const amountPaying = useSelector((state) => selectAmountPaying(state));
   const amountPaid = useSelector((state) => selectAmountPaid(state));
-  const paidPriceArr = useSelector((state) => selectPaidPriceArr(state));
-  const showCashPage = useSelector((state) => selectShowCashPage(state));
 
-  const billList = JSON.parse(JSON.stringify(documentFromSlice.invoice_lines || [])) || [];
+  const amountPaidArr = useSelector((state) => selectAmountPaidArr(state));
+
+  const showCashPage = useSelector((state) => selectShowCashPage(state));
 
   const dueContainer = useRef();
   const tenderedContainer = useRef();
@@ -203,9 +203,9 @@ const Cashier = (props) => {
 
   const handleClickOperation = (name) => {
     if (name === "CASH") {
-      const due = dueContainer.current.props.value;
-      const tendered = tenderedContainer.current.props.value;
-      // console.log(due, tendered);
+      const due = dueContainer.current.props.value * 1;
+      const tendered = tenderedContainer.current.props.value * 1;
+      console.log(due, tendered);
       let payment = null;
       if (due > tendered) {
         message.warning("Tendered must be greater than due!");
@@ -238,12 +238,15 @@ const Cashier = (props) => {
   };
 
   const handleCompletePayment = () => {
-    // setShowCashPage(false);
-
-    // eslint-disable-next-line react/prop-types
-    const invoiceId = props.match.params.invoiceId;
-    const tableId = documentFromSlice.table_id;
-    dispatch(completePayment({ invoiceId, tableId }));
+    if (amountPaid === documentFromSlice.doc_gross_amount) {
+      // eslint-disable-next-line react/prop-types
+      const invoiceId = props.match.params.invoiceId;
+      const tableId = documentFromSlice.table_id;
+      dispatch(completePayment({ invoiceId, tableId }));
+    } else {
+      dispatch(setShowCashPage(false));
+      setPayMoney(0);
+    }
   };
 
   const result = useMemo(() => {
@@ -304,7 +307,7 @@ const Cashier = (props) => {
                 <div>EMAIL RECEIPT</div>
               </div>
               <div className="complete-btn" onClick={handleCompletePayment}>
-                COMPELETE SALE
+                {amountPaid == documentFromSlice.doc_gross_amount ? "COMPELETE SALE" : "CONTINUE TO PAY"}
               </div>
               {/* <div className="complete-btn" onClick={() => setShowCashPage(false)}>
                 COMPELETE SALE

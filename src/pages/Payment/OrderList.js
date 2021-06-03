@@ -22,8 +22,8 @@ import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
 import { selectCurrentUser } from "../../slices/authSlice";
-import { fetchDocument, selectShowSplitOrder, selectPaidPriceArr, selectBillList, setBillList } from "../../slices/documentSlice";
-import { setAmountPaying, setAmountPaid } from "../../slices/paymentSlice";
+import { fetchDocument, selectShowSplitOrder, selectBillList, setBillList } from "../../slices/documentSlice";
+import { setAmountPaying, setAmountPaid, selectAmountPaidArr } from "../../slices/paymentSlice";
 
 import {
   selectDishObjInOrder,
@@ -88,7 +88,7 @@ function OrderList(props) {
 
   const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
 
-  const paidPriceArr = useSelector((state) => selectPaidPriceArr(state));
+  const amountPaidArr = useSelector((state) => selectAmountPaidArr(state));
 
   const { confirm } = Modal;
   useEffect(async () => {
@@ -129,16 +129,22 @@ function OrderList(props) {
     let amountPaying = 0;
     let remainingDue = 0;
     let amountPaid = 0;
+    let total = 0;
+
+    total = documentFromSlice.doc_gross_amount;
 
     billList.forEach((item) => {
       if (item.checked) {
         amountPaying += item.line_amount;
       }
     });
+    amountPaid = amountPaidArr.reduce((total, current) => total + current, 0);
     remainingDue = documentFromSlice.doc_gross_amount - amountPaid;
+    console.log("----------", amountPaid === documentFromSlice.doc_gross_amount);
     dispatch(setAmountPaying(amountPaying));
-    return { amountPaying, remainingDue, amountPaid };
-  }, [documentFromSlice, billList]);
+    dispatch(setAmountPaid(amountPaid));
+    return { amountPaying, remainingDue, amountPaid, total };
+  }, [documentFromSlice, billList, amountPaidArr]);
 
   const handleSetTab = (index) => {
     setOrderTabIndex(index);
@@ -187,7 +193,7 @@ function OrderList(props) {
             </div>
           )}
           {showSplitOrder &&
-            paidPriceArr.map((item, index) => (
+            amountPaidArr.map((item, index) => (
               <div key={item} className="paid-line">
                 <span>Payment {index + 1} - Cash</span>
                 <span>${item}</span>
@@ -276,7 +282,7 @@ function OrderList(props) {
             <div className="tatal-money-container-split">
               <div>
                 <span>Total:</span>
-                <div className="total-money">${total.price}</div>
+                <div className="total-money">${result.total.toFixed(2)}</div>
               </div>
               <div>
                 <div>
@@ -293,7 +299,7 @@ function OrderList(props) {
                 </div> */}
                 <div>
                   <span className="amount">Amount paid:</span>
-                  <span>$ 0.00</span>
+                  <span>${result.amountPaid.toFixed(2)}</span>
                   {/* Amount paid:<span>${paidPriceArr[paidPriceArr.length - 1] || 0}</span> */}
                 </div>
               </div>

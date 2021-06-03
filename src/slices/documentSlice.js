@@ -459,9 +459,9 @@ const DocumentSlice = createSlice({
     setShowSplitOrder(state, action) {
       state.showSplitOrder = action.payload;
     },
-    setPaidPriceArr(state, action) {
-      state.paidPriceArr = action.payload;
-    },
+    // setPaidPriceArr(state, action) {
+    //   state.paidPriceArr = action.payload;
+    // },
     setDocument(state, action) {
       state.document = action.payload;
     },
