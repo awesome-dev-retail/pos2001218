@@ -282,10 +282,10 @@ function OrderList(props) {
           </Badge>
           <div className="counter-inner">
             <div onClick={() => hanndleUpdateCount(-1)}>
-              <img src={reduceIcon} alt="jian" />
+              <img src={reduceIcon} alt="reduce" />
             </div>
             <div onClick={() => hanndleUpdateCount(1)}>
-              <img src={addIcon} alt="jia" />
+              <img src={addIcon} alt="increase" />
             </div>
           </div>
         </div>
@@ -448,7 +448,7 @@ function OrderList(props) {
             <div>Share Table</div>
             <div>Change Table</div>
             <div>Combine Table</div>
-            <div>Batch</div>
+            {/* <div>Batch</div> */}
           </div>
         </div>
       </div>

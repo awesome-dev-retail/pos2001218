@@ -109,9 +109,12 @@ const PaymentSlice = createSlice({
     },
     [completePayment.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.payment = action.payload.data;
+      state.payment = {};
+      state.amountPaying = 0;
+      state.amountPaid = 0;
+      state.amountPaidArr = [];
+      state.showCashPage = false;
       state.error = null;
-
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
       // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
