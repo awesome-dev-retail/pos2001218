@@ -37,6 +37,20 @@ const Index = (props) => {
         unit_price: res.price * 1, // [required] int
         UOM: "EACH",
       };
+      if (res.extrasName && res.extrasPrice) {
+        dishObj.extras = [];
+        dishObj.extras.push({
+          id: 1, // [empty for creating]
+          cid: 1, // [Required] int
+          // dish_code: res.extrasName, // [required] string
+          dish_code: Date.now() + "", // [required] string
+          inventory_id: res.extrasName, // [required] string, from stock item
+          // description: "Add milk",
+          inventory_UOM: "EACH", // [required], from stock item's UOM list
+          qty: 1, // [required]
+          unit_price: res.extrasPrice * 1, // [required]
+        });
+      }
       // console.log("dishObj", dishObj);
       await dispatch(saveDish(dishObj));
       await dispatch(fetchDishListInMenu(res.menuId));
@@ -75,13 +89,23 @@ const Index = (props) => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item label="Price($)" colon={false} name="price" rules={[{ required: true, message: "Please input price!" }]}>
+          <Form.Item label="Dish Price($)" colon={false} name="price" rules={[{ required: true, message: "Please input price!" }]}>
             <Input placeholder="Please input price" />
             {/* <Input placeholder="Please input price" suffix="$" /> */}
           </Form.Item>
-          <p className="tip" onClick={props.showMoreTypeSetup}>
+          {/* <p className="tip" onClick={props.showMoreTypeSetup}>
             More Settings
-          </p>
+          </p> */}
+          <Form.Item label="Dish Discription" colon={false} name="discription" rules={[{ required: false }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Extras Name" colon={false} name="extrasName" rules={[{ required: false }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Extras Price($)" colon={false} name="extrasPrice" rules={[{ required: false }]}>
+            <Input />
+            {/* <Input placeholder="Please input price" suffix="$" /> */}
+          </Form.Item>
         </Form>
       </div>
     </Modal>

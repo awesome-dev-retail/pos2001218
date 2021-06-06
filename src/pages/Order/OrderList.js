@@ -80,6 +80,7 @@ function OrderList(props) {
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
   const currentDish = useSelector((state) => selectCurrentDish(state));
+
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
@@ -138,6 +139,7 @@ function OrderList(props) {
   };
 
   const handleCheckDishOrder = async (item) => {
+    console.log("-----------------currentDish", item);
     let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
     copyDishOrder.forEach((i) => {
       i.checked = i.id === item.id;
@@ -271,13 +273,13 @@ function OrderList(props) {
   };
   const drawerDom = useMemo(() => {
     let dom = null;
-    if (currentMeun === "feeding") {
+    if (currentMeun === "feeding" && currentDish.extras && currentDish.extras.length !== 0) {
       dom = (
         <div className="material-item">
           <Badge count={currentDish.material ? currentDish.material[0].count : 0}>
             <div className="material-info-inner">
-              <div className="material-info-name">Milk</div>
-              <span>$1</span>
+              <div className="material-info-name">{currentDish.extras[0].inventory_id}</div>
+              <span>${currentDish.extras[0].unit_price}</span>
             </div>
           </Badge>
           <div className="counter-inner">
@@ -290,6 +292,24 @@ function OrderList(props) {
           </div>
         </div>
       );
+      // dom = (
+      //   <div className="material-item">
+      //     <Badge count={currentDish.material ? currentDish.material[0].count : 0}>
+      //       <div className="material-info-inner">
+      //         <div className="material-info-name">Milk</div>
+      //         <span>$1</span>
+      //       </div>
+      //     </Badge>
+      //     <div className="counter-inner">
+      //       <div onClick={() => hanndleUpdateCount(-1)}>
+      //         <img src={reduceIcon} alt="reduce" />
+      //       </div>
+      //       <div onClick={() => hanndleUpdateCount(1)}>
+      //         <img src={addIcon} alt="increase" />
+      //       </div>
+      //     </div>
+      //   </div>
+      // );
     } else if (currentMeun === "remark") {
       dom = (
         <>
