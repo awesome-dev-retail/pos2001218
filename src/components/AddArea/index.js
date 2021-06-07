@@ -37,7 +37,8 @@ const Index = (props) => {
       await dispatch(saveArea(areaObj));
       await dispatch(fetchAreaList(1));
       console.log("---------areaIdFromSlice-----", areaIdFromSlice);
-      await dispatch(fetchTableListInArea(areaIdFromSlice));
+      await dispatch(fetchTableListInArea({ shopId: 1, areaId: props.id }));
+      // await dispatch(fetchTableListInArea(areaIdFromSlice));
     });
   };
 
