@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { history } from "../../components/MyRouter";
 
 import CacheStorage from "../../lib/cache-storage";
 import { formatNum, formatNumToTwoDecimal } from "../../services/formatNum";
-import { Badge, Modal, Button } from "antd";
+import { Form, Input, Badge, Modal, Button } from "antd";
 import {
   MenuOutlined,
   PrinterOutlined,
@@ -69,8 +69,8 @@ function OrderList(props) {
     { name: "Delete", key: "delete" },
     { name: "Cancel", key: "cancel" },
   ];
-  const remarkList = ["Spicy", "Salted", "No nut", "Vegetarian"];
-  // const remarkList = ["不加香菜", "不放辣", "不加葱花", "少盐", "素食"];
+  // const remarkList = ["Spicy", "Salted", "Vegetarian"];
+  const [remarkList, setRemarkList] = useState(["Spicy", "Salted", "Vegetarian"]);
   const dispatch = useDispatch();
   // eslint-disable-next-line react/prop-types
   // const pathname = props.location.pathname + "";
@@ -91,6 +91,10 @@ function OrderList(props) {
 
   // eslint-disable-next-line react/prop-types
   const tableId = props.match.params.tableId;
+
+  const [form] = Form.useForm();
+
+  const commentContainer = useRef();
 
   useEffect(async () => {
     // eslint-disable-next-line react/prop-types
@@ -257,6 +261,14 @@ function OrderList(props) {
     copyDishObjFromSlice.splice(index, 1, currentDishCopy);
     dispatch(setDishObjInOrder(copyDishObjFromSlice));
   };
+  const handleAddComment = () => {
+    debugger;
+    const newComment = commentContainer.current.input.value;
+    const copyRemarkList = JSON.parse(JSON.stringify(remarkList || []));
+    copyRemarkList.unshift(newComment);
+    // commentContainer.current.input.value = "";
+    setRemarkList(copyRemarkList);
+  };
   const drawerDom = useMemo(() => {
     let dom = null;
     if (currentMeun === "feeding" && currentDish.extras && currentDish.extras.length !== 0) {
@@ -314,11 +326,21 @@ function OrderList(props) {
               </div>
             ))}
           </div>
+          <div className="addComment" style={{ marginTop: 100 }}>
+            <Form form={form}>
+              <Form.Item label="" colon={false} name="name" rules={[{ required: false, message: "" }]}>
+                <Input ref={commentContainer} placeholder="please input new comment" />
+                <Button style={{ marginTop: 20 }} onClick={handleAddComment}>
+                  Add Comment
+                </Button>
+              </Form.Item>
+            </Form>
+          </div>
         </>
       );
     }
     return dom;
-  }, [currentMeun, currentTabIndex, currentDish]);
+  }, [currentMeun, currentTabIndex, currentDish, remarkList]);
 
   // const handleCancelPayment = () => {
   //   dispatch(cancelInvoice(table));
