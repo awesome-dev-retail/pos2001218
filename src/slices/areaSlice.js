@@ -36,7 +36,7 @@ export const fetchAreaList = createAsyncThunk("area/fetchAreaList", async (shopI
 
 export const saveArea = createAsyncThunk("area/saveArea", async (areaObj, { rejectWithValue }) => {
   try {
-    const res = await saveAreaRequest();
+    const res = await saveAreaRequest(areaObj);
     if (res.error) throw res.error;
     console.log("saveArea--------------", res);
     return res;

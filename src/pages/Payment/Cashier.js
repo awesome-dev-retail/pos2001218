@@ -275,7 +275,7 @@ const Cashier = (props) => {
               <div className="title">Amount Tendered:</div>
               <Input ref={tenderedContainer} className="total-input" value={payMoney && payMoney.toFixed(1)} />
               <div className="title">Cash Change:</div>
-              <Input className="total-input" defaultValue={0} value={result.change ? result.change : 0} />
+              <Input style={{}} className="total-input" defaultValue={0} value={result.change ? result.change : 0} />
               <div className="cashier">
                 {calculatorNum.map((item) => (
                   <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>

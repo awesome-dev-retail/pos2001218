@@ -77,22 +77,22 @@ const AuthCheck = (props) => {
         <div className="home-page-container">
           <header className="header">
             <div>
-              <MenuOutlined />
-              Table
+              {/* <MenuOutlined />
+              Table */}
               <span>
                 <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
               </span>
             </div>
             {/* <button onClick={handleDevBtnClick}>Dev</button> */}
 
-            <div style={{ fontSize: "14px", marginLeft: "800px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
+            <div style={{ fontSize: "18px", marginLeft: "800px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
             <div>
-              <PrinterOutlined />
-              <FileTextFilled />
-              <QuestionCircleFilled />
-              <Dropdown overlay={<UIMenu />} trigger={["click"]}>
-                <Avatar size={40} icon={<AntDesignOutlined />}></Avatar>
-              </Dropdown>
+              {/* <PrinterOutlined /> */}
+              {/* <FileTextFilled /> */}
+              {/* <QuestionCircleFilled /> */}
+              {/* <Dropdown overlay={<UIMenu />} trigger={["click"]}>
+                <Avatar size={25} icon={<AntDesignOutlined />}></Avatar>
+              </Dropdown> */}
             </div>
           </header>
         </div>

@@ -187,7 +187,7 @@ function OrderList(props) {
       dispatch(setDishObjInOrder(copyDishOrder));
       dispatch(calculateInvoice(invoice));
     } else if (key === "feeding") {
-      setShowDrawer(true);
+      if (currentDish && currentDish.extras && currentDish.extras.length !== 0) setShowDrawer(true);
     } else if (key === "remark") {
       setShowDrawer(true);
     }
@@ -259,9 +259,9 @@ function OrderList(props) {
       }
     } else if (number) {
       materialData[0] = {
-        name: "Milk",
+        // name: "Milk",
         count: number,
-        unitPrice: 1,
+        // unitPrice: 2,
       };
       currentDishCopy.material = materialData;
     }
