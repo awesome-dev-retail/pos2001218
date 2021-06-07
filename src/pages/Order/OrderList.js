@@ -314,7 +314,7 @@ function OrderList(props) {
       dom = (
         <>
           <div className="tabs">
-            {["For Dish", "For Order"].map((item, index) => (
+            {["For Dish"].map((item, index) => (
               <div className={currentTabIndex === index ? "active" : ""} key={item} onClick={() => setCurrentTabIndex(index)}>
                 {item}
               </div>
@@ -462,15 +462,14 @@ function OrderList(props) {
             {item.name}
           </div>
         ))}
-        <div className="table-info-menu-item" onClick={() => setShowMore(!showMore)}>
+        {/* <div className="table-info-menu-item" onClick={() => setShowMore(!showMore)}>
           <span>More</span>
           <div className={`table-info-childs-menu ${showMore ? "show" : "hide"}`}>
             <div>Share Table</div>
             <div>Change Table</div>
             <div>Combine Table</div>
-            {/* <div>Batch</div> */}
           </div>
-        </div>
+        </div> */}
       </div>
       {/* <div className={"drawer hide"}> */}
       <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
