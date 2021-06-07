@@ -239,32 +239,18 @@ function OrderList(props) {
     // dispatch(setShowCashier(true));
   };
 
-  const hanndleUpdateCount = (number) => {
-    let materialData = [];
-    if (currentDishCopy.material && currentDishCopy.material.length) {
-      materialData = currentDishCopy.material;
-      let count = materialData[0].count + number;
-      if (count >= 0) {
-        materialData = [
-          {
-            name: "Milk",
-            count,
-            unitPrice: 1,
-          },
-        ];
-        currentDishCopy = {
-          ...currentDishCopy,
-          material: materialData,
-        };
-      }
-    } else if (number) {
-      materialData[0] = {
-        // name: "Milk",
-        count: number,
-        // unitPrice: 2,
-      };
-      currentDishCopy.material = materialData;
+  const hanndleUpdateCount = (indexes, number) => {
+    debugger;
+    // let count = currentDishCopy.extras[indexes].count;
+    if (!currentDishCopy.extras[indexes].count) {
+      currentDishCopy.extras[indexes].count = 0;
     }
+    currentDishCopy.extras[indexes].count += number;
+    if (currentDishCopy.extras[indexes].count < 0) {
+      currentDishCopy.extras[indexes].count = 0;
+    }
+
+    // currentDishCopy.material = materialData;
     dispatch(setCurrentDish(currentDishCopy));
     let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
     let index = copyDishObjFromSlice.findIndex((item) => item.id === currentDish.id);
@@ -274,24 +260,24 @@ function OrderList(props) {
   const drawerDom = useMemo(() => {
     let dom = null;
     if (currentMeun === "feeding" && currentDish.extras && currentDish.extras.length !== 0) {
-      dom = (
-        <div className="material-item">
-          <Badge count={currentDish.material ? currentDish.material[0].count : 0}>
+      dom = currentDish.extras.map((item, index) => (
+        <div className="material-item" key={index}>
+          <Badge count={item.count || 0}>
             <div className="material-info-inner">
-              <div className="material-info-name">{currentDish.extras[0].inventory_id}</div>
-              <span>${currentDish.extras[0].unit_price}</span>
+              <div className="material-info-name">{item.inventory_id}</div>
+              <span>${item.unit_price}</span>
             </div>
           </Badge>
           <div className="counter-inner">
-            <div onClick={() => hanndleUpdateCount(-1)}>
+            <div onClick={() => hanndleUpdateCount(index, -1)}>
               <img src={reduceIcon} alt="reduce" />
             </div>
-            <div onClick={() => hanndleUpdateCount(1)}>
+            <div onClick={() => hanndleUpdateCount(index, 1)}>
               <img src={addIcon} alt="increase" />
             </div>
           </div>
         </div>
-      );
+      ));
       // dom = (
       //   <div className="material-item">
       //     <Badge count={currentDish.material ? currentDish.material[0].count : 0}>
@@ -371,14 +357,18 @@ function OrderList(props) {
                 <div className="bill-name">
                   <div>{item.description}</div>
                   {item.tip && <div className="food-tip">{item.tip}</div>}
-                  {item.material && item.material.length > 0 && item.material[0].count > 0 && (
+                  {/* {item.extras && item.extras.length > 0 && item.material[0].count > 0 && ( */}
+                  {item.extras && item.extras.length > 0 && (
                     <div className="materials">
-                      Extras:
-                      {item.material.map((i, index) => (
-                        <span key={index}>
-                          {i.name} x {i.count} ${i.count * i.unitPrice}
-                        </span>
-                      ))}
+                      {/* Extras: */}
+                      {item.extras.map(
+                        (i, index) =>
+                          i.count > 0 && (
+                            <span key={index}>
+                              {i.inventory_id} x {i.count} ${i.count * i.unit_price}
+                            </span>
+                          )
+                      )}
                     </div>
                   )}
                   {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
