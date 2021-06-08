@@ -202,8 +202,14 @@ function OrderList(props) {
       price = 0,
       oldPrice = 0;
     dishObjFromSlice.forEach((item) => {
+      // let extrasAmount = 0;
+      // if (item.extras && item.extras.length !== 0) {
+      //   extrasAmount = item.extras.reduce((total, current) => (current.count ? total + current.count * current.unit_price : total), 0);
+      // }
+      // console.log("-------------item.extras", item.extras);
       count += item.count || 1;
-      price += (item.count || 1) * item.unit_price;
+      price += item.Amount;
+      // price += extrasAmount;
       oldPrice += (item.count || 1) * item.unit_cost;
     });
     return { count, price: price.toFixed(2) };
@@ -243,8 +249,7 @@ function OrderList(props) {
     // dispatch(setShowCashier(true));
   };
 
-  const hanndleUpdateCount = (indexes, number) => {
-    debugger;
+  const handleUpdateCount = (indexes, number) => {
     // let count = currentDishCopy.extras[indexes].count;
     if (!currentDishCopy.extras[indexes].count) {
       currentDishCopy.extras[indexes].count = 0;
@@ -259,10 +264,13 @@ function OrderList(props) {
     let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
     let index = copyDishObjFromSlice.findIndex((item) => item.id === currentDish.id);
     copyDishObjFromSlice.splice(index, 1, currentDishCopy);
+
+    const invoice = createInvoice(table, copyDishObjFromSlice, currentUser.userinfo.id);
     dispatch(setDishObjInOrder(copyDishObjFromSlice));
+    dispatch(calculateInvoice(invoice));
   };
   const handleAddComment = () => {
-    debugger;
+    // debugger;
     const newComment = commentContainer.current.input.value;
     const copyRemarkList = JSON.parse(JSON.stringify(remarkList || []));
     copyRemarkList.unshift(newComment);
@@ -281,10 +289,10 @@ function OrderList(props) {
             </div>
           </Badge>
           <div className="counter-inner">
-            <div onClick={() => hanndleUpdateCount(index, -1)}>
+            <div onClick={() => handleUpdateCount(index, -1)}>
               <img src={reduceIcon} alt="reduce" />
             </div>
-            <div onClick={() => hanndleUpdateCount(index, 1)}>
+            <div onClick={() => handleUpdateCount(index, 1)}>
               <img src={addIcon} alt="increase" />
             </div>
           </div>
@@ -299,10 +307,10 @@ function OrderList(props) {
       //       </div>
       //     </Badge>
       //     <div className="counter-inner">
-      //       <div onClick={() => hanndleUpdateCount(-1)}>
+      //       <div onClick={() => handleUpdateCount(-1)}>
       //         <img src={reduceIcon} alt="reduce" />
       //       </div>
-      //       <div onClick={() => hanndleUpdateCount(1)}>
+      //       <div onClick={() => handleUpdateCount(1)}>
       //         <img src={addIcon} alt="increase" />
       //       </div>
       //     </div>
@@ -399,6 +407,12 @@ function OrderList(props) {
                 <div className="count">X {item.count}</div>
                 <div className="price">
                   <div className="new-price">${item.unit_price.toFixed(2)}</div>
+                  {/* <div className="old-price">$ {item.unit_cost}</div>  */}
+                </div>
+                <div className="price">
+                  <div className="new-price" style={{ fontWeight: "bolder" }}>
+                    ${item.Amount.toFixed(2)}
+                  </div>
                   {/* <div className="old-price">$ {item.unit_cost}</div>  */}
                 </div>
               </div>

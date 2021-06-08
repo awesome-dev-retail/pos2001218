@@ -13,6 +13,7 @@ export function createInvoice(table, dishArr, userID) {
     const time = existInvioceDate.split(" ")[1];
     existInvioceDate = date + " " + time;
   }
+
   return {
     InvoiceID: table.uncomplete_invoices ? table.uncomplete_invoices[0].id : 0,
     CID: 1,
@@ -49,6 +50,32 @@ export function createInvoice(table, dishArr, userID) {
       },
       Amount: dish.count * dish.unit_price,
       UnitCost: dish.unit_cost,
+      Changed: true,
+      ExtraDetail: {
+        //if have
+        Changed: true, // [required]
+        ExtraList:
+          dish.extras && dish.extras.length !== 0
+            ? dish.extras
+                .map((i) => {
+                  if (i.count && i.count !== 0) {
+                    return {
+                      ExtraID: i.id,
+                      ExtraQty: i.count,
+                    };
+                  }
+                })
+                .filter((n) => n)
+            : [],
+        // ExtraList: [
+        //   {
+        //     ExtraID: 1, // [required]
+        //     ExtraQty: 2, // [required]
+        //     ExtraInventoryID: "MILK", // [return from backend]
+        //     ExtraDescription: "Add milk", // [return from backend]
+        //   },
+        // ],
+      },
       ServeNow: true,
       Cooked: false,
       Served: false,

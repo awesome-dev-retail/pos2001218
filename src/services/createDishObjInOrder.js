@@ -11,6 +11,8 @@ export const createDishObjInOrder = (state, copydishObjInOrder) => {
       const dish = copydishObjInOrder.find((dish) => dish.dish_code === item.Dish.DishCode);
       dish.count = item.Quantity.Qty;
       dish.Amount = item.Amount;
+      dish.unitExtraAmount = item.UnitExtraAmount;
+
       return dish;
     });
     return newdishObjInOrder;
