@@ -70,7 +70,7 @@ function OrderList(props) {
     { name: "Cancel", key: "cancel" },
   ];
   // const remarkList = ["Spicy", "Salted", "Vegetarian"];
-  const [remarkList, setRemarkList] = useState(["Spicy", "Salted", "Vegetarian"]);
+  const [remarkList, setRemarkList] = useState(["Spicy", "No Sugar", "Vegetarian"]);
   const dispatch = useDispatch();
   // eslint-disable-next-line react/prop-types
   // const pathname = props.location.pathname + "";
