@@ -112,17 +112,20 @@ function OrderList(props) {
 
   // for cash
   const total = useMemo(() => {
-    let count = 0,
-      price = 0,
-      oldPrice = 0;
+    // let count = 0,
+    //   price = 0,
+    //   oldPrice = 0;
 
-    billList.forEach((item) => {
-      count += item.line_qty || 1;
-      price += (item.line_qty || 1) * item.unit_price;
-      oldPrice += (item.count || 1) * item.unit_cost;
-    });
-    return { count, price: price.toFixed(2), oldPrice: oldPrice.toFixed(2) };
-  }, [JSON.stringify(billList)]);
+    // billList.forEach((item) => {
+    //   count += item.line_qty || 1;
+    //   price += (item.line_qty || 1) * item.unit_price;
+    //   oldPrice += (item.count || 1) * item.unit_cost;
+    // });
+    let gross = documentFromSlice.doc_gross_amount ? documentFromSlice.doc_gross_amount.toFixed(2) : "0.00";
+    let gst = documentFromSlice.doc_GST_amount ? documentFromSlice.doc_GST_amount.toFixed(2) : "0.00";
+    let net = documentFromSlice.doc_net_amount ? documentFromSlice.doc_net_amount.toFixed(2) : "0.00";
+    return { gross, gst, net };
+  }, [JSON.stringify(documentFromSlice)]);
 
   //for split
   const result = useMemo(() => {
@@ -209,8 +212,7 @@ function OrderList(props) {
                 {showSplitOrder && <Checkbox className="check-box" onChange={(e) => handleChangeBox(e, index)}></Checkbox>}
                 <div className="bill-name">
                   <div>{item.description}</div>
-                  {item.tip && <div className="food-tip">{item.tip}</div>}
-                  {/* </div> */}
+                  {/* {item.tip && <div className="food-tip">{item.tip}</div>}
                   {item.material && item.material.length > 0 && item.material[0].count > 0 && (
                     <div className="materials">
                       Extras:
@@ -220,8 +222,8 @@ function OrderList(props) {
                         </span>
                       ))}
                     </div>
-                  )}
-                  {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
+                  )}  
+                  {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>} */}
                 </div>
                 <div className="count">X {item.line_qty}</div>
                 <div className="price">
@@ -265,16 +267,16 @@ function OrderList(props) {
                   </div>
                   <div className="left-line">
                     <span className="label">SUBTOTAL</span>
-                    <span className="text">${(0.85 * total.price).toFixed(2)}</span>
+                    <span className="text">${total.net}</span>
                   </div>
                   <div className="left-line">
                     <span className="label">TAX(GST)</span>
-                    <span className="text">${(0.15 * total.price).toFixed(2)}</span>
+                    <span className="text">${total.gst}</span>
                   </div>
                 </div>
                 <div className="content">
                   <span>TOTAL</span>
-                  <div className="content-total">${total.price}</div>
+                  <div className="content-total">${total.gross}</div>
                 </div>
                 <div className="right">
                   <div>NEW CUSTOMER</div>

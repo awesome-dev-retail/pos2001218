@@ -243,9 +243,9 @@ function OrderList(props) {
   };
 
   const handlePayment = () => {
-    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
-    const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
-    dispatch(saveInvoice(invoice));
+    // let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+    // const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
+    dispatch(saveInvoice(table));
     // dispatch(setShowCashier(true));
   };
 
@@ -411,7 +411,7 @@ function OrderList(props) {
                 </div>
                 <div className="price">
                   <div className="new-price" style={{ fontWeight: "bolder" }}>
-                    ${item.Amount.toFixed(2)}
+                    ${item.Amount ? item.Amount.toFixed(2) : "0.00"}
                   </div>
                   {/* <div className="old-price">$ {item.unit_cost}</div>  */}
                 </div>

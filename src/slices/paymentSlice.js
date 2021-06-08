@@ -46,7 +46,7 @@ export const completePayment = createAsyncThunk("payment/completePayment", async
   try {
     const res = await completePaymentRequest(invoiceId);
     if (res.error) throw res.error;
-    message.success("payment completed successfully!");
+    message.success("Successfully Complete Payment!");
     history.push("/");
     CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
     console.log("completePayment--------------", res);

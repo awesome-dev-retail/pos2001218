@@ -1,9 +1,27 @@
 import moment from "moment";
 
 export function createInvoice(table, dishArr, userID) {
-  const grossAmount = dishArr.reduce((total, currentValue) => {
-    return total + currentValue.count * currentValue.unit_price;
+  // const grossAmount = dishArr.reduce((total, item) => {
+  //   return total + item.count * item.unit_price;
+  // }, 0);
+  // const extrasAmount = dishArr.reduce((total, item) => {
+  //   if (item.extras && item.extras.length !== 0) {
+  //     return total + item.extras.reduce((t, i) => t + i.count * i.unit_price, 0);
+  //   } else {
+  //     return total;
+  //   }
+  // }, 0);
+
+  const grossAmount = dishArr.reduce((total, item) => {
+    let extraAmount = 0;
+    if (item.extras && item.extras.length !== 0) {
+      extraAmount = item.extras.reduce((t, i) => t + i.count * i.unit_price, 0);
+    }
+    // return total + item.count * item.unit_price;
+    return total + item.count * (item.unit_price + extraAmount);
   }, 0);
+
+  console.log(grossAmount);
   //  "InvoiceDate": "2019-10-03 14:52:39", // [required]
   const newInvoiceDate = moment().format("YYYY-MM-DD HH:mm:ss");
   let existInvioceDate = "";
