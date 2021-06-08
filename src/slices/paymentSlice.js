@@ -46,9 +46,11 @@ export const completePayment = createAsyncThunk("payment/completePayment", async
   try {
     const res = await completePaymentRequest(invoiceId);
     if (res.error) throw res.error;
-    message.success("payment completed successfully!");
+    message.success("Successfully Complete Transaction!");
     history.push("/");
     CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
+    CacheStorage.removeItem("invoice_" + "1_" + tableId);
+
     console.log("completePayment--------------", res);
     return res;
   } catch (e) {
@@ -109,9 +111,12 @@ const PaymentSlice = createSlice({
     },
     [completePayment.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.payment = action.payload.data;
+      state.payment = {};
+      state.amountPaying = 0;
+      state.amountPaid = 0;
+      state.amountPaidArr = [];
+      state.showCashPage = false;
       state.error = null;
-
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
       // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);

@@ -134,6 +134,7 @@ const TableSlice = createSlice({
         item.totalAmount = totalAmount;
         return item;
       });
+      // debugger;
       state.tableList = newTableList;
       state.error = null;
     },

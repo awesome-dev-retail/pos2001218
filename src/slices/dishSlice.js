@@ -78,10 +78,11 @@ export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async 
   }
 });
 
-export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (invoice, { rejectWithValue }) => {
+export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (table, { rejectWithValue }) => {
   try {
-    // const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
-    const res = await saveInvoiceRequest(invoice);
+    const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
+    copyInvoice.InvoiceID = table.uncomplete_invoices ? table.uncomplete_invoices[0].id : 0;
+    const res = await saveInvoiceRequest(copyInvoice);
     if (res.error) throw res.error;
     history.push(`/payment/${res.data.InvoiceID}`);
     console.log("saveInvoice--------------", res);
@@ -146,11 +147,13 @@ const DishSlice = createSlice({
     [calculateInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
+      // debugger;
       const copydishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
       state.dishObjInOrder = createDishObjInOrder(state, copydishObjInOrder);
+      // debugger;
       CacheStorage.setItem("dishObjInOrder_" + "1_" + state.invoice.TableID, state.dishObjInOrder);
-      // CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
-      // console.log(CacheStorage.getItem("invoice_" + "1_" + res.data.TableID));
+      CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
+      // console.log(CacheStorage.getItem("invoice_" + "1_" + state.invoice.TableID));
 
       state.error = null;
       // state.token = action.payload.token;
