@@ -103,6 +103,8 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
       console.warn("Transaction completed successfully");
       //Clean up re-fetch document
       history.push("/");
+      CacheStorage.removeItem("invoice_" + "1_" + document.table_id);
+      CacheStorage.removeItem("dishObjInOrder_" + "1_" + document.table_id);
     } else {
       console.warn("Transaction completed with error");
     }
