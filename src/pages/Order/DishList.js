@@ -20,7 +20,7 @@ import { selectMenuId } from "../../slices/menuSlice";
 
 import AddDish from "../../components/AddDish";
 
-import { createInvoice } from "../../services/createInvoice";
+import { createInvoice, createLine } from "../../services/createInvoice";
 
 function DishList(props) {
   const [showDish, setShowDish] = useState(false);
@@ -39,6 +39,7 @@ function DishList(props) {
   const menuIdFromSlice = useSelector((state) => selectMenuId(state));
 
   const table = useSelector((state) => selectTable(state)) || {};
+  const invoice = useSelector((state) => selectInvoice(state));
 
   useEffect(() => {
     dispatch(fetchDishListInShop(1));
@@ -86,21 +87,41 @@ function DishList(props) {
   // }, [invoiceFromSlice]);
 
   const addToOrderList = async (dish) => {
-    let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
-    let copydishObjInOrder = JSON.parse(JSON.stringify(dishObjInOrder));
-    let copyDish = JSON.parse(JSON.stringify(dish));
-    if (index > -1) {
-      copydishObjInOrder[index].count += 1;
+    let newInvoice = {};
+    if (!invoice) {
+      newInvoice = createInvoice(table, dish, currentUser.userinfo.id);
     } else {
-      copyDish.count = 1;
-      copydishObjInOrder.push(copyDish);
+      newInvoice = JSON.parse(JSON.stringify(invoice));
+      if (newInvoice.Lines) {
+        let index = newInvoice.Lines.findIndex((item) => item.id === dish.id);
+        // let copyDish = JSON.parse(JSON.stringify(dish));
+        if (index > -1) {
+          newInvoice.Lines[index].Quantity.Qty += 1;
+        } else {
+          const line = createLine(dish);
+          newInvoice.Lines.push(line);
+        }
+      }
     }
-    // dispatch(setDishObjInOrder(copydishObjInOrder));
-    // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
-    const invoice = createInvoice(table, copydishObjInOrder, currentUser.userinfo.id);
-    dispatch(setDishObjInOrder(copydishObjInOrder));
-    dispatch(calculateInvoice(invoice));
+    dispatch(calculateInvoice(newInvoice));
+    return;
   };
+  // const addToOrderList = async (dish) => {
+  //   let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
+  //   let copydishObjInOrder = JSON.parse(JSON.stringify(dishObjInOrder));
+  //   let copyDish = JSON.parse(JSON.stringify(dish));
+  //   if (index > -1) {
+  //     copydishObjInOrder[index].count += 1;
+  //   } else {
+  //     copyDish.count = 1;
+  //     copydishObjInOrder.push(copyDish);
+  //   }
+  //   // dispatch(setDishObjInOrder(copydishObjInOrder));
+  //   // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
+  //   const invoice = createInvoice(table, copydishObjInOrder, currentUser.userinfo.id);
+  //   dispatch(setDishObjInOrder(copydishObjInOrder));
+  //   dispatch(calculateInvoice(invoice));
+  // };
 
   return (
     <Fragment>

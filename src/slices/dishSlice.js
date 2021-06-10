@@ -8,12 +8,13 @@ import { message } from "../lib";
 import { dishListRequest, dishListInMenuRequest, saveDishRequest, deleteDishRequest, calculateInvoiceRequest, saveInvoiceRequest, listInvoiceRequest, cancelInvoiceRequest } from "../services";
 import axios from "axios";
 import { createDishObjInOrder } from "../services/createDishObjInOrder";
+import { createInvoice } from "../services/createInvoice";
 
 const initialState = {
   dish: [],
   dishObjInOrder: [],
   // addedDish: null,
-  // invoice: {},
+  invoice: {},
   // document: {},
   showCashier: false,
   currentDish: {},
@@ -81,7 +82,13 @@ export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async 
 export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (table, { rejectWithValue }) => {
   try {
     const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
+    if (!copyInvoice) {
+      message.warning("Please order first!");
+      return;
+    }
+
     copyInvoice.InvoiceID = table.uncomplete_invoices ? table.uncomplete_invoices[0].id : 0;
+
     const res = await saveInvoiceRequest(copyInvoice);
     if (res.error) throw res.error;
     history.push(`/payment/${res.data.InvoiceID}`);
@@ -136,7 +143,7 @@ const DishSlice = createSlice({
     setShowCashier(state, action) {
       state.showCashier = action.payload;
     },
-    setCurrentInvoice(state, action) {
+    setInvoice(state, action) {
       state.invoice = action.payload;
     },
   },
@@ -292,11 +299,13 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder, setCurrentDish, clearCheckedDish, setShowCashier, setCurrentInvoice } = DishSlice.actions;
+export const { setDishObjInOrder, setCurrentDish, clearCheckedDish, setShowCashier, setInvoice } = DishSlice.actions;
 
 export const selectCashierStatus = (state) => state.Dish.showCashier;
 
 export const selectDishList = (state) => state.Dish.dish;
+export const selectInvoice = (state) => state.Dish.invoice;
+
 export const selectCurrentDish = (state) => state.Dish.currentDish;
 export const selectDishObjInOrder = (state) => state.Dish.dishObjInOrder;
 

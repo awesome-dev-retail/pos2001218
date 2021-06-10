@@ -24,20 +24,17 @@ import Counter from "../../components/Counter";
 import { selectCurrentUser } from "../../slices/authSlice";
 
 import {
+  selectInvoice,
   selectDishObjInOrder,
   setDishObjInOrder,
-  setCurrentDish,
-  selectCurrentDish,
-  clearCheckedDish,
   selectCashierStatus,
   setShowCashier,
   calculateInvoice,
   saveInvoice,
   listDocument,
   cancelInvoice,
-  setCurrentInvoice,
+  setInvoice,
 } from "../../slices/dishSlice";
-import { selectInvoice } from "../../slices/dishSlice";
 
 import { selectDocument } from "../../slices/documentSlice";
 
@@ -54,7 +51,7 @@ import sousuo from "../../assets/images/sousuo.png";
 import "./OrderList.scss";
 import { message } from "../../lib";
 function OrderList(props) {
-  // const [currentDish, setCurrentDish] = useState({});
+  const [currentDish, setCurrentDish] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
 
   const [showMore, setShowMore] = useState(false);
@@ -76,10 +73,17 @@ function OrderList(props) {
   // const pathname = props.location.pathname + "";
   // const tableId = pathname.split("/")[3] * 1;
 
+  // eslint-disable-next-line react/prop-types
+  const tableId = props.match.params.tableId;
+
+  const invoice = useSelector((state) => selectInvoice(state));
+
+  const copyInvoice = JSON.parse(JSON.stringify(invoice));
+
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
-  const currentDish = useSelector((state) => selectCurrentDish(state));
+  // const currentDish = useSelector((state) => selectCurrentDish(state));
 
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
@@ -89,30 +93,29 @@ function OrderList(props) {
 
   const { confirm } = Modal;
 
-  // eslint-disable-next-line react/prop-types
-  const tableId = props.match.params.tableId;
-
   const [form] = Form.useForm();
 
   const commentContainer = useRef();
 
   useEffect(async () => {
     // eslint-disable-next-line react/prop-types
-    // console.log("=====================", props);
     await dispatch(fetchTableById(tableId));
-    dispatch(setDishObjInOrder([]));
-    const arr = CacheStorage.getItem("dishObjInOrder_" + "1_" + tableId);
-    if (arr) {
-      dispatch(setDishObjInOrder(arr));
+
+    if (Object.keys(invoice).length === 0) {
+      const localInvoice = CacheStorage.getItem("invoice_" + "1_" + tableId);
+      const newInvoice = localInvoice ? localInvoice : invoice;
+      dispatch(setInvoice(newInvoice));
     }
 
-    // const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
-    // if (obj) {
-    //   dispatch(setCurrentInvoice(obj));
-    // }
-    dispatch(setCurrentDish({}));
+    setCurrentDish({});
     dispatch(clearCheckedDish());
   }, []);
+
+  // useEffect(() => {}, [invoice, table]);
+
+  const showPay = useMemo(() => {
+    return Object.keys(invoice).length === 0 || !invoice.Lines || invoice.Lines.length === 0 ? false : true;
+  }, [invoice]);
 
   const updateCount = async (value) => {
     if (currentDish.id) {
@@ -120,11 +123,11 @@ function OrderList(props) {
       copyCurrentDish.count += value;
       // 数量为0  删除
       if (!copyCurrentDish.count) {
-        // setCurrentDish({});
-        dispatch(setCurrentDish({}));
+        setCurrentDish({});
+        // dispatch(setCurrentDish({}));
       } else {
-        // setCurrentDish(copyCurrentDish);
-        dispatch(setCurrentDish(copyCurrentDish));
+        setCurrentDish(copyCurrentDish);
+        // dispatch(setCurrentDish(copyCurrentDish));
       }
       let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
       let index = copyDishOrder.findIndex((i) => {
@@ -142,15 +145,14 @@ function OrderList(props) {
     }
   };
 
-  const handleCheckDishOrder = async (item) => {
-    console.log("-----------------currentDish", item);
-    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
-    copyDishOrder.forEach((i) => {
-      i.checked = i.id === item.id;
+  const handleCheckDishOrder = async (dish) => {
+    const invoice = JSON.parse(JSON.stringify(invoice));
+    invoice.Lines.forEach((i) => {
+      i.checked = i.Dish.DishCode === dish.dish_code;
     });
-    // setCurrentDish(item);
-    dispatch(setCurrentDish(item));
-    await dispatch(setDishObjInOrder(copyDishOrder));
+    setCurrentDish(dish);
+    // dispatch(setCurrentDish(dish));
+    await dispatch(setInvoice(invoice));
   };
 
   const handleOperation = async (key) => {
@@ -381,42 +383,43 @@ function OrderList(props) {
             {/* <CaretDownOutlined /> */}
           </div>
           <div className="bill-list">
-            {dishObjFromSlice.map((item, index) => (
-              <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
-                {/* <div> */}
-                <div className="bill-name">
-                  <div>{item.description}</div>
-                  {item.tip && <div className="food-tip">{item.tip}</div>}
-                  {/* {item.extras && item.extras.length > 0 && item.material[0].count > 0 && ( */}
-                  {item.extras && item.extras.length > 0 && (
-                    <div className="materials">
-                      {/* Extras: */}
-                      {item.extras.map(
-                        (i, index) =>
-                          i.count > 0 && (
-                            <span key={index}>
-                              {i.inventory_id} x {i.count} ${i.count * i.unit_price}
-                            </span>
-                          )
-                      )}
-                    </div>
-                  )}
-                  {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
-                </div>
-                {/* </div> */}
-                <div className="count">X {item.count}</div>
-                <div className="price">
-                  <div className="new-price">${item.unit_price.toFixed(2)}</div>
-                  {/* <div className="old-price">$ {item.unit_cost}</div>  */}
-                </div>
-                <div className="price">
-                  <div className="new-price" style={{ fontWeight: "bolder" }}>
-                    ${item.Amount ? item.Amount.toFixed(2) : "0.00"}
+            {invoice.Lines &&
+              invoice.Lines.map((item, index) => (
+                <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
+                  {/* <div> */}
+                  <div className="bill-name">
+                    <div>{item.description}</div>
+                    {item.tip && <div className="food-tip">{item.tip}</div>}
+                    {/* {item.extras && item.extras.length > 0 && item.material[0].count > 0 && ( */}
+                    {item.extras && item.extras.length > 0 && (
+                      <div className="materials">
+                        {/* Extras: */}
+                        {item.extras.map(
+                          (i, index) =>
+                            i.count > 0 && (
+                              <span key={index}>
+                                {i.inventory_id} x {i.count} ${i.count * i.unit_price}
+                              </span>
+                            )
+                        )}
+                      </div>
+                    )}
+                    {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
                   </div>
-                  {/* <div className="old-price">$ {item.unit_cost}</div>  */}
+                  {/* </div> */}
+                  <div className="count">X {item.count}</div>
+                  <div className="price">
+                    <div className="new-price">${item.unit_price.toFixed(2)}</div>
+                    {/* <div className="old-price">$ {item.unit_cost}</div>  */}
+                  </div>
+                  <div className="price">
+                    <div className="new-price" style={{ fontWeight: "bolder" }}>
+                      ${item.Amount ? item.Amount.toFixed(2) : "0.00"}
+                    </div>
+                    {/* <div className="old-price">$ {item.unit_cost}</div>  */}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
         <div className="table-bottom">
@@ -477,7 +480,11 @@ function OrderList(props) {
             </button>
             {/* <button onClick={handleCancelPayment}>CANCEL PAYMENT</button> */}
             {/* <button>Add Dish</button> */}
-            {!cashierStatus && <button onClick={handlePayment}>PAY</button>}
+            {!cashierStatus && (
+              <button onClick={handlePayment} disabled={!showPay}>
+                PAY
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -12,8 +12,7 @@ const initialState = {
   tableList: [],
   copyTableListInShop: [],
   tableListInArea: [],
-  table: null,
-  tableInfo: null,
+  table: {},
   status: "",
   error: null,
 };
