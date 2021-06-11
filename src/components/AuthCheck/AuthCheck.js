@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import Logo from "../../assets/images/Bizex_FinalLogo.jpg";
+import logoAbbey from "../../assets/images/logo-Abbey.png";
 
 import { Redirect, withRouter } from "react-router-dom";
 import CONSTANT from "../../configs/CONSTANT";
@@ -80,12 +81,16 @@ const AuthCheck = (props) => {
               {/* <MenuOutlined />
               Table */}
               <span>
-                <img style={{ width: 100, marginLeft: 100 }} src={Logo} alt="logo" />- BizCafe
+                <img style={{ width: 100, marginLeft: 20 }} src={Logo} alt="logo" />- BizCafe
+              </span>
+
+              <span>
+                <img style={{ width: 100, marginLeft: 600 }} src={logoAbbey} alt="logo" />
               </span>
             </div>
             {/* <button onClick={handleDevBtnClick}>Dev</button> */}
 
-            <div style={{ fontSize: "18px", marginLeft: "800px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
+            <div style={{ fontSize: "18px", marginLeft: "401px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
             <div>
               {/* <PrinterOutlined /> */}
               {/* <FileTextFilled /> */}

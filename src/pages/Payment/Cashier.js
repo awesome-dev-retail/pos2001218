@@ -192,19 +192,23 @@ const Cashier = (props) => {
       let copyPayMoney = payMoney.toString();
       if (copyPayMoney.length) {
         copyPayMoney = copyPayMoney.substr(0, copyPayMoney.length - 1);
-        setPayMoney(parseFloat(copyPayMoney || 0));
+        setPayMoney(copyPayMoney || 0);
+        // setPayMoney(parseFloat(copyPayMoney || 0));
       }
     } else {
       let copyPayMoney = payMoney.toString();
       copyPayMoney = copyPayMoney + value;
-      setPayMoney(parseFloat(copyPayMoney));
+      copyPayMoney = copyPayMoney[0] == "0" && copyPayMoney >= 1 ? copyPayMoney.substr(1) : copyPayMoney;
+      setPayMoney(copyPayMoney);
+      // setPayMoney(parseFloat(copyPayMoney));
+      // debugger;
     }
   };
 
   const handleClickOperation = (name) => {
+    const due = dueContainer.current.props.value * 1;
+    const tendered = tenderedContainer.current.props.value * 1;
     if (name === "CASH") {
-      const due = dueContainer.current.props.value * 1;
-      const tendered = tenderedContainer.current.props.value * 1;
       // console.log(due, tendered);
       let payment = null;
       if (due > tendered) {
@@ -219,13 +223,17 @@ const Cashier = (props) => {
       setPayMoney(0);
       dispatch(setShowSplitOrder(true));
     } else if (name === "EFT-POS") {
+      if (due > tendered) {
+        message.warning("Tendered must be equal to due!");
+        return;
+      }
       processEFTPOSTransaction();
     }
   };
 
   const processEFTPOSTransaction = () => {
     if (!isLoading) {
-      dispatch(processEFTPOS({ amount: payMoney, cashOutAmount: 0 }));
+      dispatch(processEFTPOS({ amount: payMoney * 1, cashOutAmount: 0 }));
       // Save temp payment
       // Invoke
       // Socket
@@ -252,11 +260,11 @@ const Cashier = (props) => {
   const result = useMemo(() => {
     let change = 0;
     if (showSplitOrder) {
-      change = (payMoney - Math.round(amountPaying * 10) / 10).toFixed(1);
+      change = (payMoney * 1 - Math.round(amountPaying * 10) / 10).toFixed(1) * 1;
     } else {
       const amountInDoc = documentFromSlice.doc_gross_amount;
       // const amount = amountInDoc ? amountInDoc.toFixed(2) : "0.00";
-      change = (payMoney - Math.round(amountInDoc * 10) / 10).toFixed(1) * 1;
+      change = (payMoney * 1 - Math.round(amountInDoc * 10) / 10).toFixed(1) * 1;
     }
     change = change < 0 ? 0 : change;
     change = change ? change : 0;
@@ -271,11 +279,15 @@ const Cashier = (props) => {
             {/* <div className="title">Amount Tendered</div>   */}
             <div className="cashier-inner">
               <div className="title">{showSplitOrder ? "Amount Paying" : "Amount Due"}:</div>
-              <Input ref={dueContainer} className="total-input" value={showSplitOrder ? amountPaying.toFixed(2) : documentFromSlice.doc_gross_amount} />
+              <Input
+                ref={dueContainer}
+                className="total-input"
+                value={showSplitOrder ? amountPaying.toFixed(2) : documentFromSlice.doc_gross_amount ? documentFromSlice.doc_gross_amount.toFixed(2) : "0.00"}
+              />
               <div className="title">Amount Tendered:</div>
-              <Input ref={tenderedContainer} className="total-input" value={payMoney && payMoney.toFixed(1)} />
-              <div className="title">Cash Change:</div>
-              <Input style={{}} className="total-input" defaultValue={0} value={result.change ? result.change : 0} />
+              <Input ref={tenderedContainer} className="total-input" value={payMoney * 1} />
+              <div className="title">Change:</div>
+              <Input style={{}} className="total-input" defaultValue={0} value={result.change ? result.change : "0.00"} />
               <div className="cashier">
                 {calculatorNum.map((item) => (
                   <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>

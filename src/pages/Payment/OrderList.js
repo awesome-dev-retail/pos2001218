@@ -141,13 +141,11 @@ function OrderList(props) {
         amountPaying += item.line_amount;
       }
     });
-    amountPaying = amountPaying.toFixed(2) * 1;
 
     amountPaid = amountPaidArr.reduce((total, current) => total + current, 0);
-    amountPaid = amountPaid.toFixed(2) * 1;
 
-    remainingDue = (documentFromSlice.doc_gross_amount - amountPaid).toFixed(2) * 1;
-    console.log(amountPaidArr);
+    remainingDue = documentFromSlice.doc_gross_amount - amountPaid;
+    // console.log(amountPaidArr);
     dispatch(setAmountPaying(amountPaying));
     dispatch(setAmountPaid(amountPaid));
     return { amountPaying, remainingDue, amountPaid, total };
@@ -203,7 +201,7 @@ function OrderList(props) {
             amountPaidArr.map((item, index) => (
               <div key={item} className="paid-line">
                 <span>Payment {index + 1} - Cash</span>
-                <span>${item}</span>
+                <span>${item.toFixed(2)}</span>
               </div>
             ))}
           <div className="bill-list">

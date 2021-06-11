@@ -110,6 +110,7 @@ export const cancelInvoice = createAsyncThunk("dish/cancelDocument", async ({ in
     message.success("Cancel Invoice successfully!");
     history.push("/");
     CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
+    CacheStorage.removeItem("invoice_" + "1_" + tableId);
     console.log("cancelDocument--------------", res);
     return res;
   } catch (e) {

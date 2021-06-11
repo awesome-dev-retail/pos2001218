@@ -395,7 +395,8 @@ function OrderList(props) {
                         (i, index) =>
                           i.count > 0 && (
                             <span key={index}>
-                              {i.inventory_id} x {i.count} ${i.count * i.unit_price}
+                              {/* {i.inventory_id} x {i.count} ${i.count * i.unit_price} */}
+                              {i.inventory_id} : ${i.count * i.unit_price}
                             </span>
                           )
                       )}

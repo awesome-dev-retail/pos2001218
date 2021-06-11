@@ -91,7 +91,7 @@ export default function MenuList() {
       <div className="menu-list">
         <div className="menu-item">
           {/* <Badge size="small" count={5} offset={[5]}> */}
-          <div onClick={showTablesInShop}>All Areas</div>
+          <div onClick={showTablesInShop}>ALL AREAS</div>
           {/* <span>All Areas</span> */}
           {/* </Badge> */}
         </div>
