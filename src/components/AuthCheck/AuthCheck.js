@@ -90,7 +90,7 @@ const AuthCheck = (props) => {
             </div>
             {/* <button onClick={handleDevBtnClick}>Dev</button> */}
 
-            <div style={{ fontSize: "18px", marginLeft: "400px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
+            <div style={{ fontSize: "18px", marginLeft: "401px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
             <div>
               {/* <PrinterOutlined /> */}
               {/* <FileTextFilled /> */}
