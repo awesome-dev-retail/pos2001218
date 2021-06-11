@@ -279,11 +279,15 @@ const Cashier = (props) => {
             {/* <div className="title">Amount Tendered</div>   */}
             <div className="cashier-inner">
               <div className="title">{showSplitOrder ? "Amount Paying" : "Amount Due"}:</div>
-              <Input ref={dueContainer} className="total-input" value={showSplitOrder ? amountPaying.toFixed(2) : documentFromSlice.doc_gross_amount} />
+              <Input
+                ref={dueContainer}
+                className="total-input"
+                value={showSplitOrder ? amountPaying.toFixed(2) : documentFromSlice.doc_gross_amount ? documentFromSlice.doc_gross_amount.toFixed(2) : "0.00"}
+              />
               <div className="title">Amount Tendered:</div>
               <Input ref={tenderedContainer} className="total-input" value={payMoney * 1} />
               <div className="title">Change:</div>
-              <Input style={{}} className="total-input" defaultValue={0} value={result.change ? result.change : 0} />
+              <Input style={{}} className="total-input" defaultValue={0} value={result.change ? result.change : "0.00"} />
               <div className="cashier">
                 {calculatorNum.map((item) => (
                   <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>

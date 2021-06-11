@@ -82,7 +82,7 @@ export default function MenuList() {
       <div className="menu-list">
         <div className="menu-item">
           {/* <Badge size="small" count={5} offset={[5]}> */}
-          <div onClick={showDishesInShop}>All Menus</div>
+          <div onClick={showDishesInShop}>ALL MENUS</div>
           {/* </Badge> */}
         </div>
         {menuListFromSlice.map((item) => {
