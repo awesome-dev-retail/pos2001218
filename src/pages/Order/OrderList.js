@@ -110,7 +110,7 @@ function OrderList(props) {
       dispatch(setInvoice(newInvoice));
     }
 
-    setCurrentDish({});
+    dispatch(setCurrentDish({}));
     // dispatch(clearCheckedDish());
   }, []);
 
@@ -120,10 +120,10 @@ function OrderList(props) {
     return Object.keys(invoice).length === 0 || !invoice.Lines || invoice.Lines.length === 0 ? false : true;
   }, [invoice]);
 
-  const updateCount = async (value) => {
+  const updateCount = (value) => {
     if (currentDish) {
-      let copyCurrentDish = JSON.parse(JSON.stringify(currentDish));
-      copyCurrentDish.Quantity.Qty += value;
+      // let copyCurrentDish = JSON.parse(JSON.stringify(currentDish));
+      // copyCurrentDish.Quantity.Qty += value;
       // 数量为0  删除
       // if (!copyCurrentDish.Quantity.Qty) {
       //   dispatch(setCurrentDish({}));
@@ -134,15 +134,21 @@ function OrderList(props) {
       let index = copyInvoice.Lines.findIndex((i) => {
         return i.Dish.DishCode === currentDish.Dish.DishCode;
       });
-      if (!copyCurrentDish.Quantity.Qty) {
+      // if (!copyCurrentDish.Quantity.Qty) {
+      // copyInvoice.Lines.splice(index, 1);
+      // } else {
+      copyInvoice.Lines[index].Quantity.Qty += value;
+      if (!copyInvoice.Lines[index].Quantity.Qty) {
         copyInvoice.Lines.splice(index, 1);
+        dispatch(setCurrentDish({}));
       } else {
-        copyInvoice.Lines[index].Quantity.Qty += value;
+        copyInvoice.Lines[index].Quantity.Changed = true;
       }
+      // }
 
       // const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
       // dispatch(setDishObjInOrder(copyDishOrder));
-      dispatch(calculateInvoice(invoice));
+      dispatch(calculateInvoice(copyInvoice));
     }
   };
 
