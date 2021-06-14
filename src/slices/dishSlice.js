@@ -68,7 +68,7 @@ export const deleteDish = createAsyncThunk("dish/deleteDish", async (dishID, { r
   }
 });
 
-export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async (invoice, { rejectWithValue }) => {
+export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async (invoice, { dispatch, rejectWithValue }) => {
   try {
     const res = await calculateInvoiceRequest(invoice);
     if (res.error) throw res.error;
@@ -154,14 +154,7 @@ const DishSlice = createSlice({
     [calculateInvoice.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.invoice = action.payload.data;
-      // debugger;
-      const copydishObjInOrder = JSON.parse(JSON.stringify(state.dishObjInOrder));
-      state.dishObjInOrder = createDishObjInOrder(state, copydishObjInOrder);
-      // debugger;
-      CacheStorage.setItem("dishObjInOrder_" + "1_" + state.invoice.TableID, state.dishObjInOrder);
       CacheStorage.setItem("invoice_" + "1_" + state.invoice.TableID, state.invoice);
-      // console.log(CacheStorage.getItem("invoice_" + "1_" + state.invoice.TableID));
-
       state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);

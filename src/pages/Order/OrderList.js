@@ -34,6 +34,8 @@ import {
   listDocument,
   cancelInvoice,
   setInvoice,
+  setCurrentDish,
+  selectCurrentDish,
 } from "../../slices/dishSlice";
 
 import { selectDocument } from "../../slices/documentSlice";
@@ -51,7 +53,7 @@ import sousuo from "../../assets/images/sousuo.png";
 import "./OrderList.scss";
 import { message } from "../../lib";
 function OrderList(props) {
-  const [currentDish, setCurrentDish] = useState({});
+  // const [currentDish, setCurrentDish] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
 
   const [showMore, setShowMore] = useState(false);
@@ -81,9 +83,10 @@ function OrderList(props) {
   const copyInvoice = JSON.parse(JSON.stringify(invoice));
 
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
+
   const table = useSelector((state) => selectTable(state)) || {};
-  // console.log("=======================", table);
-  // const currentDish = useSelector((state) => selectCurrentDish(state));
+
+  const currentDish = useSelector((state) => selectCurrentDish(state));
 
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
@@ -108,7 +111,7 @@ function OrderList(props) {
     }
 
     setCurrentDish({});
-    dispatch(clearCheckedDish());
+    // dispatch(clearCheckedDish());
   }, []);
 
   // useEffect(() => {}, [invoice, table]);
@@ -118,41 +121,39 @@ function OrderList(props) {
   }, [invoice]);
 
   const updateCount = async (value) => {
-    if (currentDish.id) {
+    if (currentDish) {
       let copyCurrentDish = JSON.parse(JSON.stringify(currentDish));
-      copyCurrentDish.count += value;
+      copyCurrentDish.Quantity.Qty += value;
       // 数量为0  删除
-      if (!copyCurrentDish.count) {
-        setCurrentDish({});
-        // dispatch(setCurrentDish({}));
-      } else {
-        setCurrentDish(copyCurrentDish);
-        // dispatch(setCurrentDish(copyCurrentDish));
-      }
-      let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
-      let index = copyDishOrder.findIndex((i) => {
-        return i.id === currentDish.id;
+      // if (!copyCurrentDish.Quantity.Qty) {
+      //   dispatch(setCurrentDish({}));
+      // } else {
+      //   dispatch(setCurrentDish(copyCurrentDish));
+      // }
+      // let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+      let index = copyInvoice.Lines.findIndex((i) => {
+        return i.Dish.DishCode === currentDish.Dish.DishCode;
       });
-      if (!copyCurrentDish.count) {
-        copyDishOrder.splice(index, 1);
+      if (!copyCurrentDish.Quantity.Qty) {
+        copyInvoice.Lines.splice(index, 1);
       } else {
-        copyDishOrder[index].count += value;
+        copyInvoice.Lines[index].Quantity.Qty += value;
       }
 
-      const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
-      dispatch(setDishObjInOrder(copyDishOrder));
+      // const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
+      // dispatch(setDishObjInOrder(copyDishOrder));
       dispatch(calculateInvoice(invoice));
     }
   };
 
-  const handleCheckDishOrder = async (dish) => {
-    const invoice = JSON.parse(JSON.stringify(invoice));
-    invoice.Lines.forEach((i) => {
-      i.checked = i.Dish.DishCode === dish.dish_code;
-    });
-    setCurrentDish(dish);
+  const handleCheckDish = (dish) => {
+    // const invoice = JSON.parse(JSON.stringify(invoice));
+    // invoice.Lines.forEach((i) => {
+    // i.checked = i.Dish.DishCode === dish.dish_code;
+    // });
+    dispatch(setCurrentDish(dish));
     // dispatch(setCurrentDish(dish));
-    await dispatch(setInvoice(invoice));
+    // await dispatch(setInvoice(invoice));
   };
 
   const handleOperation = async (key) => {
@@ -385,38 +386,40 @@ function OrderList(props) {
           <div className="bill-list">
             {invoice.Lines &&
               invoice.Lines.map((item, index) => (
-                <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
+                <div
+                  className={`bill-item ${
+                    item.Dish && item.Dish.DishCode && currentDish.Dish && currentDish.Dish.DishCode && item.Dish.DishCode === currentDish.Dish.DishCode ? "bill-item-current" : ""
+                  }`}
+                  key={item.id}
+                  onClick={() => handleCheckDish(item)}>
                   {/* <div> */}
                   <div className="bill-name">
-                    <div>{item.description}</div>
-                    {item.tip && <div className="food-tip">{item.tip}</div>}
+                    <div>{item.Description}</div>
+                    {/* {item.tip && <div className="food-tip">{item.tip}</div>} */}
                     {/* {item.extras && item.extras.length > 0 && item.material[0].count > 0 && ( */}
-                    {item.extras && item.extras.length > 0 && (
+                    {item.ExtraDetail && item.ExtraDetail.ExtraList && item.ExtraDetail.ExtraList.length > 0 && (
                       <div className="materials">
                         {/* Extras: */}
-                        {item.extras.map(
-                          (i, index) =>
-                            i.count > 0 && (
-                              <span key={index}>
-                                {i.inventory_id} x {i.count} ${i.count * i.unit_price}
-                              </span>
-                            )
-                        )}
+                        {item.ExtraDetail.ExtraList.map((i, index) => (
+                          <span key={index}>
+                            {i.ExtraInventoryID} ${item.UnitExtraAmount}
+                            {/* {i.ExtraInventoryID} x {i.ExtraQty} ${item.UnitExtraAmount} */}
+                          </span>
+                        ))}
                       </div>
                     )}
                     {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
                   </div>
                   {/* </div> */}
-                  <div className="count">X {item.count}</div>
-                  <div className="price">
-                    <div className="new-price">${item.unit_price.toFixed(2)}</div>
-                    {/* <div className="old-price">$ {item.unit_cost}</div>  */}
-                  </div>
+                  <div className="count">X {item.Quantity.Qty}</div>
+                  {/* <div className="price">
+                    <div className="new-price">${item.Amount}</div>
+                    <div className="old-price">$ {item.unit_cost}</div> 
+                  </div> */}
                   <div className="price">
                     <div className="new-price" style={{ fontWeight: "bolder" }}>
-                      ${item.Amount ? item.Amount.toFixed(2) : "0.00"}
+                      ${item.Amount}
                     </div>
-                    {/* <div className="old-price">$ {item.unit_cost}</div>  */}
                   </div>
                 </div>
               ))}
@@ -489,7 +492,7 @@ function OrderList(props) {
         </div>
       </div>
       <div className="table-info-menus">
-        <Counter count={currentDish.count || 0} updateCount={updateCount} />
+        <Counter count={(currentDish.Quantity && currentDish.Quantity.Qty) || 0} updateCount={updateCount} />
         {tableMenus.map((item) => (
           <div className="table-info-menu-item" key={item.key} onClick={() => handleOperation(item.key)}>
             {item.name}

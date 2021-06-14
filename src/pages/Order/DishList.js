@@ -9,7 +9,7 @@ import CacheStorage from "../../lib/cache-storage";
 
 import { selectCurrentUser } from "../../slices/authSlice";
 
-import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder, calculateInvoice } from "../../slices/dishSlice";
+import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder, calculateInvoice, setCurrentDish } from "../../slices/dishSlice";
 import { selectInvoice } from "../../slices/dishSlice";
 
 import { selectTable } from "../../slices/tableSlice";
@@ -88,41 +88,27 @@ function DishList(props) {
 
   const addToOrderList = async (dish) => {
     let newInvoice = {};
-    if (!invoice) {
+    if (Object.keys(invoice).length === 0) {
       newInvoice = createInvoice(table, dish, currentUser.userinfo.id);
     } else {
       newInvoice = JSON.parse(JSON.stringify(invoice));
-      if (newInvoice.Lines) {
-        let index = newInvoice.Lines.findIndex((item) => item.id === dish.id);
+      if (newInvoice.Lines && newInvoice.Lines.length !== 0) {
+        let index = newInvoice.Lines.findIndex((item) => item.Dish.DishCode === dish.dish_code);
         // let copyDish = JSON.parse(JSON.stringify(dish));
         if (index > -1) {
           newInvoice.Lines[index].Quantity.Qty += 1;
+          dispatch(setCurrentDish(newInvoice.Lines[index]));
         } else {
           const line = createLine(dish);
           newInvoice.Lines.push(line);
+          dispatch(setCurrentDish(line));
         }
       }
     }
     dispatch(calculateInvoice(newInvoice));
+    // dispatch(setCurrentDish(dish));
     return;
   };
-  // const addToOrderList = async (dish) => {
-  //   let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
-  //   let copydishObjInOrder = JSON.parse(JSON.stringify(dishObjInOrder));
-  //   let copyDish = JSON.parse(JSON.stringify(dish));
-  //   if (index > -1) {
-  //     copydishObjInOrder[index].count += 1;
-  //   } else {
-  //     copyDish.count = 1;
-  //     copydishObjInOrder.push(copyDish);
-  //   }
-  //   // dispatch(setDishObjInOrder(copydishObjInOrder));
-  //   // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
-  //   const invoice = createInvoice(table, copydishObjInOrder, currentUser.userinfo.id);
-  //   dispatch(setDishObjInOrder(copydishObjInOrder));
-  //   dispatch(calculateInvoice(invoice));
-  // };
-
   return (
     <Fragment>
       <div className="table-list">
