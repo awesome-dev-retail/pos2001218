@@ -93,6 +93,7 @@ export const endTable = createAsyncThunk("table/endTable", async (tableId, { rej
     if (res.error) throw res.error;
     history.push("/");
     CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
+    CacheStorage.removeItem("invoice_" + "1_" + tableId);
     console.log("endTable--------------", res);
     return res;
   } catch (e) {
