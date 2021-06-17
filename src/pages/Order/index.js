@@ -11,7 +11,7 @@ import DishList from "./DishList";
 import DishCategory from "./DishCategory";
 import { useSelector, useDispatch } from "react-redux";
 
-import { selectDishObjInOrder, setDishObjInOrder, setCurrentDish, selectCurrentDish, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
+import { selectDishObjInOrder, setDishObjInOrder, setCurrentLine, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
 
 import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, QuestionCircleFilled, AntDesignOutlined, PlusOutlined } from "@ant-design/icons";
 import moment from "moment";

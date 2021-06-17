@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
 // import { CacheStorage, message } from "../lib";
 import { tableListInShopRequest, tableListInAreaRequest, tableByIdRequest, saveTableRequest, deleteTableRequest, startTableRequest, endTableRequest } from "../services";
+
+import { setInvoice } from "../slices/dishSlice";
 import axios from "axios";
 import CacheStorage from "../lib/cache-storage";
 import { message } from "../lib";
@@ -86,12 +88,13 @@ export const startTable = createAsyncThunk("table/startTable", async (params, { 
   }
 });
 
-export const endTable = createAsyncThunk("table/endTable", async (tableId, { rejectWithValue }) => {
+export const endTable = createAsyncThunk("table/endTable", async (tableId, { dispatch, rejectWithValue }) => {
   try {
     const res = await endTableRequest(tableId);
     if (res.error) throw res.error;
     history.push("/");
-    CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
+    CacheStorage.removeItem("invoice_" + "1_" + tableId);
+    dispatch(setInvoice({}));
     console.log("endTable--------------", res);
     return res;
   } catch (e) {
@@ -120,7 +123,7 @@ const TableSlice = createSlice({
     [fetchTableListInShop.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.tableList = action.payload.data.list;
-      state.copyTableListInShop = JSON.parse(JSON.stringify(state.tableList));
+      state.copyTableListInShop = JSON.parse(JSON.stringify(state.tableList || []));
       // let totalAmount = 0;
       const newTableList = state.copyTableListInShop.map((item) => {
         let totalAmount = 0;

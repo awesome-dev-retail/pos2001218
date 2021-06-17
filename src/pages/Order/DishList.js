@@ -9,7 +9,7 @@ import CacheStorage from "../../lib/cache-storage";
 
 import { selectCurrentUser } from "../../slices/authSlice";
 
-import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder, calculateInvoice, setCurrentDish } from "../../slices/dishSlice";
+import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder, calculateInvoice, setCurrentLine } from "../../slices/dishSlice";
 import { selectInvoice } from "../../slices/dishSlice";
 
 import { selectTable } from "../../slices/tableSlice";
@@ -80,33 +80,33 @@ function DishList(props) {
     });
   }
 
-  // useEffect(() => {
-  //   const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice) || {};
-  //   CacheStorage.setItem("invoice_" + "1_" + table.id, copyInvoiceFromSlice);
-  //   console.log("invoiceFromSlice of addToOrderList from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + table.id));
-  // }, [invoiceFromSlice]);
-
   const addToOrderList = async (dish) => {
     let newInvoice = {};
     if (Object.keys(invoice).length === 0) {
       newInvoice = createInvoice(table, dish, currentUser.userinfo.id);
+      dispatch(setCurrentLine(newInvoice.Lines[0]));
     } else {
-      newInvoice = JSON.parse(JSON.stringify(invoice));
+      newInvoice = JSON.parse(JSON.stringify(invoice || {}));
       if (newInvoice.Lines && newInvoice.Lines.length !== 0) {
         let index = newInvoice.Lines.findIndex((item) => item.Dish.DishCode === dish.dish_code);
         // let copyDish = JSON.parse(JSON.stringify(dish));
         if (index > -1) {
           newInvoice.Lines[index].Quantity.Qty += 1;
-          dispatch(setCurrentDish(newInvoice.Lines[index]));
+          dispatch(setCurrentLine(newInvoice.Lines[index]));
         } else {
           const line = createLine(dish);
           newInvoice.Lines.push(line);
-          dispatch(setCurrentDish(line));
+          dispatch(setCurrentLine(line));
         }
+      } else {
+        newInvoice.Lines = [];
+        const line = createLine(dish);
+        newInvoice.Lines.push(line);
+        dispatch(setCurrentLine(line));
       }
     }
     dispatch(calculateInvoice(newInvoice));
-    // dispatch(setCurrentDish(dish));
+    // dispatch(setCurrentLine(dish));
     return;
   };
   return (

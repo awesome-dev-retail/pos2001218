@@ -13,11 +13,9 @@ import { createInvoice } from "../services/createInvoice";
 const initialState = {
   dish: [],
   dishObjInOrder: [],
-  // addedDish: null,
   invoice: {},
-  // document: {},
   showCashier: false,
-  currentDish: {},
+  currentLine: {},
   status: "",
   error: null,
 };
@@ -132,8 +130,8 @@ const DishSlice = createSlice({
     setDishObjInOrder(state, action) {
       state.dishObjInOrder = action.payload;
     },
-    setCurrentDish(state, action) {
-      state.currentDish = action.payload;
+    setCurrentLine(state, action) {
+      state.currentLine = action.payload;
     },
     clearCheckedDish(state, action) {
       state.dishObjInOrder.forEach((item) => {
@@ -292,14 +290,14 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder, setCurrentDish, clearCheckedDish, setShowCashier, setInvoice } = DishSlice.actions;
+export const { setDishObjInOrder, setCurrentLine, clearCheckedDish, setShowCashier, setInvoice } = DishSlice.actions;
 
 export const selectCashierStatus = (state) => state.Dish.showCashier;
 
 export const selectDishList = (state) => state.Dish.dish;
 export const selectInvoice = (state) => state.Dish.invoice;
 
-export const selectCurrentDish = (state) => state.Dish.currentDish;
+export const selectCurrentLine = (state) => state.Dish.currentLine;
 export const selectDishObjInOrder = (state) => state.Dish.dishObjInOrder;
 
 export default DishSlice.reducer;

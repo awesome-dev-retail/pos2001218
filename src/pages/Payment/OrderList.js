@@ -28,8 +28,8 @@ import { setAmountPaying, setAmountPaid, selectAmountPaidArr } from "../../slice
 import {
   selectDishObjInOrder,
   setDishObjInOrder,
-  setCurrentDish,
-  selectCurrentDish,
+  setCurrentLine,
+  selectCurrentLine,
   clearCheckedDish,
   selectCashierStatus,
   setShowCashier,
@@ -56,7 +56,7 @@ import sousuo from "../../assets/images/sousuo.png";
 import "./OrderList.scss";
 import { message } from "../../lib";
 function OrderList(props) {
-  // const [currentDish, setCurrentDish] = useState({});
+  // const [currentLine, setCurrentLine] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
 
   const [showMore, setShowMore] = useState(false);
@@ -78,7 +78,7 @@ function OrderList(props) {
   const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
-  const currentDish = useSelector((state) => selectCurrentDish(state));
+  const currentLine = useSelector((state) => selectCurrentLine(state));
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
@@ -96,7 +96,7 @@ function OrderList(props) {
     // eslint-disable-next-line react/prop-types
     const invoiceId = props.match.params.invoiceId;
     // dispatch(fetchDocument(invoiceId));
-    dispatch(setCurrentDish({}));
+    dispatch(setCurrentLine({}));
     dispatch(clearCheckedDish());
   }, []);
 
@@ -105,8 +105,8 @@ function OrderList(props) {
     copyDishOrder.forEach((i) => {
       i.checked = i.id === item.id;
     });
-    // setCurrentDish(item);
-    dispatch(setCurrentDish(item));
+    // setCurrentLine(item);
+    dispatch(setCurrentLine(item));
     await dispatch(setDishObjInOrder(copyDishOrder));
   };
 

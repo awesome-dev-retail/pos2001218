@@ -12,7 +12,7 @@ import DishList from "./DishList";
 import DishCategory from "./DishCategory";
 import { useSelector, useDispatch } from "react-redux";
 
-import { selectDishObjInOrder, setDishObjInOrder, setCurrentDish, selectCurrentDish, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
+import { selectDishObjInOrder, setDishObjInOrder, setCurrentLine, selectCurrentLine, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
 
 import { fetchDocument, selectShowSplitOrder, selectPaidPriceArr } from "../../slices/documentSlice";
 

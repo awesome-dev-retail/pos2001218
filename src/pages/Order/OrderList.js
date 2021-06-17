@@ -34,8 +34,9 @@ import {
   listDocument,
   cancelInvoice,
   setInvoice,
-  setCurrentDish,
-  selectCurrentDish,
+  setCurrentLine,
+  selectCurrentLine,
+  selectDishList,
 } from "../../slices/dishSlice";
 
 import { selectDocument } from "../../slices/documentSlice";
@@ -53,15 +54,16 @@ import sousuo from "../../assets/images/sousuo.png";
 import "./OrderList.scss";
 import { message } from "../../lib";
 function OrderList(props) {
-  // const [currentDish, setCurrentDish] = useState({});
+  // const [currentLine, setCurrentLine] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
+  const [currentDish, setCurrentDish] = useState();
 
   const [showMore, setShowMore] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const tableMenus = [
     // { name: "规格/做法", key: "spec" },
-    { name: "Extras", key: "feeding" },
+    { name: "Extras", key: "extras" },
     { name: "Comment", key: "remark" },
     // { name: "稍后上菜", key: "wait" },
     // { name: "买赠", key: "buyGift" },
@@ -86,13 +88,18 @@ function OrderList(props) {
 
   const table = useSelector((state) => selectTable(state)) || {};
 
-  const currentDish = useSelector((state) => selectCurrentDish(state));
+  const currentLine = useSelector((state) => selectCurrentLine(state));
 
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
 
+  const dishListInShop = useSelector((state) => selectDishList(state));
+
   const documentFromSlice = useSelector((state) => selectDocument(state));
+
+  const currentDishCopy = JSON.parse(JSON.stringify(currentDish || {}));
+  const currentLineCopy = JSON.parse(JSON.stringify(currentLine || {}));
 
   const { confirm } = Modal;
 
@@ -110,7 +117,7 @@ function OrderList(props) {
       dispatch(setInvoice(newInvoice));
     }
 
-    dispatch(setCurrentDish({}));
+    dispatch(setCurrentLine({}));
     // dispatch(clearCheckedDish());
   }, []);
 
@@ -121,45 +128,26 @@ function OrderList(props) {
   }, [invoice]);
 
   const updateCount = (value) => {
-    if (currentDish) {
-      // let copyCurrentDish = JSON.parse(JSON.stringify(currentDish));
-      // copyCurrentDish.Quantity.Qty += value;
-      // 数量为0  删除
-      // if (!copyCurrentDish.Quantity.Qty) {
-      //   dispatch(setCurrentDish({}));
-      // } else {
-      //   dispatch(setCurrentDish(copyCurrentDish));
-      // }
-      // let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+    if (Object.keys(currentLine).length !== 0) {
       let index = copyInvoice.Lines.findIndex((i) => {
-        return i.Dish.DishCode === currentDish.Dish.DishCode;
+        return i.Dish.DishCode === currentLine.Dish.DishCode;
       });
-      // if (!copyCurrentDish.Quantity.Qty) {
-      // copyInvoice.Lines.splice(index, 1);
-      // } else {
       copyInvoice.Lines[index].Quantity.Qty += value;
       if (!copyInvoice.Lines[index].Quantity.Qty) {
         copyInvoice.Lines.splice(index, 1);
-        dispatch(setCurrentDish({}));
+        dispatch(setCurrentLine({}));
+        setShowDrawer(false);
       } else {
         copyInvoice.Lines[index].Quantity.Changed = true;
+        dispatch(setCurrentLine(copyInvoice.Lines[index]));
       }
-      // }
-
-      // const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
-      // dispatch(setDishObjInOrder(copyDishOrder));
       dispatch(calculateInvoice(copyInvoice));
     }
   };
 
-  const handleCheckDish = (dish) => {
-    // const invoice = JSON.parse(JSON.stringify(invoice));
-    // invoice.Lines.forEach((i) => {
-    // i.checked = i.Dish.DishCode === dish.dish_code;
-    // });
-    dispatch(setCurrentDish(dish));
-    // dispatch(setCurrentDish(dish));
-    // await dispatch(setInvoice(invoice));
+  const handleCheckLine = (line) => {
+    setShowDrawer(false);
+    dispatch(setCurrentLine(line));
   };
 
   const handleOperation = async (key) => {
@@ -184,47 +172,49 @@ function OrderList(props) {
       });
       return;
     }
-    if (!Object.keys(currentDish).length) {
+    if (!Object.keys(currentLine).length) {
       return;
     }
-    setCurrentMeun(key); // 删除
-    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+    setCurrentMeun(key);
     if (key === "delete") {
-      let index = copyDishOrder.findIndex((i) => {
-        return i.id === currentDish.id;
-      });
-      copyDishOrder.splice(index, 1);
-      // setCurrentDish({});
-      dispatch(setCurrentDish({}));
-      const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
-      dispatch(setDishObjInOrder(copyDishOrder));
-      dispatch(calculateInvoice(invoice));
-    } else if (key === "feeding") {
-      if (currentDish && currentDish.extras && currentDish.extras.length !== 0) setShowDrawer(true);
+      if (Object.keys(currentLine).length !== 0) {
+        let index = copyInvoice.Lines.findIndex((i) => {
+          return i.Dish.DishCode === currentLine.Dish.DishCode;
+        });
+        copyInvoice.Lines.splice(index, 1);
+        dispatch(setCurrentLine({}));
+        setShowDrawer(false);
+        dispatch(calculateInvoice(copyInvoice));
+      }
+    } else if (key === "extras") {
+      const dish = dishListInShop.find((i) => i.dish_code === currentLine.Dish.DishCode);
+      if (dish) {
+        setCurrentDish(dish);
+      }
+      if (dish && dish.extras && dish.extras.length !== 0) setShowDrawer(true);
     } else if (key === "remark") {
       setShowDrawer(true);
     }
   };
 
-  const total = useMemo(() => {
-    let count = 0,
-      price = 0,
-      oldPrice = 0;
-    dishObjFromSlice.forEach((item) => {
-      // let extrasAmount = 0;
-      // if (item.extras && item.extras.length !== 0) {
-      //   extrasAmount = item.extras.reduce((total, current) => (current.count ? total + current.count * current.unit_price : total), 0);
-      // }
-      // console.log("-------------item.extras", item.extras);
-      count += item.count || 1;
-      price += item.Amount;
-      // price += extrasAmount;
-      oldPrice += (item.count || 1) * item.unit_cost;
-    });
-    return { count, price: price.toFixed(2) };
-  }, [JSON.stringify(dishObjFromSlice)]);
+  // const total = useMemo(() => {
+  //   let count = 0,
+  //     price = 0,
+  //     oldPrice = 0;
+  //   dishObjFromSlice.forEach((item) => {
+  //     // let extrasAmount = 0;
+  //     // if (item.extras && item.extras.length !== 0) {
+  //     //   extrasAmount = item.extras.reduce((total, current) => (current.count ? total + current.count * current.unit_price : total), 0);
+  //     // }
+  //     // console.log("-------------item.extras", item.extras);
+  //     count += item.count || 1;
+  //     price += item.Amount;
+  //     // price += extrasAmount;
+  //     oldPrice += (item.count || 1) * item.unit_cost;
+  //   });
+  //   return { count, price: price.toFixed(2) };
+  // }, [JSON.stringify(dishObjFromSlice)]);
 
-  let currentDishCopy = JSON.parse(JSON.stringify(currentDish));
   const handleCheckRemark = (item) => {
     // console.log(item);
     if (currentDishCopy.remark) {
@@ -244,9 +234,9 @@ function OrderList(props) {
       currentDishCopy.remark = remark;
     }
 
-    dispatch(setCurrentDish(currentDishCopy));
+    dispatch(setCurrentLine(currentDishCopy));
     let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
-    let index = copyDishObjFromSlice.findIndex((item) => item.id === currentDish.id);
+    let index = copyDishObjFromSlice.findIndex((item) => item.id === currentLine.id);
     copyDishObjFromSlice.splice(index, 1, currentDishCopy);
     dispatch(setDishObjInOrder(copyDishObjFromSlice));
   };
@@ -258,26 +248,44 @@ function OrderList(props) {
     // dispatch(setShowCashier(true));
   };
 
-  const handleUpdateCount = (indexes, number) => {
-    // let count = currentDishCopy.extras[indexes].count;
-    if (!currentDishCopy.extras[indexes].count) {
-      currentDishCopy.extras[indexes].count = 0;
+  const handleUpdateCount = (extraID, number) => {
+    if (!currentLineCopy.ExtraDetail.ExtraList) {
+      if (number === -1) {
+        return;
+      }
+      currentLineCopy.ExtraDetail.ExtraList = [];
+      currentLineCopy.ExtraDetail.Changed = true;
+      currentLineCopy.ExtraDetail.ExtraList.push({
+        ExtraID: extraID, // [required]
+        ExtraQty: number, // [required]
+      });
+    } else {
+      const index = currentLineCopy.ExtraDetail.ExtraList.findIndex((i) => i.ExtraID === extraID);
+      if (index > -1) {
+        currentLineCopy.ExtraDetail.ExtraList[index].ExtraQty += number;
+        if (currentLineCopy.ExtraDetail.ExtraList[index].ExtraQty === 0) {
+          currentLineCopy.ExtraDetail.ExtraList.splice(index, 1);
+          if (currentLineCopy.ExtraDetail.ExtraList.length === 0) {
+            currentLineCopy.ExtraDetail.ExtraList = null;
+          }
+        }
+        currentLineCopy.ExtraDetail.Changed = true;
+      } else {
+        currentLineCopy.ExtraDetail.ExtraList.push({
+          ExtraID: extraID, // [required]
+          ExtraQty: number, // [required]
+        });
+        currentLineCopy.ExtraDetail.Changed = true;
+      }
     }
-    currentDishCopy.extras[indexes].count += number;
-    if (currentDishCopy.extras[indexes].count < 0) {
-      currentDishCopy.extras[indexes].count = 0;
-    }
-
-    // currentDishCopy.material = materialData;
-    dispatch(setCurrentDish(currentDishCopy));
-    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
-    let index = copyDishObjFromSlice.findIndex((item) => item.id === currentDish.id);
-    copyDishObjFromSlice.splice(index, 1, currentDishCopy);
-
-    const invoice = createInvoice(table, copyDishObjFromSlice, currentUser.userinfo.id);
-    dispatch(setDishObjInOrder(copyDishObjFromSlice));
-    dispatch(calculateInvoice(invoice));
+    currentLineCopy.Changed = true;
+    // currentLineCopy.Dish.Changed = true;
+    dispatch(setCurrentLine(currentLineCopy));
+    const index = copyInvoice.Lines.findIndex((i) => i.Dish.DishCode === currentLineCopy.Dish.DishCode);
+    copyInvoice.Lines.splice(index, 1, currentLineCopy);
+    dispatch(calculateInvoice(copyInvoice));
   };
+
   const handleAddComment = () => {
     // debugger;
     const newComment = commentContainer.current.input.value;
@@ -288,43 +296,28 @@ function OrderList(props) {
   };
   const drawerDom = useMemo(() => {
     let dom = null;
-    if (currentMeun === "feeding" && currentDish.extras && currentDish.extras.length !== 0) {
-      dom = currentDish.extras.map((item, index) => (
-        <div className="material-item" key={index}>
-          <Badge count={item.count || 0}>
-            <div className="material-info-inner">
-              <div className="material-info-name">{item.inventory_id}</div>
-              <span>${item.unit_price}</span>
-            </div>
-          </Badge>
-          <div className="counter-inner">
-            <div onClick={() => handleUpdateCount(index, -1)}>
-              <img src={reduceIcon} alt="reduce" />
-            </div>
-            <div onClick={() => handleUpdateCount(index, 1)}>
-              <img src={addIcon} alt="increase" />
+    if (currentMeun === "extras" && currentDish.extras.length !== 0) {
+      dom = currentDish.extras.map((item, index) => {
+        const extra = currentLine.ExtraDetail && currentLine.ExtraDetail.ExtraList && currentLine.ExtraDetail.ExtraList.find((i) => i.ExtraID === item.id);
+        return (
+          <div className="material-item" key={index}>
+            <Badge count={extra ? extra.ExtraQty : 0}>
+              <div className="material-info-inner">
+                <div className="material-info-name">{item.inventory_id}</div>
+                <span>${item.unit_price}</span>
+              </div>
+            </Badge>
+            <div className="counter-inner">
+              <div onClick={() => handleUpdateCount(item.id, -1)}>
+                <img src={reduceIcon} alt="reduce" />
+              </div>
+              <div onClick={() => handleUpdateCount(item.id, 1)}>
+                <img src={addIcon} alt="increase" />
+              </div>
             </div>
           </div>
-        </div>
-      ));
-      // dom = (
-      //   <div className="material-item">
-      //     <Badge count={currentDish.material ? currentDish.material[0].count : 0}>
-      //       <div className="material-info-inner">
-      //         <div className="material-info-name">Milk</div>
-      //         <span>$1</span>
-      //       </div>
-      //     </Badge>
-      //     <div className="counter-inner">
-      //       <div onClick={() => handleUpdateCount(-1)}>
-      //         <img src={reduceIcon} alt="reduce" />
-      //       </div>
-      //       <div onClick={() => handleUpdateCount(1)}>
-      //         <img src={addIcon} alt="increase" />
-      //       </div>
-      //     </div>
-      //   </div>
-      // );
+        );
+      });
     } else if (currentMeun === "remark") {
       dom = (
         <>
@@ -337,9 +330,9 @@ function OrderList(props) {
           </div>
           <div className="remark-list">
             {remarkList.map((item) => (
-              <div onClick={() => handleCheckRemark(item)} className={`remark-item ${Array.isArray(currentDish.remark) && currentDish.remark.includes(item) ? "remark-item-active" : ""}`} key={item}>
+              <div onClick={() => handleCheckRemark(item)} className={`remark-item ${Array.isArray(currentLine.remark) && currentLine.remark.includes(item) ? "remark-item-active" : ""}`} key={item}>
                 {item}
-                {Array.isArray(currentDish.remark) && currentDish.remark.includes(item) && <CheckCircleTwoTone twoToneColor="$bizex-pink" />}
+                {Array.isArray(currentLine.remark) && currentLine.remark.includes(item) && <CheckCircleTwoTone twoToneColor="$bizex-pink" />}
               </div>
             ))}
           </div>
@@ -357,7 +350,7 @@ function OrderList(props) {
       );
     }
     return dom;
-  }, [currentMeun, currentTabIndex, currentDish, remarkList]);
+  }, [currentMeun, currentTabIndex, currentLine, invoice, currentDish, remarkList]);
 
   // const handleCancelPayment = () => {
   //   dispatch(cancelInvoice(table));
@@ -394,10 +387,10 @@ function OrderList(props) {
               invoice.Lines.map((item, index) => (
                 <div
                   className={`bill-item ${
-                    item.Dish && item.Dish.DishCode && currentDish.Dish && currentDish.Dish.DishCode && item.Dish.DishCode === currentDish.Dish.DishCode ? "bill-item-current" : ""
+                    item.Dish && item.Dish.DishCode && currentLine.Dish && currentLine.Dish.DishCode && item.Dish.DishCode === currentLine.Dish.DishCode ? "bill-item-current" : ""
                   }`}
                   key={item.id}
-                  onClick={() => handleCheckDish(item)}>
+                  onClick={() => handleCheckLine(item)}>
                   {/* <div> */}
                   <div className="bill-name">
                     <div>{item.Description}</div>
@@ -417,6 +410,7 @@ function OrderList(props) {
                     {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
                   </div>
                   {/* </div> */}
+                  <div className="count">${item.UnitPrice.toFixed(2)}</div>
                   <div className="count">X {item.Quantity.Qty}</div>
                   {/* <div className="price">
                     <div className="new-price">${item.Amount}</div>
@@ -424,7 +418,7 @@ function OrderList(props) {
                   </div> */}
                   <div className="price">
                     <div className="new-price" style={{ fontWeight: "bolder" }}>
-                      ${item.Amount}
+                      ${item.Amount.toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -463,16 +457,16 @@ function OrderList(props) {
                 </div>
                 <div className="left-line">
                   <span className="label">SUBTOTAL</span>
-                  <span className="text">${(0.85 * total.price).toFixed(2)}</span>
+                  <span className="text">${(invoice.NetAmount && invoice.NetAmount.toFixed(2)) || "0.00"}</span>
                 </div>
                 <div className="left-line">
                   <span className="label">TAX(GST)</span>
-                  <span className="text">${(0.15 * total.price).toFixed(2)}</span>
+                  <span className="text">${(invoice.GSTAmount && invoice.GSTAmount.toFixed(2)) || "0.00"}</span>
                 </div>
               </div>
               <div className="content">
                 <span>TOTAL</span>
-                <div className="content-total">${total.price}</div>
+                <div className="content-total">${(invoice.GrossAmount && invoice.GrossAmount.toFixed(2)) || "0.00"}</div>
               </div>
               {/* <div className="right">
                 <div>NEW CUSTOMER</div>
@@ -498,7 +492,7 @@ function OrderList(props) {
         </div>
       </div>
       <div className="table-info-menus">
-        <Counter count={(currentDish.Quantity && currentDish.Quantity.Qty) || 0} updateCount={updateCount} />
+        <Counter count={(currentLine.Quantity && currentLine.Quantity.Qty) || 0} updateCount={updateCount} />
         {tableMenus.map((item) => (
           <div className="table-info-menu-item" key={item.key} onClick={() => handleOperation(item.key)}>
             {item.name}

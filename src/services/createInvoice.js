@@ -31,6 +31,7 @@ export function createInvoice(table, dish, userID) {
       {
         Dish: {
           DishCode: dish.dish_code,
+          // Changed: true, //must
         },
         Description: dish.description,
         Quantity: {
@@ -50,31 +51,10 @@ export function createInvoice(table, dish, userID) {
         UnitCost: dish.unit_cost,
         Changed: true,
         ExtraDetail: {
-          //if have
-          Changed: true, // [required]
-          ExtraList: [],
-          // ExtraList:
-          //   dish.extras && dish.extras.length !== 0
-          //     ? dish.extras
-          //         .map((i) => {
-          //           if (i.count && i.count !== 0) {
-          //             return {
-          //               ExtraID: i.id,
-          //               ExtraQty: i.count,
-          //             };
-          //           }
-          //         })
-          //         .filter((n) => n)
-          //     : [],
-          // ExtraList: [
-          //   {
-          //     ExtraID: 1, // [required]
-          //     ExtraQty: 2, // [required]
-          //     ExtraInventoryID: "MILK", // [return from backend]
-          //     ExtraDescription: "Add milk", // [return from backend]
-          //   },
-          // ],
+          Changed: true,
+          ExtraList: null,
         },
+
         ServeNow: true,
         Cooked: false,
         Served: false,
@@ -87,6 +67,7 @@ export const createLine = (dish) => {
   return {
     Dish: {
       DishCode: dish.dish_code,
+      // Changed: true, //must
     },
     Description: dish.description,
     Quantity: {
@@ -106,33 +87,25 @@ export const createLine = (dish) => {
     UnitCost: dish.unit_cost,
     Changed: true,
     ExtraDetail: {
-      //if have
-      Changed: true, // [required]
-      ExtraList: [],
-      // ExtraList:
-      //   dish.extras && dish.extras.length !== 0
-      //     ? dish.extras
-      //         .map((i) => {
-      //           if (i.count && i.count !== 0) {
-      //             return {
-      //               ExtraID: i.id,
-      //               ExtraQty: i.count,
-      //             };
-      //           }
-      //         })
-      //         .filter((n) => n)
-      //     : [],
-      // ExtraList: [
-      //   {
-      //     ExtraID: 1, // [required]
-      //     ExtraQty: 2, // [required]
-      //     ExtraInventoryID: "MILK", // [return from backend]
-      //     ExtraDescription: "Add milk", // [return from backend]
-      //   },
-      // ],
+      Changed: true,
+      ExtraList: null,
     },
     ServeNow: true,
     Cooked: false,
     Served: false,
   };
 };
+
+// ExtraDetail:
+//   dish.extras.length !== 0
+//     ? {
+//         Changed: true,
+//         ExtraList: [],
+//         // ExtraList: dish.extras.map((i) => {
+//         //   return {
+//         //     ExtraID: i.id,
+//         //     ExtraQty: i.count,
+//         //   };
+//         // }),
+//       }
+//     : null,

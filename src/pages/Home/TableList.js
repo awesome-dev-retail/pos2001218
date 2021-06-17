@@ -72,8 +72,8 @@ function TableList(props) {
   const handleUpdatePersonNum = async (value) => {
     setPersonNumPopStatus(false);
     if (typeof value === "string") {
-      let copyTable = JSON.parse(JSON.stringify(table));
-      let copyTableListFromSlice = JSON.parse(JSON.stringify(tableListFromSlice));
+      let copyTable = JSON.parse(JSON.stringify(table || {}));
+      let copyTableListFromSlice = JSON.parse(JSON.stringify(tableListFromSlice || []));
       copyTable.num = value;
       setTable(copyTable);
       let index = copyTableListFromSlice.findIndex((item) => item.id === copyTable.id);
