@@ -80,7 +80,7 @@ function OrderList(props) {
   // eslint-disable-next-line react/prop-types
   const tableId = props.match.params.tableId;
 
-  const invoice = useSelector((state) => selectInvoice(state));
+  const invoice = useSelector((state) => selectInvoice(state)) || {};
 
   const copyInvoice = JSON.parse(JSON.stringify(invoice));
 
@@ -111,11 +111,9 @@ function OrderList(props) {
     // eslint-disable-next-line react/prop-types
     await dispatch(fetchTableById(tableId));
 
-    if (Object.keys(invoice).length === 0) {
-      const localInvoice = CacheStorage.getItem("invoice_" + "1_" + tableId);
-      const newInvoice = localInvoice ? localInvoice : invoice;
-      dispatch(setInvoice(newInvoice));
-    }
+    const localInvoice = CacheStorage.getItem("invoice_" + "1_" + tableId);
+    // const newInvoice = localInvoice ? localInvoice : invoice;
+    dispatch(setInvoice(localInvoice));
 
     dispatch(setCurrentLine({}));
     // dispatch(clearCheckedDish());

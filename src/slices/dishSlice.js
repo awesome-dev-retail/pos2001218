@@ -80,10 +80,10 @@ export const calculateInvoice = createAsyncThunk("dish/calculateInvoice", async 
 export const saveInvoice = createAsyncThunk("dish/saveInvoice", async (table, { rejectWithValue }) => {
   try {
     const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + table.id);
-    if (!copyInvoice) {
-      message.warning("Please order first!");
-      return;
-    }
+    // if (!copyInvoice) {
+    //   message.warning("Please order first!");
+    //   return;
+    // }
 
     copyInvoice.InvoiceID = table.uncomplete_invoices ? table.uncomplete_invoices[0].id : 0;
 
@@ -108,13 +108,14 @@ export const listDocument = createAsyncThunk("dish/listDocument", async (tableID
   }
 });
 
-export const cancelInvoice = createAsyncThunk("dish/cancelDocument", async ({ invoiceId, tableId }, { rejectWithValue }) => {
+export const cancelInvoice = createAsyncThunk("dish/cancelDocument", async ({ invoiceId, tableId }, { dispatch, rejectWithValue }) => {
   try {
     const res = await cancelInvoiceRequest(invoiceId);
     if (res.error) throw res.error;
     message.success("Cancel Invoice successfully!");
     history.push("/");
-    CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
+    CacheStorage.removeItem("invoice_" + "1_" + tableId);
+    dispatch(setInvoice({}));
     console.log("cancelDocument--------------", res);
     return res;
   } catch (e) {

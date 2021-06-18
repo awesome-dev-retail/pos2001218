@@ -77,7 +77,7 @@ export const deleteTable = createAsyncThunk("table/deleteTable", async (tableId,
   }
 });
 
-export const startTable = createAsyncThunk("table/startTable", async (params, { rejectWithValue }) => {
+export const startTable = createAsyncThunk("table/startTable", async (params, { dispatch, rejectWithValue }) => {
   try {
     const res = await startTableRequest(params);
     if (res.error) throw res.error;
@@ -127,9 +127,9 @@ const TableSlice = createSlice({
       // let totalAmount = 0;
       const newTableList = state.copyTableListInShop.map((item) => {
         let totalAmount = 0;
-        const dishObjInOrder = CacheStorage.getItem("dishObjInOrder_" + "1_" + item.id);
-        if (!!dishObjInOrder) {
-          dishObjInOrder.forEach((i) => (totalAmount += i.Amount));
+        const copyInvoice = CacheStorage.getItem("invoice_" + "1_" + item.id);
+        if (copyInvoice) {
+          totalAmount = copyInvoice.GrossAmount;
         } else {
           totalAmount = 0;
         }

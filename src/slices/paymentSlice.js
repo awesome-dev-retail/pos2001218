@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
 import CacheStorage from "../lib/cache-storage";
 import { setBillList } from "../slices/documentSlice";
-import { setInvoice } from "../slices/dishSlice";
+import { setInvoice } from "./dishSlice";
 // import { CacheStorage, message } from "../lib";
 import { savePaymentRequest, completePaymentRequest } from "../services";
 import axios from "axios";
@@ -49,10 +49,8 @@ export const completePayment = createAsyncThunk("payment/completePayment", async
     if (res.error) throw res.error;
     message.success("Successfully Complete Transaction!");
     history.push("/");
-    // CacheStorage.removeItem("dishObjInOrder_" + "1_" + tableId);
-    // const {Dish} = getState();
-    dispatch(setInvoice({}));
     CacheStorage.removeItem("invoice_" + "1_" + tableId);
+    dispatch(setInvoice({}));
     console.log("completePayment--------------", res);
     return res;
   } catch (e) {

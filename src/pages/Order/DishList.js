@@ -39,7 +39,7 @@ function DishList(props) {
   const menuIdFromSlice = useSelector((state) => selectMenuId(state));
 
   const table = useSelector((state) => selectTable(state)) || {};
-  const invoice = useSelector((state) => selectInvoice(state));
+  const invoice = useSelector((state) => selectInvoice(state)) || {};
 
   useEffect(() => {
     dispatch(fetchDishListInShop(1));
