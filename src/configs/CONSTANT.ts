@@ -14,6 +14,7 @@ export default {
     TABLE: "/table/:tableId",
     PAYMENT: "/payment/:invoiceId",
     SELECT_SHOP: "/select-shop",
+    TIMESHEET: "/timesheet",
   },
   API_STATUS: {
     IDLE: "idle",

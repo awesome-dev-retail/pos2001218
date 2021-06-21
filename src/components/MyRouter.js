@@ -16,6 +16,7 @@ import SelectShop from "../pages/Login/SelectShop";
 import PageLoading from "./PageLoading";
 import MessageBox from "./MessageBox";
 import ErrorBox from "./ErrorBox";
+import Timesheet from "../pages/Timesheet";
 
 const history = createBrowserHistory();
 
@@ -31,6 +32,8 @@ const MyRouter = () => {
             <Route path={CONSTANT.ROUTES.TABLE} component={OrderPage} />
             <Route path={CONSTANT.ROUTES.PAYMENT} component={PaymentPage} />
             <Route path={CONSTANT.ROUTES.ABOUT} component={AboutPage} />
+            <Route path={CONSTANT.ROUTES.TIMESHEET} component={Timesheet} />
+
             <MessageBox />
             <ErrorBox />
           </Suspense>

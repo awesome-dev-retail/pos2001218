@@ -1,0 +1,94 @@
+@import "../../../lib.scss";
+
+.week-picker-container {
+  text-align: center;
+  abbr {
+    cursor: inherit;
+  }
+
+  .DayPicker-Month {
+    border-collapse: separate;
+  }
+  .DayPicker-WeekNumber {
+    outline: none;
+  }
+  .DayPicker-Day {
+    outline: none;
+    border: 1px solid transparent;
+  }
+  .DayPicker-Day--hoverRange {
+    background-color: $bizex-bg-light1 !important;
+  }
+  .DayPicker-Day--selectedRange {
+    background-color: $bizex-bg-light3 !important;
+    border-top-color: $bizex-bg-light3;
+    border-bottom-color: $bizex-bg-light3;
+    border-left-color: $bizex-bg-light3;
+    border-right-color: $bizex-bg-light3;
+  }
+  .DayPicker-Day--selectedRangeStart {
+    background-color: $bizex-bg-light3 !important;
+    border-left: 1px solid $bizex-bg-light3;
+  }
+  .DayPicker-Day--selectedRangeEnd {
+    background-color: $bizex-bg-light3 !important;
+    border-right: 1px solid $bizex-bg-light3;
+  }
+  .DayPicker-Day--hoverRange {
+    border-radius: 0 !important;
+  }
+  .DayPicker-Day--today {
+    color: $bizex-pink !important;
+  }
+  .DayPicker-Day--selectedRange.DayPicker-Day--selected,
+  .DayPicker-Day--hoverRange.DayPicker-Day--selected {
+    border-radius: 0 !important;
+    color: white ;
+  }
+}
+
+
+//.roast-left-component .DayPicker-Month {
+//  border-collapse: separate;
+//}
+//.roast-left-component .DayPicker-WeekNumber {
+//  outline: none;
+//}
+//.roast-left-component .DayPicker-Day {
+//  outline: none;
+//  border: 1px solid transparent;
+//}
+//.roast-left-component .DayPicker-Day--hoverRange {
+//  background-color: $bizex-bg-light1 !important;
+//}
+//
+//.roast-left-component .DayPicker-Day--selectedRange {
+//  background-color: $bizex-bg-light3 !important;
+//  border-top-color: $bizex-bg-light3;
+//  border-bottom-color: $bizex-bg-light3;
+//  border-left-color: $bizex-bg-light3;
+//  border-right-color: $bizex-bg-light3;
+//}
+//
+//.roast-left-component .DayPicker-Day--selectedRangeStart {
+//  background-color: $bizex-bg-light3 !important;
+//  border-left: 1px solid $bizex-bg-light3;
+//}
+//
+//.roast-left-component .DayPicker-Day--selectedRangeEnd {
+//  background-color: $bizex-bg-light3 !important;
+//  border-right: 1px solid $bizex-bg-light3;
+//}
+//
+//.roast-left-component .DayPicker-Day--selectedRange.DayPicker-Day--selected,
+//.roast-left-component .DayPicker-Day--hoverRange.DayPicker-Day--selected {
+//  border-radius: 0 !important;
+//  color: white ;
+//}
+//
+//.roast-left-component .DayPicker-Day--hoverRange {
+//  border-radius: 0 !important;
+//}
+//.DayPicker-Day--today {
+//  color: $bizex-pink !important;
+//}

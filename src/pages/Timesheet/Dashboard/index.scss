@@ -1,0 +1,110 @@
+@import "../../../lib.scss";
+
+.timesheet-dashboard-container {
+
+  .tips-container {
+    margin: 20px 0 0 0;
+    text-align: left;
+    font-size: 0.8rem;
+    .spinning-tips {
+      margin: 0 20px;
+    }
+    .block {
+      display: inline-block;
+      width: 30px;
+      height: 15px;
+      margin: 0 10px;
+      transform: translate(0, 2px);
+    }
+    .pink-block {
+      border: 1px solid $bizex-pink;
+      background-color: $bizex-pink;
+    }
+    .blue-block {
+      border: 1px solid $bizex-primary-blue;
+      background-color: $bizex-primary-blue;
+    }
+    .green-block {
+      border: 1px solid $bizex-bg-dark4;
+      background-color: $bizex-bg-dark4;
+    }
+  }
+
+  //.tips-icon {
+  //  font-size: 1.2rem;
+  //  margin: 0 5px 0 20px;
+  //}
+
+  .dashboard-shop-filter-toggle {
+    margin-left: 20px;
+    transform: translateY(-4px);
+    .ant-radio-button-wrapper:first-child {
+      border-left: none
+    }
+  }
+  .timesheet-dashboard-card-container {
+    .dashboard-card {
+      display: inline-block;
+      border: 2px solid $bizex-primary-blue;
+      width: 400px;
+      padding: 10px;
+      margin: 10px;
+      box-shadow: 0 6px 10px #dfdede;
+
+      .dashboard-staff-name {
+        margin: 0 auto 15px auto;
+        width: 80%;
+        border-bottom: 1px solid darkgrey
+      }
+      p {
+        text-align: justify;
+        margin: 0;
+        padding: 3px 5px;
+      }
+      .card-subtitle {
+        font-weight: 600;
+      }
+      .card-sub-value {
+        float: right;
+      }
+      .clock-icon-container {
+        margin-left: 5px;
+      }
+      .blue-clock {
+        color: $bizex-primary-blue;
+      }
+      .green-clock {
+        color: $bizex-bg-dark4;
+      }
+      .pink-clock {
+        color: $bizex-pink;
+      }
+      .grey-out {
+        color: $bizex-background-color-dark;
+      }
+      .spinning-clock {
+        svg {
+          animation: loadingCircle 3s infinite linear;
+        }
+      }
+      .blue-clock,.pink-clock,.green-clock {
+        animation-name: status-icon-movement;
+        animation-duration: 0.5s;
+        animation-timing-function: cubic-bezier(.29,-0.52,.55,1.41);
+        animation-fill-mode: forwards;
+      }
+      .clock-icon{
+        transform: scale(1.5);
+        padding: 0 8px;
+      }
+    }
+  }
+}
+@keyframes status-icon-movement {
+  from {
+    transform: translate(-4rem)
+  }
+  to {
+    transform: translate(0px);
+  }
+}

@@ -1,0 +1,134 @@
+@import "../../../lib.scss";
+
+.timesheet-action-page-container {
+  .dropDownIcon {
+    margin-left: 10px;
+  }
+  .timesheet-staff-psd-input {
+    display: inline;
+  }
+  .timesheet-shop-filter-toggle {
+    margin-left: 20px;
+    transform: translateY(-4px);
+    .ant-radio-button-wrapper:first-child {
+      border-left: none
+    }
+  }
+}
+.timesheet-action-content-container {
+  margin-top: 30px;
+}
+
+.staff-card-container {
+  text-decoration: none;
+  transform-style: preserve-3d;
+  position: relative;
+  p {
+    text-align: justify;
+    span:first-child {
+      font-weight: bolder;
+    }
+    span:nth-child(2) {
+      float:right;
+    }
+  }
+}
+
+.staff-card-container:hover {
+  color: $bizex-primary-blue;
+  text-decoration: none;
+}
+
+.staff-card-front:hover {
+  transform: translate(0, -5px);
+  transition: transform 0.5s
+}
+
+.staff-card-back:hover {
+  transform: translate(0, -5px);
+  transition: transform 0.5s
+}
+
+.staff-card-front {
+  position: relative;
+  color: $bizex-primary-blue;
+  display: inline-block;
+  margin: 10px;
+  padding: 25px;
+  border: 2px solid $bizex-primary-blue;
+  width: 25rem;
+  box-shadow: 0 6px 10px #dfdede;
+  font-size: 1.1rem; // To solve different theme makes different box size
+
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  vertical-align: bottom;
+
+  animation-name: flipF;
+  animation-duration: .8s;
+
+  .staff-card-edit-icon {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+  }
+}
+
+.staff-card-back {
+
+  position: relative;
+  background-color: $bizex-bg-light1;
+  vertical-align: bottom;
+  color: $bizex-primary-blue;
+  display: inline-block;
+  margin: 10px;
+  padding: 25px;
+  border: 2px solid $bizex-primary-blue;
+  width: 25rem;
+  box-shadow: 0 6px 10px #dfdede;
+  font-size: 1.1rem;  // To solve different theme makes different box size
+
+  //transform: rotateY(360deg);
+  //transition: transform 1.5s;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+
+  animation-name: flipB;
+  animation-duration: .8s;
+  animation-timing-function: ease;
+
+  .staff-card-edit-icon {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+  }
+  .staff-card-flip-icon {
+    position: absolute;
+    top: 3px;
+    right: 20px;
+  }
+}
+
+.staff-details-form-item {
+  width: 100%;
+
+  .ant-form-item-label {
+    text-align: left;
+  }
+}
+
+.staff-details-btn-group-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+@keyframes flipF {
+  from {transform: rotateY(0deg)}
+  to {transform: rotateY(180deg)}
+}
+@keyframes flipB {
+  from {transform: rotateY(-90deg)}
+  to {transform: rotateY(0deg)}
+}
+
+

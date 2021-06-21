@@ -5,28 +5,37 @@ import {useSelector, useStore} from "react-redux";
 import {selectCurrentUser} from "../../slices/authSlice";
 import "./index.scss";
 import { Row, Col } from "antd";
+import { history } from "../../components/MyRouter";
 
 import { ClockCircleOutlined } from "@ant-design/icons";
+import CONSTANT from "../../configs/CONSTANT";
 
 const TopNavBar = props => {
   const currentUser = useSelector((state) => selectCurrentUser(state));
   const store = useStore();
 
   const handleClockClick = () => {
-    console.log("Go to timesheet");
+    history.push(CONSTANT.ROUTES.TIMESHEET);
   };
 
   const handleDevBtnClick = () => {
     console.log(store.getState());
   };
 
+  const handleBizexLogoClick = () => {
+    history.push(CONSTANT.ROUTES.HOME);
+  };
+
+
   return (
       <header className="header">
         <Row className="top-bar-container">
           <Col xxl={8} xl={8} lg={12} md={0} sm={0} xs={0}>
             <div className="bizex-logo-container">
-              <img className="bizex-logo-img"  src={Logo} alt="logo" />
-              <span className="bizex-logo-txt">- BizCafe</span>
+              <a onClick={handleBizexLogoClick}>
+                <img className="bizex-logo-img"  src={Logo} alt="logo" />
+                <span className="bizex-logo-txt">- BizCafe</span>
+              </a>
             </div>
           </Col>
           <Col xxl={4} xl={4} lg={0} md={0} sm={0} xs={0}>
@@ -42,7 +51,7 @@ const TopNavBar = props => {
           <Col xxl={6} xl={6} lg={6} md={12} sm={0} xs={0}>
             <div className="app-info">
               <a className="app-menu-item" onClick={handleDevBtnClick}>Dev</a>
-              <span className="app-menu-item">{`Welcome! ${currentUser.userinfo.uname}`}</span>
+              <span className="app-menu-item">{`Welcome ${currentUser.userinfo.uname}`}</span>
             </div>
           </Col>
 
