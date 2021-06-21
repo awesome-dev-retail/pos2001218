@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styles from "./index.module.scss";
-import Logo from "../../assets/images/Bizex_FinalLogo.jpg";
 import logoAbbey from "../../assets/images/logo-Abbey.png";
 
 import { Redirect, withRouter } from "react-router-dom";
@@ -14,6 +13,7 @@ import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectA
 import { history } from "../MyRouter";
 import { connectSocket, setDocument } from "../../slices/documentSlice";
 import _ from "lodash";
+import TopNavBar from "../TopNavBar";
 
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
@@ -60,9 +60,7 @@ const AuthCheck = (props) => {
     checkAuth();
   }, []);
 
-  const handleDevBtnClick = () => {
-    console.log(store.getState());
-  };
+
 
   if (isLoading) {
     return (
@@ -76,30 +74,7 @@ const AuthCheck = (props) => {
     return (
       <Layout>
         <div className="home-page-container">
-          <header className="header">
-            <div>
-              {/* <MenuOutlined />
-              Table */}
-              <span>
-                <img style={{ width: 100, marginLeft: 20 }} src={Logo} alt="logo" />- BizCafe
-              </span>
-
-              <span>
-                <img style={{ width: 100, marginLeft: 600 }} src={logoAbbey} alt="logo" />
-              </span>
-            </div>
-            {/* <button onClick={handleDevBtnClick}>Dev</button> */}
-
-            <div style={{ fontSize: "18px", marginLeft: "401px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
-            <div>
-              {/* <PrinterOutlined /> */}
-              {/* <FileTextFilled /> */}
-              {/* <QuestionCircleFilled /> */}
-              {/* <Dropdown overlay={<UIMenu />} trigger={["click"]}>
-                <Avatar size={25} icon={<AntDesignOutlined />}></Avatar>
-              </Dropdown> */}
-            </div>
-          </header>
+         <TopNavBar />
         </div>
         <div>
           <Spin spinning={isLoading}>{props.children}</Spin>

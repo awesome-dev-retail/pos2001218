@@ -1,0 +1,72 @@
+@import "../../lib.scss";
+$top-bar-height: 100px;
+
+
+.top-bar-container {
+  background-color: white;
+  height: $top-bar-height;
+
+  .bizex-logo-img {
+    padding: 5px 10px;
+    height: $top-bar-height;
+    width: auto;
+  }
+
+  .bizex-logo-txt {
+    vertical-align: middle;
+    height: inherit;
+    font-size: 3rem;
+    font-weight: 600;
+    color: $bizex-primary-blue;
+  }
+
+  .client-logo-container {
+    text-align: center;
+    .client-logo-img {
+      height: $top-bar-height;
+      width: auto;
+      padding: 15px 10px;
+    }
+  }
+
+  .app-menu-container {
+    height: $top-bar-height;
+    display: table;
+    width: 100%;
+    .app-menu-item {
+      display: table-cell;
+      height: $top-bar-height;
+      vertical-align: middle;
+      text-align: right;
+      color: $bizex-primary-blue;
+      font-size: 2rem;
+      font-weight: 500;
+      padding: 10px 20px;
+
+      .clock-icon {
+        font-size:4rem;
+      }
+      span {
+        vertical-align: middle;
+        padding: 10px;
+      }
+    }
+  }
+
+  .app-info {
+    height: $top-bar-height;
+    display: table;
+    width: 100%;
+
+    .app-menu-item {
+      display: table-cell;
+      height: $top-bar-height;
+      vertical-align: middle;
+      text-align: right;
+      color: $bizex-primary-blue;
+      font-size: 2rem;
+      font-weight: 500;
+      padding: 10px 20px;
+    }
+  }
+}
