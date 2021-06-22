@@ -323,7 +323,7 @@ function OrderList(props) {
 
   const drawerDom = useMemo(() => {
     let dom = null;
-    debugger;
+    // debugger;
     if (currentMeun === "extras" && currentDish.extras.length !== 0) {
       dom = currentDish.extras.map((item, index) => {
         const extra = currentLine.ExtraDetail && currentLine.ExtraDetail.ExtraList && currentLine.ExtraDetail.ExtraList.find((i) => i.ExtraID === item.id);
@@ -384,9 +384,10 @@ function OrderList(props) {
         </>
       );
     }
-    if (!dom) {
-      setShowDrawer(false);
-    }
+    // if (!dom) {
+    //   setShowDrawer(false);
+    //   return;
+    // }
     return dom;
   }, [currentMeun, currentTabIndex, currentLine, invoice, currentDish, remarkList, commentList]);
 
@@ -546,14 +547,16 @@ function OrderList(props) {
         </div> */}
       </div>
       {/* <div className={"drawer hide"}> */}
-      <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
-        <div className="drawer-header">
-          <h3 className="drawer-title">COMMENT</h3>
-          {/* <h3 className="drawer-title">Comment-Fruit Salad</h3> */}
-          <CloseOutlined onClick={() => setShowDrawer(false)} />
+      {drawerDom && (
+        <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
+          <div className="drawer-header">
+            <h3 className="drawer-title">COMMENT</h3>
+            {/* <h3 className="drawer-title">Comment-Fruit Salad</h3> */}
+            <CloseOutlined onClick={() => setShowDrawer(false)} />
+          </div>
+          <div className="drawer-content">{drawerDom}</div>
         </div>
-        <div className="drawer-content">{drawerDom}</div>
-      </div>
+      )}
     </div>
   );
 }
