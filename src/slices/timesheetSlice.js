@@ -1,18 +1,22 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import CONSTANT from "../configs/CONSTANT";
 import moment from "moment";
-import { saveTimeClock, listAllTimesheetStaffInShop, editTimesheetStaff, addTimesheetStaff, loadTimesheetReport, editTimesheetDoc } from "../services/timesheetApi";
+import { saveTimeClock, listAllTimesheetStaffInShop, editTimesheetStaff, addTimesheetStaff, loadTimesheetReport, editTimesheetDoc, fetchTimesheetDashboard, listRoster, saveRosterApi, editRosterApi, deleteRoster, ListPaidType, SavePaidType, EditPaidType, duplicateRosterBasedOnToday, duplicateRoster } from "../services/timesheetApi";
 import { notification } from "antd";
 import { history } from "../components/MyRouter";
 import _ from "lodash";
 import config from "../configs/index";
 import { message, dateToMoment, getRounding2 } from "../lib/index";
-
+import { Modal } from "antd";
+const { confirm } = Modal;
 
 const initialState = {
   timesheetStaffs: [],
   timesheetDocs: [],
   showAddLeaveModal: false,
+  dashboardData: [],
+  rosterList: [],
+  paidTypeList: [],
 };
 
 export const getCurrentActivatedStaff = (timesheetStaffs) => {
@@ -291,6 +295,153 @@ export const saveSingleDocToServer = createAsyncThunk("timesheet/saveSingleDocTo
 });
 
 
+export const fetchDashboardData = createAsyncThunk("timesheet/fetchDashboardData", async ({ filterAllShop }, { getState, dispatch, rejectWithValue }) => {
+  try {
+    const { Auth } = getState();
+    const { shop } = Auth;
+    // setPageLoading(true)
+    const res = await fetchTimesheetDashboard(filterAllShop ? "" : shop.shop_name);
+    if (res.error) throw res.error;
+    return res;
+  } catch (e) {
+    message.error(e.message);
+    return rejectWithValue(e.message);
+  }
+});
+
+
+export const fetchRosterList = createAsyncThunk("timesheet/fetchRosterList", async ({ from, to }, { getState, dispatch, rejectWithValue }) => {
+  try {
+    // setPageLoading(true)
+    const res = await listRoster(from, to);
+    if (res.error) throw res.error;
+    return res;
+  } catch (e) {
+    message.error(e.message);
+    return rejectWithValue(e.message);
+  }
+});
+
+export const saveRoster = createAsyncThunk("timesheet/saveRoster", async ({ roster }, { getState, dispatch, rejectWithValue }) => {
+  try {
+    // setPageLoading(true)
+    if (roster.end_time.isSameOrBefore(roster.start_time)) throw new Error("End time must be later than start time");
+    const formatData = {
+      ...roster,
+      start_time: roster.start_time.format("HH:mm:ss"),
+      end_time: roster.end_time.format("HH:mm:ss"),
+      schedule_date: roster.schedule_date.format("YYYY-MM-DD"),
+      branch_code: roster.store_code
+    };
+    let res;
+    if (formatData.id === "") {
+      delete formatData["id"];
+      res = await saveRosterApi(formatData);
+    } else {
+      res = await editRosterApi(formatData);
+    }
+    if (res.error) throw res.error;
+  } catch (e) {
+    message.error(e.message);
+    return rejectWithValue(e.message);
+  }
+});
+
+export const delRoster = createAsyncThunk("timesheet/delRoster", async ({ id }, { getState, dispatch, rejectWithValue }) => {
+  try {
+    // setPageLoading(true)
+    const res = await deleteRoster(id);
+    if (res.error) throw res.error;
+  } catch (e) {
+    message.error(e.message);
+    return rejectWithValue(e.message);
+  }
+});
+
+
+export const fetchPaidTypeList = createAsyncThunk("timesheet/fetchPaidTypeList", async (data, { getState, dispatch, rejectWithValue }) => {
+  try {
+    // setPageLoading(true)
+    const res = await ListPaidType();
+    if (res.error) throw res.error;
+    return res;
+  } catch (e) {
+    message.error(e.message);
+    return rejectWithValue(e.message);
+  }
+});
+
+export const savePaidType = createAsyncThunk("timesheet/savePaidType", async ({ obj }, { getState, dispatch, rejectWithValue }) => {
+  try {
+    // setPageLoading(true)
+    let res;
+    if (obj.id === "") {
+      delete obj["id"];
+      res = await SavePaidType(obj);
+    } else {
+      res = await EditPaidType(obj);
+    }
+    if (res.error) throw res.error;
+    return await dispatch(fetchPaidTypeList());
+  } catch (e) {
+    message.error(e.message);
+    return rejectWithValue(e.message);
+  }
+});
+
+//Duplicate roster based on current date
+export const simpleDuplicateRoster = createAsyncThunk("timesheet/simpleDuplicateRoster", async ({ isOverWriting }, { getState, dispatch, rejectWithValue }) => {
+  try {
+    const { Auth } = getState();
+    const { shop } = Auth;
+    // setPageLoading(true)
+    const res = await duplicateRosterBasedOnToday(shop.shop_name, isOverWriting ? 1 : 0);
+    if (res.code === 3000) {  //Alert existing record if user want to overwrite
+      confirm({
+        title: "Overwrite existing roster ?",
+        okText: "Yes",
+        cancelText: "No",
+        content: "You have roster already. By clicking yes, your existing roster will be overwritten.",
+        onOk: async () => {
+          await dispatch(simpleDuplicateRoster({isOverWriting: true}));
+        }
+      });
+    } else if (res.error) {
+      throw res.error;
+    }
+  } catch (e) {
+    message.error(e.message);
+    return rejectWithValue(e.message);
+  }
+});
+
+//Duplicate roster by giving date
+export const generalDuplicateRoster = createAsyncThunk("timesheet/generalDuplicateRoster", async ({ data, reFetchRosterHandler }, { getState, dispatch, rejectWithValue }) => {
+  try {
+    const res = await duplicateRoster(data);
+    if (res.code === 3000) {  //Alert existing record if user want to overwrite
+      confirm({
+        title: "Overwrite existing roster ?",
+        okText: "Yes",
+        cancelText: "No",
+        content: "You have roster already. By clicking yes, your existing roster will be overwritten.",
+        onOk: async () => {
+          const overWritingData = {...data, is_overwrite: 1};
+          await dispatch(generalDuplicateRoster({data:overWritingData, reFetchRosterHandler}));
+          await reFetchRosterHandler();
+        }
+      });
+    } else if (res.error) {
+      throw res.error;
+    }
+    await reFetchRosterHandler();
+  } catch (e) {
+    message.error(e.message);
+    return rejectWithValue(e.message);
+  }
+});
+
+
 
 const TimesheetSlice = createSlice({
   name: "timesheet",
@@ -348,6 +499,9 @@ const TimesheetSlice = createSlice({
     setShowAddLeaveModal(state, action) {
       state.showAddLeaveModal = action.payload;
     },
+    clearDashboardData(state, action) {
+      state.dashboardData = [];
+    }
   },
   extraReducers: {
     [fetchTimesheetStaffs.fulfilled]: (state, action) => {
@@ -358,11 +512,44 @@ const TimesheetSlice = createSlice({
         const {index, newDoc} = action.payload;
         state.timesheetDocs.splice(index, 1, newDoc );
       }
+    },
+    [fetchDashboardData.fulfilled]: (state, action) => {
+      const { data } = action.payload;
+      if (data) {
+        state.dashboardData = data.map(data => {
+          data.jobs = data.jobs === null ? [] : data.jobs;
+          data.work_hours = getRounding2(data.work_hours);
+          data.break_hours = getRounding2(data.break_hours);
+          data.clock_hours = getRounding2(data.clock_hours);
+          return data;
+        });
+      } else {
+        state.dashboardData = [];
+      }
+    },
+    [fetchRosterList.fulfilled]: (state, action) => {
+      const { data } = action.payload;
+      if (data) {
+        state.rosterList = data.map(item => {
+          delete item["branch_code"];
+          return item;
+        });
+      } else {
+        this.rosterList = [];
+      }
+    },
+    [fetchPaidTypeList.fulfilled]: (state, action) => {
+      const { data } = action.payload;
+      if (data) {
+        state.paidTypeList = data.sort((a, b) => a.multiple_confident - b.multiple_confident);
+      } else {
+        state.paidTypeList = [];
+      }
     }
   }
 });
 
-export const { updateStaff, activatedStaff, inactiveStaff, saveTimesheetDocs, setShowAddLeaveModal, visibleDoc, invisibleDoc, clearTimesheetDocs } = TimesheetSlice.actions;
+export const { updateStaff, activatedStaff, inactiveStaff, saveTimesheetDocs, setShowAddLeaveModal, visibleDoc, invisibleDoc, clearTimesheetDocs, clearDashboardData } = TimesheetSlice.actions;
 
 export const selectTimesheetStaffs = (state) => state.Timesheet.timesheetStaffs;
 export const selectTimesheetDocs = (state) => state.Timesheet.timesheetDocs;
@@ -377,6 +564,8 @@ export const selectDefaultStaffName = (state) => {
   return defaultStaffName;
 };
 export const selectShowAddLeaveModal = (state) => state.Timesheet.showAddLeaveModal;
+export const selectDashboardData = (state) => state.Timesheet.dashboardData;
+
 
 
 export default TimesheetSlice.reducer;

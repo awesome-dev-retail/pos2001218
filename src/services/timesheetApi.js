@@ -91,7 +91,7 @@ export const deleteTimesheetLine = id => {
   });
 };
 
-export const saveRoster = data => {
+export const saveRosterApi = data => {
   return api.request({
     url: "/pos/timesheet/schedule/save",
     method: "POST",
@@ -99,7 +99,7 @@ export const saveRoster = data => {
   });
 };
 
-export const editRoster = data => {
+export const editRosterApi = data => {
   return api.request({
     url: "/pos/timesheet/schedule/edit",
     method: "PATCH",
