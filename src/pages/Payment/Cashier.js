@@ -260,14 +260,14 @@ const Cashier = (props) => {
   const result = useMemo(() => {
     let change = 0;
     if (showSplitOrder) {
-      change = (payMoney * 1 - Math.round(amountPaying * 10) / 10).toFixed(1) * 1;
+      change = (payMoney * 1 - Math.round(amountPaying * 10) / 10).toFixed(2);
     } else {
       const amountInDoc = documentFromSlice.doc_gross_amount;
       // const amount = amountInDoc ? amountInDoc.toFixed(2) : "0.00";
-      change = (payMoney * 1 - Math.round(amountInDoc * 10) / 10).toFixed(1) * 1;
+      change = (payMoney * 1 - Math.round(amountInDoc * 10) / 10).toFixed(2);
     }
-    change = change < 0 ? 0 : change;
-    change = change ? change : 0;
+    change = change ? change : "0.00";
+    change = change < 0 ? "0.00" : change;
     return { change };
   }, [documentFromSlice, amountPaying, payMoney]);
 
@@ -279,11 +279,15 @@ const Cashier = (props) => {
             {/* <div className="title">Amount Tendered</div>   */}
             <div className="cashier-inner">
               <div className="title">{showSplitOrder ? "Amount Paying" : "Amount Due"}:</div>
-              <Input ref={dueContainer} className="total-input" value={showSplitOrder ? amountPaying.toFixed(2) : documentFromSlice.doc_gross_amount} />
+              <Input
+                ref={dueContainer}
+                className="total-input"
+                value={showSplitOrder ? amountPaying.toFixed(2) : documentFromSlice.doc_gross_amount ? documentFromSlice.doc_gross_amount.toFixed(2) : "0.00"}
+              />
               <div className="title">Amount Tendered:</div>
               <Input ref={tenderedContainer} className="total-input" value={payMoney * 1} />
               <div className="title">Change:</div>
-              <Input style={{}} className="total-input" defaultValue={0} value={result.change ? result.change : 0} />
+              <Input style={{}} className="total-input" defaultValue={0} value={result.change ? result.change : "0.00"} />
               <div className="cashier">
                 {calculatorNum.map((item) => (
                   <div onClick={() => handleClickCalculator(item.value)} className="calculator-item" key={item.value}>

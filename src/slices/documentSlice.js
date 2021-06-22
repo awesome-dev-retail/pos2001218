@@ -101,24 +101,21 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
     // console.log(transactionApproved);
 
     if (transactionApproved) {
-      // debugger;
-      const res = await dispatch(fetchDocument(document.id));
-      const newDocument = res.payload.data;
-      const newBillList = res.payload.data.invoice_lines;
-      const unpaidBillList = newBillList.filter((item) => !item.checked);
-      dispatch(setBillList(unpaidBillList));
-      dispatch(setShowCashPage(true));
-      const len = newDocument.payment_lines.length;
-      const amountPaid = newDocument.payment_lines[len - 1].actual_amount;
-      amountPaidArr.push(amountPaid);
-      // debugger;
-      // const amountPaid = (state.payment.Amount - state.payment.RoundingAmount).toFixed(2) * 1;
-      // state.amountPaidArr.push(amountPaid);
+      // const res = await dispatch(fetchDocument(document.id));
+      // const newDocument = res.payload.data;
+      // const newBillList = res.payload.data.invoice_lines;
+      // const unpaidBillList = newBillList.filter((item) => !item.checked);
+      // dispatch(setBillList(unpaidBillList));
+      // dispatch(setShowCashPage(true));
+      // const len = newDocument.payment_lines.length;
+      // const amountPaid = newDocument.payment_lines[len - 1].actual_amount;
+      // amountPaidArr.push(amountPaid);
 
-      // message.success("Transaction Success");
-      // CacheStorage.removeItem("dishObjInOrder_" + "1_" + document.table_id);
-      // CacheStorage.removeItem("invoice_" + "1_" + document.table_id);
-      // history.push("/");
+      message.success("Transaction Success");
+      console.warn("Transaction completed successfully");
+      //Clean up re-fetch document
+      history.push("/");
+      CacheStorage.removeItem("invoice_" + "1_" + document.table_id);
     } else {
       // debugger;
       console.warn("Transaction completed with error");
