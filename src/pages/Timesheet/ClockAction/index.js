@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch, useStore } from "react-redux";
 import "./index.scss";
-import {Row, Col, Input, Button, Modal, Select, Radio} from "antd";
+import { Row, Col, Input, Button, Modal, Select, Radio } from "antd";
 import { message, dateToMoment } from "../../../lib";
 import _ from "lodash";
 import ClockBtn from "../ClockBtn/index";
 import { Form } from "@ant-design/compatible";
-import {fetchShopList, selectShop, selectShops} from "../../../slices/authSlice";
+import { fetchShopList, selectShop, selectShops } from "../../../slices/authSlice";
 import {
   fetchTimesheetStaffs,
   activatedStaff,
@@ -155,6 +155,7 @@ const ClockAction = (props) => {
             onCancel={() => setShowStaffDetails(false)}
             footer={null}
             width={400}
+            className="bizex-timesheet-add-staff-modal"
         >
           <Form {...layout} layout="inline" onSubmit={e => handleAddStaffSubmit(e)}>
             <Form.Item label="ID" className="staff-details-form-item" style={{display: "none"}}>

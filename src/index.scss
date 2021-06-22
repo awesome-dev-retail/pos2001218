@@ -69,39 +69,39 @@ code {
 }
 
 .third-button {
-  color: $bizex-blue;
+  color: $bizex-primary-blue;
   border-radius: 0;
   background-color: white;
-  border: 1px solid $bizex-blue;
+  border: 1px solid $bizex-primary-blue;
   font-family: gotham-medium, sans-serif ;
   font-size: 15px;
   &:hover {
-    color: $bizex-blue;
+    color: $bizex-primary-blue;
     background-color: white;
-    border: 1px solid $bizex-blue;
+    border: 1px solid $bizex-primary-blue;
   }
   &:focus {
-    color: $bizex-blue;
+    color: $bizex-primary-blue;
     background-color: white;
-    border: 1px solid $bizex-blue;
+    border: 1px solid $bizex-primary-blue;
   }
 }
 
 .forth-button {
-  color: $bizex-blue;
+  color: $bizex-primary-blue;
   border-radius: 0;
   background-color: white;
   border: 1px solid #f1f2f2;
   font-family: gotham-medium, sans-serif ;
   font-size: 15px;
   &:hover {
-    border: 1px solid $bizex-blue;
-    color: $bizex-blue;
+    border: 1px solid $bizex-primary-blue;
+    color: $bizex-primary-blue;
     background-color: white;
   }
   &:focus {
     border: 1px solid #f1f2f2;
-    color: $bizex-blue;
+    color: $bizex-primary-blue;
     background-color: white;
   }
 }

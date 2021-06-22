@@ -565,6 +565,8 @@ export const selectDefaultStaffName = (state) => {
 };
 export const selectShowAddLeaveModal = (state) => state.Timesheet.showAddLeaveModal;
 export const selectDashboardData = (state) => state.Timesheet.dashboardData;
+export const selectPaidTypeList = (state) => state.Timesheet.paidTypeList;
+
 
 
 
