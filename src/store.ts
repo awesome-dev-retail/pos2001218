@@ -5,6 +5,8 @@ import areaReducer from "./slices/areaSlice";
 import tableReducer from "./slices/tableSlice";
 import menuReducer from "./slices/menuSlice";
 import dishReducer from "./slices/dishSlice";
+import commentReducer from "./slices/commentSlice";
+import stockReducer from "./slices/stockSlice";
 import documentReducer from "./slices/documentSlice";
 import publicComponentReducer from "./slices/publicComponentSlice";
 import paymentReducer from "./slices/paymentSlice";
@@ -21,6 +23,8 @@ export default configureStore({
     Document: documentReducer,
     PublicComponent: publicComponentReducer,
     Payment: paymentReducer,
+    Comment: commentReducer,
+    Stock: stockReducer,
     // Invoice: invoiceReducer,
   },
   middleware: getDefaultMiddleware({

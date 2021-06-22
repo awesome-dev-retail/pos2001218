@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { saveTable, fetchTableListInShop, fetchTableListInArea } from "../../slices/tableSlice";
 import { selectAreaList } from "../../slices/tableSlice";
 // import { saveTable, fetchTableListInShop, fetchTableListInArea } from "../../slices/tableSlice";
+import { selectCurrentUser } from "../../slices/authSlice";
 import "./index.scss";
 
 const { Option } = Select;
@@ -13,6 +14,7 @@ const Index = (props) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const areaCategoryFromSlice = useSelector((state) => state.Area.area) || [];
+  const currentUser = useSelector((state) => selectCurrentUser(state));
   // const areaCategoryName = areaCategoryFromSlice.map((item) => item.area_name);
   // console.log("areaCategoryName", areaCategoryName);
   // console.log("areaCategoryFromSlice", areaCategoryFromSlice);
@@ -25,16 +27,28 @@ const Index = (props) => {
     return;
   };
 
+  useEffect(() => {
+    if (props.tableObj) {
+      form.setFieldsValue({ tableName: props.tableObj.table_name });
+      form.setFieldsValue({ areaId: props.tableObj.area_id });
+      form.setFieldsValue({ capacity: props.tableObj.capacity });
+    } else {
+      form.setFieldsValue({ tableName: "" });
+      form.setFieldsValue({ areaId: "" });
+      form.setFieldsValue({ capacity: "" });
+    }
+  }, [props]);
+
   const addTable = () => {
     form.validateFields().then(async (res) => {
       // console.log("addTable---------------------", res);
       form.resetFields();
       props.hideModel(false);
       const tableObj = {
-        id: props.tableObj.id, // [not required for creating]
+        id: props.tableObj && props.tableObj.id ? props.tableObj.id : 0, // [not required for creating]
         // id: 5,
         // id: props.tableObj.id ? props.tableObj.id : null,
-        cid: 1, // [required] int
+        cid: currentUser.userinfo.cid, // [required] int
         shop_id: 1, // [required] int
         area_id: res.areaId,
         // area_id: 71,

@@ -6,12 +6,10 @@ import CacheStorage from "../lib/cache-storage";
 import { message } from "../lib";
 
 import { dishListRequest, dishListInMenuRequest, saveDishRequest, deleteDishRequest, calculateInvoiceRequest, saveInvoiceRequest, listInvoiceRequest, cancelInvoiceRequest } from "../services";
-import axios from "axios";
-import { createDishObjInOrder } from "../services/createDishObjInOrder";
-import { createInvoice } from "../services/createInvoice";
 
 const initialState = {
   dish: [],
+  currentDish: {},
   dishObjInOrder: [],
   invoice: {},
   showCashier: false,
@@ -133,6 +131,9 @@ const DishSlice = createSlice({
     },
     setCurrentLine(state, action) {
       state.currentLine = action.payload;
+    },
+    setCurrentDish(state, action) {
+      state.currentDish = action.payload;
     },
     clearCheckedDish(state, action) {
       state.dishObjInOrder.forEach((item) => {
@@ -291,13 +292,14 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder, setCurrentLine, clearCheckedDish, setShowCashier, setInvoice } = DishSlice.actions;
+export const { setDishObjInOrder, setCurrentDish, setCurrentLine, clearCheckedDish, setShowCashier, setInvoice } = DishSlice.actions;
 
 export const selectCashierStatus = (state) => state.Dish.showCashier;
 
 export const selectDishList = (state) => state.Dish.dish;
+export const selectCurrentDish = (state) => state.Dish.currentDish;
 export const selectInvoice = (state) => state.Dish.invoice;
-
+export const selectDishIsLoading = (state) => state.Dish.status === config.API_STATUS.LOADING;
 export const selectCurrentLine = (state) => state.Dish.currentLine;
 export const selectDishObjInOrder = (state) => state.Dish.dishObjInOrder;
 

@@ -136,5 +136,6 @@ export const selectAmountPaying = (state) => state.Payment.amountPaying;
 export const selectAmountPaid = (state) => state.Payment.amountPaid;
 export const selectAmountPaidArr = (state) => state.Payment.amountPaidArr;
 export const selectShowCashPage = (state) => state.Payment.showCashPage;
+export const selectPaymentIsLoading = (state) => state.Payment.status === config.API_STATUS.LOADING;
 
 export default PaymentSlice.reducer;

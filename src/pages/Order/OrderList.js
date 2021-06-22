@@ -13,6 +13,7 @@ import {
   QuestionCircleFilled,
   CloseOutlined,
   CheckCircleTwoTone,
+  DeleteTwoTone,
   AntDesignOutlined,
   PlusOutlined,
   ExclamationCircleOutlined,
@@ -22,6 +23,7 @@ import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
 import { selectCurrentUser } from "../../slices/authSlice";
+import { selectCommentList, saveComment, deleteComment, fetchCommentListInShop } from "../../slices/commentSlice";
 
 import {
   selectInvoice,
@@ -37,6 +39,8 @@ import {
   setCurrentLine,
   selectCurrentLine,
   selectDishList,
+  selectCurrentDish,
+  setCurrentDish,
 } from "../../slices/dishSlice";
 
 import { selectDocument } from "../../slices/documentSlice";
@@ -53,10 +57,11 @@ import sousuo from "../../assets/images/sousuo.png";
 
 import "./OrderList.scss";
 import { message } from "../../lib";
+import { createComment, createCommentByItem } from "../../services/createComment";
 function OrderList(props) {
   // const [currentLine, setCurrentLine] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
-  const [currentDish, setCurrentDish] = useState();
+  // const [currentDish, setCurrentDish] = useState();
 
   const [showMore, setShowMore] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -89,10 +94,13 @@ function OrderList(props) {
   const table = useSelector((state) => selectTable(state)) || {};
 
   const currentLine = useSelector((state) => selectCurrentLine(state));
+  const currentDish = useSelector((state) => selectCurrentDish(state));
 
   const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
+
+  const commentList = useSelector((state) => selectCommentList(state)) || [];
 
   const dishListInShop = useSelector((state) => selectDishList(state));
 
@@ -113,13 +121,20 @@ function OrderList(props) {
 
     const localInvoice = CacheStorage.getItem("invoice_" + "1_" + tableId);
     // const newInvoice = localInvoice ? localInvoice : invoice;
-    dispatch(setInvoice(localInvoice));
-
+    if (localInvoice) {
+      dispatch(setInvoice(localInvoice));
+    } else {
+      dispatch(setInvoice({}));
+    }
     dispatch(setCurrentLine({}));
     // dispatch(clearCheckedDish());
+    console.log("currentUser.userinfo.cid", currentUser.userinfo.cid);
+    dispatch(fetchCommentListInShop(0));
   }, []);
 
-  // useEffect(() => {}, [invoice, table]);
+  // useEffect(() => {
+  //   dispatch(fetchCommentListInShop(currentUser.userinfo.cid));
+  // }, [currentUser]);
 
   const showPay = useMemo(() => {
     return Object.keys(invoice).length === 0 || !invoice.Lines || invoice.Lines.length === 0 ? false : true;
@@ -187,7 +202,7 @@ function OrderList(props) {
     } else if (key === "extras") {
       const dish = dishListInShop.find((i) => i.dish_code === currentLine.Dish.DishCode);
       if (dish) {
-        setCurrentDish(dish);
+        dispatch(setCurrentDish(dish));
       }
       if (dish && dish.extras && dish.extras.length !== 0) setShowDrawer(true);
     } else if (key === "remark") {
@@ -214,29 +229,30 @@ function OrderList(props) {
   // }, [JSON.stringify(dishObjFromSlice)]);
 
   const handleCheckRemark = (item) => {
-    // console.log(item);
-    if (currentDishCopy.remark) {
-      let index = currentDishCopy.remark.findIndex((i) => item === i);
-      let remark = currentDishCopy.remark;
+    // debugger;
+    if (currentLineCopy.LineNote) {
+      let index = currentLineCopy.LineNote.findIndex((i) => item.id === i.NoteID);
       if (index > -1) {
-        remark.splice(index, 1);
+        currentLineCopy.LineNote.splice(index, 1);
       } else {
-        remark.push(item);
+        const newItem = createCommentByItem(item);
+        currentLineCopy.LineNote.push(newItem);
       }
-      currentDishCopy = {
-        ...currentDishCopy,
-        remark,
-      };
     } else {
-      let remark = [item];
-      currentDishCopy.remark = remark;
+      currentLineCopy.LineNote = [];
+      const newItem = createCommentByItem(item);
+      currentLineCopy.LineNote.push(newItem);
     }
-
-    dispatch(setCurrentLine(currentDishCopy));
-    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
-    let index = copyDishObjFromSlice.findIndex((item) => item.id === currentLine.id);
-    copyDishObjFromSlice.splice(index, 1, currentDishCopy);
-    dispatch(setDishObjInOrder(copyDishObjFromSlice));
+    if (copyInvoice.Lines) {
+      let index = copyInvoice.Lines.findIndex((i) => {
+        if (i.Dish && currentLineCopy.Dish) return i.Dish.DishCode === currentLineCopy.Dish.DishCode;
+      });
+      if (index > -1) {
+        copyInvoice.Lines.splice(index, 1, currentLineCopy);
+        dispatch(setCurrentLine(currentLineCopy));
+        dispatch(calculateInvoice(copyInvoice));
+      }
+    }
   };
 
   const handlePayment = () => {
@@ -286,14 +302,28 @@ function OrderList(props) {
 
   const handleAddComment = () => {
     // debugger;
-    const newComment = commentContainer.current.input.value;
-    const copyRemarkList = JSON.parse(JSON.stringify(remarkList || []));
-    copyRemarkList.unshift(newComment);
-    // commentContainer.current.input.value = "";
-    setRemarkList(copyRemarkList);
+    const cid = null;
+    const commentID = 0;
+    const commentContent = commentContainer.current.input.value;
+    const comment = createComment(currentUser.userinfo.cid, commentID, commentContent);
+    dispatch(saveComment(comment));
   };
+
+  const handleDeleteComment = (e, item) => {
+    // console.log(e.target);
+
+    e.stopPropagation();
+    const index = currentLine.LineNote && currentLine.LineNote.findIndex((i) => i.NoteID === item.id);
+    if (index > -1) {
+      message.warning("Please remove this comment first!");
+      return;
+    }
+    dispatch(deleteComment(item.id));
+  };
+
   const drawerDom = useMemo(() => {
     let dom = null;
+    debugger;
     if (currentMeun === "extras" && currentDish.extras.length !== 0) {
       dom = currentDish.extras.map((item, index) => {
         const extra = currentLine.ExtraDetail && currentLine.ExtraDetail.ExtraList && currentLine.ExtraDetail.ExtraList.find((i) => i.ExtraID === item.id);
@@ -327,10 +357,17 @@ function OrderList(props) {
             ))}
           </div>
           <div className="remark-list">
-            {remarkList.map((item) => (
-              <div onClick={() => handleCheckRemark(item)} className={`remark-item ${Array.isArray(currentLine.remark) && currentLine.remark.includes(item) ? "remark-item-active" : ""}`} key={item}>
-                {item}
-                {Array.isArray(currentLine.remark) && currentLine.remark.includes(item) && <CheckCircleTwoTone twoToneColor="$bizex-pink" />}
+            {commentList.map((item, index) => (
+              <div
+                onClick={() => handleCheckRemark(item)}
+                className={`remark-item ${currentLine.LineNote && currentLine.LineNote.findIndex((i) => i.NoteID === item.id) > -1 ? "remark-item-active" : ""} `}
+                key={index}>
+                {/* <div onClick={() => handleCheckRemark(item)} className={`remark-item ${currentLine.LineNote.includes(item) ? "remark-item-active" : ""}`} key={item}> */}
+                {item.description}
+                {/* <CheckCircleTwoTone twoToneColor="$bizex-pink" /> */}
+                <DeleteTwoTone onClick={(e) => handleDeleteComment(e, item)} />
+
+                {/* {Array.isArray(currentLine.commentList) && currentLine.remark.includes(item) && <CheckCircleTwoTone twoToneColor="$bizex-pink" />} */}
               </div>
             ))}
           </div>
@@ -347,8 +384,11 @@ function OrderList(props) {
         </>
       );
     }
+    if (!dom) {
+      setShowDrawer(false);
+    }
     return dom;
-  }, [currentMeun, currentTabIndex, currentLine, invoice, currentDish, remarkList]);
+  }, [currentMeun, currentTabIndex, currentLine, invoice, currentDish, remarkList, commentList]);
 
   // const handleCancelPayment = () => {
   //   dispatch(cancelInvoice(table));
@@ -405,7 +445,7 @@ function OrderList(props) {
                         ))}
                       </div>
                     )}
-                    {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
+                    {item.LineNote && item.LineNote.length > 0 && <div className="materials">Comments: {item.LineNote.map((i) => i.Description).join(",")}</div>}
                   </div>
                   {/* </div> */}
                   <div className="count">${item.UnitPrice.toFixed(2)}</div>

@@ -103,12 +103,24 @@
         border: 1px solid #efefef;
         &.remark-item-active {
           border-color: $bizex-pink;
-          color: $bizex-pink;
+          // color: $bizex-pink;
         }
         .anticon-check-circle {
           position: absolute;
           right: 0;
           top: 0;
+        }
+        .anticon-delete {
+          display: none;
+          // position: absolute;
+          // right: 0;
+          // bottom: 0;
+        }
+        &.remark-item:hover .anticon-delete {
+          display: block;
+          position: absolute;
+          right: 0;
+          bottom: 0;
         }
       }
     }

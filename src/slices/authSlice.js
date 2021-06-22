@@ -76,7 +76,7 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async (data, { rejec
   }
 });
 
-export const fetchDevices = createAsyncThunk("user/fetchDevices", async (data, {getState, rejectWithValue}) => {
+export const fetchDevices = createAsyncThunk("user/fetchDevices", async (data, { getState, rejectWithValue }) => {
   try {
     const { Auth } = getState();
     const { shop } = Auth;
@@ -121,7 +121,7 @@ const authSlice = createSlice({
     },
     setCurrentShop(state, action) {
       state.shop = action.payload;
-    }
+    },
   },
 
   extraReducers: (builder) => {
@@ -209,7 +209,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, logoutLocally, setToken, setShop, setDevice, setLane} = authSlice.actions;
+export const { setUser, logoutLocally, setToken, setShop, setDevice, setLane } = authSlice.actions;
 
 export const selectUserToken = (state) => state.Auth.token;
 export const selectIsLogin = (state) => state.Auth.user;
@@ -217,9 +217,9 @@ export const selectCurrentUser = (state) => state.Auth.user;
 export const selectShops = (state) => state.Auth.shops;
 export const selectLanes = (state) => state.Auth.lanes;
 export const selectAuthIsLoading = (state) => state.Auth.status === CONSTANT.API_STATUS.LOADING || state.Auth.status === CONSTANT.API_STATUS.IDLE;
-export const selectShop = state => state.Auth.shop;
-export const selectLane = state => state.Auth.lane;
-export const selectDevices = state => state.Auth.devices;
-export const selectDevice = state => state.Auth.device;
+export const selectShop = (state) => state.Auth.shop;
+export const selectLane = (state) => state.Auth.lane;
+export const selectDevices = (state) => state.Auth.devices;
+export const selectDevice = (state) => state.Auth.device;
 
 export default authSlice.reducer;

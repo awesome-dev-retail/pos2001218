@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "../configs/index";
+import CONSTANT from "../configs/CONSTANT";
 // import { CacheStorage, message } from "../lib";
 import { tableListInShopRequest, tableListInAreaRequest, tableByIdRequest, saveTableRequest, deleteTableRequest, startTableRequest, endTableRequest } from "../services";
 
@@ -161,7 +162,7 @@ const TableSlice = createSlice({
       // message.error(action.payload);
     },
     [fetchTableById.pending]: (state) => {
-      state.status = config.API_STATUS.LOADING;
+      // state.status = config.API_STATUS.LOADING;
     },
     [fetchTableById.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
@@ -238,6 +239,7 @@ export const { setTableList, setTable, setTableListInArea } = TableSlice.actions
 export const selectTableList = (state) => state.Table.tableList;
 export const selectTable = (state) => state.Table.table;
 export const selectTableInfo = (state) => state.Table.tableInfo;
+export const selectTableIsLoading = (state) => state.Table.status === config.API_STATUS.LOADING;
 // export const selectTableById = (state) => state.Table.table;
 
 export default TableSlice.reducer;

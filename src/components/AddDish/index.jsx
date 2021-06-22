@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Form, Input, Modal, Select } from "antd";
 import PropTypes from "prop-types";
 
@@ -6,31 +6,52 @@ import { useSelector, useDispatch } from "react-redux";
 import { saveDish, fetchDishListInShop } from "../../slices/dishSlice";
 import { fetchDishListInMenu } from "../../slices/dishSlice";
 import { selectMenuList } from "../../slices/menuSlice";
+import { fetchStockListInShop, selectStockList, getSelectedExtras, selectExtras } from "../../slices/stockSlice";
+import { selectCurrentUser } from "../../slices/authSlice";
 
 import "./index.scss";
 
 const { Option } = Select;
 const Index = (props) => {
+  // console.log("props", props);
   const dispatch = useDispatch();
   const MenuListFromSlice = useSelector((state) => selectMenuList(state));
+  const currentUser = useSelector((state) => selectCurrentUser(state));
+  const stockList = useSelector((state) => selectStockList(state)) || [];
+  const selectedExtras = useSelector((state) => selectExtras(state)) || [];
 
   const [form] = Form.useForm();
   const hideModal = () => {
     form.validateFields().then((res) => {
-      console.log(res);
+      // console.log(res);
       props.hideModel(false);
     });
   };
+
+  useEffect(() => {
+    dispatch(fetchStockListInShop(currentUser.userinfo.cid));
+  }, []);
+
+  useEffect(() => {
+    if (props.dish) {
+      form.setFieldsValue({ name: props.dish.description });
+      form.setFieldsValue({ menuId: props.dish.class_id });
+      form.setFieldsValue({ price: props.dish.unit_price });
+    } else {
+      form.setFieldsValue({ name: "" });
+      form.setFieldsValue({ menuId: "" });
+      form.setFieldsValue({ price: "" });
+    }
+  }, [props]);
+
   const addDish = () => {
     form.validateFields().then(async (res) => {
-      console.log("addDish---------------------", res);
+      // console.log("addDish---------------------", res);
       form.resetFields();
       props.hideModel(false);
       const dishObj = {
-        id: props.id, // [not required for creating]
-        // id: 5,
-        // id: props.id ? props.id : null,
-        cid: 1, // [required] int
+        id: props.dish && props.dish.id ? props.dish.id : 0, // [not required for creating]
+        cid: currentUser.userinfo.cid, // [required] int
         class_id: res.menuId * 1, // [required] int
         dish_code: Date.now() + "",
         description: res.name, // [required] string
@@ -40,7 +61,7 @@ const Index = (props) => {
       if (res.extrasName && res.extrasPrice) {
         dishObj.extras = [];
         dishObj.extras.push({
-          id: 1, // [empty for creating]
+          // id: 1, // [empty for creating]
           cid: 1, // [Required] int
           // dish_code: res.extrasName, // [required] string
           dish_code: Date.now() + "", // [required] string
@@ -55,6 +76,18 @@ const Index = (props) => {
       await dispatch(saveDish(dishObj));
       await dispatch(fetchDishListInMenu(res.menuId));
     });
+  };
+
+  // const children = [];
+  // for (let i = 10; i < 36; i++) {
+  //   children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
+  // }
+
+  const children = stockList.map((i) => <Option key={i.id}>{i.inventory_id}</Option>);
+
+  const handleChange = (value) => {
+    console.log(`selected ${value}`);
+    dispatch(getSelectedExtras(value));
   };
 
   return (
@@ -96,15 +129,20 @@ const Index = (props) => {
           {/* <p className="tip" onClick={props.showMoreTypeSetup}>
             More Settings
           </p> */}
+
           <Form.Item label="Dish Discription" colon={false} name="discription" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
+          {/* <Form.Item label="Extras" colon={false} name="extras">
+            <Select mode="multiple" allowClear style={{ width: "100%" }} placeholder="Please select extras" defaultValue={[]} onChange={handleChange}>
+              {children}
+            </Select>
+          </Form.Item> */}
           <Form.Item label="Extras Name" colon={false} name="extrasName" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Extras Price($)" colon={false} name="extrasPrice" rules={[{ required: false }]}>
             <Input />
-            {/* <Input placeholder="Please input price" suffix="$" /> */}
           </Form.Item>
         </Form>
       </div>
@@ -113,13 +151,11 @@ const Index = (props) => {
 };
 
 Index.propTypes = {
-  id: PropTypes.number,
   hideModel: PropTypes.func.isRequired,
   showMoreTypeSetup: PropTypes.func,
   // showMoreTypeSetup: PropTypes.func.isRequired,
   visible: PropTypes.bool.isRequired,
-  description: PropTypes.string,
-  price: PropTypes.number,
+  dish: PropTypes.object.isRequired,
 };
 
 export default Index;

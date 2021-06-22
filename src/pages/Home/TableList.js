@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
 import React, { Fragment, useEffect, useState } from "react";
 import { withRouter } from "react-router-dom";
-import { Badge, Modal, Button, message } from "antd";
+import { Badge, Modal, Button, message, Spin } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 
 // import { selectAreaId } from "../../slices/areaSlice";
-import { fetchTableListInShop, fetchTableListInArea, saveTable, deleteTable } from "../../slices/tableSlice";
+import { fetchTableListInShop, fetchTableListInArea, saveTable, deleteTable, selectTableIsLoading } from "../../slices/tableSlice";
 import { selectTableList, setTableList } from "../../slices/tableSlice";
 
 import AddTable from "../../components/AddTable";
@@ -22,6 +22,7 @@ function TableList(props) {
 
   const dispatch = useDispatch();
   const tableListFromSlice = useSelector((state) => selectTableList(state)) || [];
+  const isLoading = useSelector((state) => selectTableIsLoading(state));
   // const areaId = useSelector((state) => selectAreaId(state));
 
   useEffect(() => {

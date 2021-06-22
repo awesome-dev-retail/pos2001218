@@ -10,6 +10,9 @@ import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, Quest
 import { Dropdown, Avatar, Layout, Spin } from "antd";
 import UIMenu from "../UIMenu";
 import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectAuthIsLoading, fetchDevices, setShop, setLane, selectLane, selectShop, setDevice } from "../../slices/authSlice";
+import { selectTableIsLoading } from "../../slices/tableSlice";
+import { selectDishIsLoading } from "../../slices/dishSlice";
+import { selectPaymentIsLoading } from "../../slices/paymentSlice";
 import { history } from "../MyRouter";
 import { connectSocket, setDocument } from "../../slices/documentSlice";
 import _ from "lodash";
@@ -17,7 +20,13 @@ import _ from "lodash";
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
   const currentUser = useSelector((state) => selectCurrentUser(state));
-  const isLoading = useSelector((state) => selectAuthIsLoading(state));
+  const isAuthLoading = useSelector((state) => selectAuthIsLoading(state));
+  const isTableLoading = useSelector((state) => selectTableIsLoading(state));
+  const isDishLoading = useSelector((state) => selectDishIsLoading(state));
+  const isPaymentLoading = useSelector((state) => selectPaymentIsLoading(state));
+
+  let isLoading = isTableLoading || isDishLoading || isPaymentLoading;
+
   const token = CacheStorage.getItem("token");
   const dispatch = useDispatch();
   const localShop = CacheStorage.getItem("SELECT_SHOP");
@@ -63,7 +72,7 @@ const AuthCheck = (props) => {
     console.log(store.getState());
   };
 
-  if (isLoading) {
+  if (isAuthLoading) {
     return (
       <div>
         <Spin className={styles.Spin} tip={"System Loading"} />
@@ -97,7 +106,9 @@ const AuthCheck = (props) => {
           </header>
         </div>
         <div>
-          <Spin spinning={isLoading}>{props.children}</Spin>
+          <Spin spinning={isLoading} tip={"Loading"}>
+            {props.children}
+          </Spin>
         </div>
       </Layout>
     );

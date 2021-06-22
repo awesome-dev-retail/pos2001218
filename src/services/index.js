@@ -266,40 +266,48 @@ export const cancelEftPos = (shopId, deviceId, key, val) => {
   });
 };
 
-// import api from "./api";
-// import { UserCredential } from "../configs/data";
-//
-// export const areaListRequest = (shopId: any) => {
-//   return api.request({
-//     url: `/pos/data/area/list_in_shop?shopId=${shopId}`,
-//     method: "get",
-//     headers: {
-//       Authorization: "2fse783mcEIlui4pN5i7WQ==",
-//     },
-//   });
-// };
-//
-// // export const login = (username, password) => {
-// //   const uri = password ? username + "/" + password : username;
-//
-// //   return api.request({
-// //     url: `/brunton/loyalty_user/login/${uri}?nocache=${new Date().getTime()}`,
-// //     method: "get",
-// //     headers: {
-// //       Authorization: "",
-// //     },
-// //   });
-// // };
-//
-// export const loginRequest = (data: UserCredential) => {
-//   const { password, username } = data;
-//   const param = password ? { uname: username, passwd: password } : { barcode: username };
-//   return api.request({
-//     url: "/brunton/user/login?nocache=" + new Date().getTime(),
-//     headers: {
-//       Authorization: "",
-//     },
-//     data: { ...param },
-//     method: "POST",
-//   });
-// };
+//====================comment start
+export const commentListRequest = (cid) => {
+  return api.request({
+    url: `/pos/data/default_note/list?cid=${cid}`,
+    method: "get",
+  });
+};
+
+export const saveCommentRequest = (comment) => {
+  return api.request({
+    url: "/pos/data/default_note/save",
+    method: "post",
+    data: comment,
+  });
+};
+
+export const deleteCommentRequest = (commentID) => {
+  return api.request({
+    url: `/pos/data/default_note/delete/${commentID}`,
+    method: "delete",
+  });
+};
+
+//====================Stock start
+export const stockListRequest = (cid) => {
+  return api.request({
+    url: `/pos/data/stock_item/list?cid=${cid}`,
+    method: "get",
+  });
+};
+
+export const saveStockRequest = (stock) => {
+  return api.request({
+    url: "/pos/data/default_note/save",
+    method: "post",
+    data: stock,
+  });
+};
+
+export const deleteStockRequest = (stockID) => {
+  return api.request({
+    url: `/pos/data/default_note/delete/${stockID}`,
+    method: "delete",
+  });
+};

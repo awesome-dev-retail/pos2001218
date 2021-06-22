@@ -101,7 +101,7 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
     // console.log(transactionApproved);
 
     if (transactionApproved) {
-      debugger;
+      // debugger;
       const res = await dispatch(fetchDocument(document.id));
       const newDocument = res.payload.data;
       const newBillList = res.payload.data.invoice_lines;
@@ -111,7 +111,7 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
       const len = newDocument.payment_lines.length;
       const amountPaid = newDocument.payment_lines[len - 1].actual_amount;
       amountPaidArr.push(amountPaid);
-      debugger;
+      // debugger;
       // const amountPaid = (state.payment.Amount - state.payment.RoundingAmount).toFixed(2) * 1;
       // state.amountPaidArr.push(amountPaid);
 
@@ -120,7 +120,7 @@ export const processEFTPOS = createAsyncThunk("document/processEFTPOS", async (d
       // CacheStorage.removeItem("invoice_" + "1_" + document.table_id);
       // history.push("/");
     } else {
-      debugger;
+      // debugger;
       console.warn("Transaction completed with error");
     }
     await dispatch(fetchDocument(document.id));

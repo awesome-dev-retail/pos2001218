@@ -14,7 +14,7 @@ import { selectInvoice } from "../../slices/dishSlice";
 
 import { selectTable } from "../../slices/tableSlice";
 
-import { selectDishList } from "../../slices/dishSlice";
+import { selectDishList, setCurrentDish } from "../../slices/dishSlice";
 
 import { selectMenuId } from "../../slices/menuSlice";
 
@@ -24,6 +24,7 @@ import { createInvoice, createLine } from "../../services/createInvoice";
 
 function DishList(props) {
   const [showDish, setShowDish] = useState(false);
+  const [dish, setDish] = useState({});
   const [dishId, setDishId] = useState(0);
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
@@ -54,11 +55,10 @@ function DishList(props) {
   //   props.history.push("/order");
   // };
 
-  const handleSaveDish = (dishId, description, price) => {
+  const handleSaveDish = (dish) => {
+    console.log(dish);
     setShowDish(true);
-    setDishId(dishId);
-    setDescription(description);
-    setPrice(price);
+    setDish(dish);
   };
 
   function showDeleteConfirm(dish) {
@@ -93,18 +93,22 @@ function DishList(props) {
         if (index > -1) {
           newInvoice.Lines[index].Quantity.Qty += 1;
           dispatch(setCurrentLine(newInvoice.Lines[index]));
+          // dispatch(setCurrentDish(dish));
         } else {
           const line = createLine(dish);
           newInvoice.Lines.push(line);
           dispatch(setCurrentLine(line));
+          // dispatch(setCurrentDish(dish));
         }
       } else {
         newInvoice.Lines = [];
         const line = createLine(dish);
         newInvoice.Lines.push(line);
         dispatch(setCurrentLine(line));
+        // dispatch(setCurrentDish(dish));
       }
     }
+    dispatch(setCurrentDish(dish));
     dispatch(calculateInvoice(newInvoice));
     // dispatch(setCurrentLine(dish));
     return;
@@ -128,7 +132,7 @@ function DishList(props) {
               </div> */}
             </div>
             <div className="edit-delete">
-              {isAdmin && <EditOutlined onClick={(event) => handleSaveDish(item.id, item.description, item.unit_price)} />}
+              {isAdmin && <EditOutlined onClick={(event) => handleSaveDish(item)} />}
               {isAdmin && <DeleteOutlined onClick={() => showDeleteConfirm(item)} />}
             </div>
           </div>
@@ -138,7 +142,7 @@ function DishList(props) {
           <div>Add Dish</div>
         </div>
       </div>
-      <AddDish visible={showDish} hideModel={setShowDish} id={dishId} description={description} price={price}></AddDish>
+      <AddDish visible={showDish} hideModel={setShowDish} dish={dish}></AddDish>
     </Fragment>
   );
 }
