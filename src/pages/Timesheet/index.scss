@@ -1,5 +1,8 @@
+@import "../../lib.scss";
+
 .clock-page-container {
   padding: 0 30px;
+  height: calc(100vh - #{$top-bar-height});
 
   .clock-menu-item {
     display: inline-block;
@@ -31,6 +34,8 @@
     background-color:white;
     padding: 30px;
     text-align: center;
+    width: 100%;
+    border: 1px solid $bizex-primary-blue;
     h2 {
       text-align: left;
     }

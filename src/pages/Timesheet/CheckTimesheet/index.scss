@@ -26,7 +26,7 @@
   }
   .load-btn {
     margin-left: 20px;
-    transform: translateY(-4px);
+    //transform: translateY(-4px);
   }
   .tips-paragraph {
     text-align: left;
@@ -139,5 +139,16 @@
   }
   100% {
     transform: rotate(5deg)
+  }
+}
+
+
+//Solving difference from POS below
+.bizex-timesheet-add-leave-modal {
+  .staff-details-form-item {
+    margin: 8px 0;
+  }
+  .ant-select {
+    width: 100%;
   }
 }

@@ -9,6 +9,7 @@ import documentReducer from "./slices/documentSlice";
 import publicComponentReducer from "./slices/publicComponentSlice";
 import paymentReducer from "./slices/paymentSlice";
 // import invoiceReducer from "./slices/invoiceSlice";
+import timesheetReducer from "./slices/timesheetSlice";
 
 export default configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export default configureStore({
     PublicComponent: publicComponentReducer,
     Payment: paymentReducer,
     // Invoice: invoiceReducer,
+    Timesheet: timesheetReducer,
   },
   middleware: getDefaultMiddleware({
     serializableCheck: false,

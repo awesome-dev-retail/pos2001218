@@ -21,3 +21,99 @@ code {
 #root {
   height: 100%;
 }
+
+.primary-color {
+  color: $bizex-blue;
+}
+
+.secondary-color {
+  color: $bizex-pink;
+}
+
+.primary-button {
+  color:white;
+  border-radius: 0;
+  background-color: $bizex-pink;
+  border: none;
+  font-family: gotham-medium, sans-serif ;
+  font-size: 15px;
+  &:hover {
+    background-color: $bizex-pink;
+    border: none;
+    color: white !important;
+  }
+  &:focus {
+    background-color: $bizex-pink;
+    border: none;
+    color:white !important;
+  }
+}
+
+.secondary-button {
+  color:white;
+  border-radius: 0;
+  background-color: $bizex-dark-blue;
+  border: none;
+  font-family: gotham-medium, sans-serif ;
+  font-size: 15px;
+  &:hover {
+    color:white !important;
+    background-color: $bizex-dark-blue;
+    border: none;
+  }
+  &:focus {
+    color:white !important;
+    background-color: $bizex-dark-blue;
+    border: none;
+  }
+}
+
+.third-button {
+  color: $bizex-blue;
+  border-radius: 0;
+  background-color: white;
+  border: 1px solid $bizex-blue;
+  font-family: gotham-medium, sans-serif ;
+  font-size: 15px;
+  &:hover {
+    color: $bizex-blue;
+    background-color: white;
+    border: 1px solid $bizex-blue;
+  }
+  &:focus {
+    color: $bizex-blue;
+    background-color: white;
+    border: 1px solid $bizex-blue;
+  }
+}
+
+.forth-button {
+  color: $bizex-blue;
+  border-radius: 0;
+  background-color: white;
+  border: 1px solid #f1f2f2;
+  font-family: gotham-medium, sans-serif ;
+  font-size: 15px;
+  &:hover {
+    border: 1px solid $bizex-blue;
+    color: $bizex-blue;
+    background-color: white;
+  }
+  &:focus {
+    border: 1px solid #f1f2f2;
+    color: $bizex-blue;
+    background-color: white;
+  }
+}
+
+.ant-btn {
+  border-radius: 0;
+}
+
+.pull-left {
+  float: left;
+}
+
+.pull-right {
+  float: right;
+}
