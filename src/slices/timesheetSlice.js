@@ -238,30 +238,40 @@ export const loadTimesheetDocs = createAsyncThunk("timesheet/loadTimesheetDocs",
 });
 
 export const updateStartTime = createAsyncThunk("timesheet/updateStartTime", async ({ index, time }, { getState, dispatch, rejectWithValue }) => {
+  const { Timesheet } = getState();
+  const { timesheetDocs } = Timesheet;
+  let singleDoc = _.cloneDeep(timesheetDocs)[index];
+  const backupDoc = _.cloneDeep(singleDoc);
   try {
     if (time !== null) {
-      const { Timesheet } = getState();
-      const { timesheetDocs } = Timesheet;
-      let singleDoc = _.cloneDeep(timesheetDocs)[index];
       singleDoc.approve_start_time = time;
-      await dispatch(saveSingleDocToServer({index, singleDoc}));
+      const res = await dispatch(saveSingleDocToServer({index, singleDoc}));
+      if (res.error) {
+        dispatch(spliceDocLocal({index, newDoc: backupDoc}));
+      }
     }
   } catch (e) {
+    dispatch(spliceDocLocal({index, newDoc: backupDoc}));
     message.error(e.message);
     return rejectWithValue(e.message);
   }
 });
 
 export const updateEndTime = createAsyncThunk("timesheet/updateEndTime", async ({ index, time }, { getState, dispatch, rejectWithValue }) => {
+  const { Timesheet } = getState();
+  const { timesheetDocs } = Timesheet;
+  let singleDoc = _.cloneDeep(timesheetDocs)[index];
+  const backupDoc = _.cloneDeep(singleDoc);
   try {
     if (time !== null) {
-      const { Timesheet } = getState();
-      const { timesheetDocs } = Timesheet;
-      let singleDoc = _.cloneDeep(timesheetDocs)[index];
       singleDoc.approve_end_time = time;
-      await dispatch(saveSingleDocToServer({index, singleDoc}));
+      const res = await dispatch(saveSingleDocToServer({index, singleDoc}));
+      if (res.error) {
+        dispatch(spliceDocLocal({index, newDoc: backupDoc}));
+      }
     }
   } catch (e) {
+    dispatch(spliceDocLocal({index, newDoc: backupDoc}));
     message.error(e.message);
     return rejectWithValue(e.message);
   }
@@ -503,6 +513,10 @@ const TimesheetSlice = createSlice({
     },
     clearDashboardData(state, action) {
       state.dashboardData = [];
+    },
+    spliceDocLocal(state, action) {
+      const {index, newDoc} = action.payload;
+      state.timesheetDocs.splice(index, 1, newDoc);
     }
   },
   extraReducers: {
@@ -551,7 +565,7 @@ const TimesheetSlice = createSlice({
   }
 });
 
-export const { updateStaff, activatedStaff, inactiveStaff, saveTimesheetDocs, setShowAddLeaveModal, visibleDoc, invisibleDoc, clearTimesheetDocs, clearDashboardData } = TimesheetSlice.actions;
+export const { updateStaff, activatedStaff, inactiveStaff, saveTimesheetDocs, setShowAddLeaveModal, visibleDoc, invisibleDoc, clearTimesheetDocs, clearDashboardData, spliceDocLocal } = TimesheetSlice.actions;
 
 export const selectTimesheetStaffs = (state) => state.Timesheet.timesheetStaffs;
 export const selectTimesheetDocs = (state) => state.Timesheet.timesheetDocs;
