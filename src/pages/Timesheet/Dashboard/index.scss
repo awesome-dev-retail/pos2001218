@@ -5,7 +5,7 @@
   .tips-container {
     margin: 20px 0 0 0;
     text-align: left;
-    font-size: 0.8rem;
+    font-size: calc(0.8rem / #{$rem-rate-from-pos});
     .spinning-tips {
       margin: 0 20px;
     }

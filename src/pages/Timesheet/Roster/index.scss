@@ -50,7 +50,7 @@
           width: 45%;
         }
         @media (max-width: 750px) {
-          width: 100%;
+          width: 95%;
         }
 
         .del-icon {
@@ -187,7 +187,6 @@
       margin-bottom: 8px;
     }
     text-align: center;
-    font-size: calc(1.1rem / #{$rem-rate-from-pos});
     font-size: calc(1.1rem / #{$rem-rate-from-pos});
   }
 }

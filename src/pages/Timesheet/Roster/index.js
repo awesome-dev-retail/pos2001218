@@ -201,7 +201,7 @@ const Roster = (props) => {
         {/*  <button onClick={handleDevBtnClick}>Dev</button>*/}
         {/*</div>*/}
         <Row>
-          <Col xxl={8} xl={8} lg={24} md={24} sm={24}>
+          <Col xxl={8} xl={8} lg={24} md={24} sm={24} xs={24}>
             <div className="roast-left-component primary-boarder">
 
               <WeekPicker
@@ -222,7 +222,7 @@ const Roster = (props) => {
               </Popconfirm>
             </div>
           </Col>
-          <Col xxl={16} xl={16} lg={24} md={24} sm={24}>
+          <Col xxl={16} xl={16} lg={24} md={24} sm={24} xs={24}>
             <div className="roast-right-component primary-boarder">
               {selectedDays.length === 7 && (
                   <>
