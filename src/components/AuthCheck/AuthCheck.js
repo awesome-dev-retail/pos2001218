@@ -14,11 +14,15 @@ import { history } from "../MyRouter";
 import { connectSocket, setDocument } from "../../slices/documentSlice";
 import _ from "lodash";
 import TopNavBar from "../TopNavBar";
+import { useLoading } from "../../hooks/useLoading";
 
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
   const currentUser = useSelector((state) => selectCurrentUser(state));
+
   const isLoading = useSelector((state) => selectAuthIsLoading(state));
+  const appIsLoading = useLoading();
+
   const token = CacheStorage.getItem("token");
   const dispatch = useDispatch();
   const localShop = CacheStorage.getItem("SELECT_SHOP");
@@ -60,8 +64,6 @@ const AuthCheck = (props) => {
     checkAuth();
   }, []);
 
-
-
   if (isLoading) {
     return (
       <div>
@@ -77,7 +79,7 @@ const AuthCheck = (props) => {
          <TopNavBar />
         </div>
         <div>
-          <Spin spinning={isLoading}>{props.children}</Spin>
+          <Spin spinning={isLoading || appIsLoading}>{props.children}</Spin>
         </div>
       </Layout>
     );

@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Button, Col, Input, InputNumber, Modal, Row, Select} from "antd";
 import "./index.scss";
-import {message} from "../../../lib";
-import _ from "lodash";
 import { Form } from "@ant-design/compatible";
 import { useSelector, useDispatch, useStore } from "react-redux";
 import { savePaidType, selectPaidTypeList, fetchPaidTypeList } from "../../../slices/timesheetSlice";
@@ -15,7 +13,6 @@ const layout = {
 };
 
 const { Option } = Select;
-
 
 const Settings = (props) => {
   const paidTypeList = useSelector(state =>  selectPaidTypeList(state));
@@ -148,7 +145,6 @@ const Settings = (props) => {
             </Row>
           </Form>
         </Modal>
-
       </div>
   );
 };

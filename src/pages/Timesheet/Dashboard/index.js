@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./index.scss";
 import { dateToMoment, message } from "../../../lib";
-import { Radio, Tooltip } from "antd";
+import { Radio } from "antd";
 import config from "../../../configs/index";
 
 import { useSelector, useDispatch, useStore } from "react-redux";

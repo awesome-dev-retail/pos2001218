@@ -15,6 +15,7 @@ import {
   selectTimesheetStaffs,
 } from "../../../slices/timesheetSlice";
 import { ClockCircleOutlined } from "@ant-design/icons";
+import { setPageLoading } from "../../../slices/publicComponentSlice";
 
 import  { timesheetStaffLogin } from "../../../services/timesheetApi";
 
@@ -77,7 +78,7 @@ export default function ClockBtn(props) {
 
   const handleStaffPsdSubmit = async () => {
     try {
-      // setPageLoading(true);
+      dispatch(setPageLoading(true));
       const activatedStaff = getCurrentActivatedStaff(timesheetStaffs);
       const staff = {
         uname: activatedStaff.uname,
@@ -102,7 +103,7 @@ export default function ClockBtn(props) {
     } catch (e) {
       message.error(e.message);
     } finally {
-      // setPageLoading(false);
+      dispatch(setPageLoading(false));
     }
   };
 

@@ -24,7 +24,6 @@ import {
 } from "../../../slices/timesheetSlice";
 import { CopyOutlined, PlusCircleOutlined, QuestionCircleOutlined, CloseCircleOutlined, CloseOutlined } from "@ant-design/icons";
 
-
 const layout = {
   labelCol: {span: 6},
   wrapperCol: {span: 18}

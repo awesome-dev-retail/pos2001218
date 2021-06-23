@@ -7,6 +7,7 @@ import { history } from "../components/MyRouter";
 import _ from "lodash";
 import config from "../configs/index";
 import { message, dateToMoment, getRounding2 } from "../lib/index";
+import { setPageLoading } from "../slices/publicComponentSlice";
 import { Modal } from "antd";
 const { confirm } = Modal;
 
@@ -137,6 +138,7 @@ export const calculateSumHoursByStaffId = (id, timesheetDocs) => {
 
 export const clockAction = createAsyncThunk("timesheet/clockAction", async ({ jobCode, statusCode }, { getState, dispatch, rejectWithValue }) => {
   try {
+    dispatch(setPageLoading(true));
     const { Auth, Timesheet } = getState();
     const { shop } = Auth;
     const { timesheetStaffs } = Timesheet;
@@ -156,6 +158,8 @@ export const clockAction = createAsyncThunk("timesheet/clockAction", async ({ jo
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
@@ -186,6 +190,7 @@ export const unpaidBreakOff = createAsyncThunk("timesheet/unpaidBreakOff", async
 
 export const fetchTimesheetStaffs = createAsyncThunk("timesheet/fetchTimesheetStaffs", async ({ shop }, { getState, dispatch, rejectWithValue }) => {
   try {
+    dispatch(setPageLoading(true));
     const shopName = shop ? shop.shop_name : null;
     const res = await listAllTimesheetStaffInShop(shopName);
     if (res.error) throw res.error;
@@ -200,11 +205,14 @@ export const fetchTimesheetStaffs = createAsyncThunk("timesheet/fetchTimesheetSt
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 export const saveTimesheetStaffToServer = createAsyncThunk("timesheet/saveTimesheetStaffToServer", async ({ staff }, { getState, dispatch, rejectWithValue }) => {
   try {
+    dispatch(setPageLoading(true));
     staff["realname"] = staff.uname;
     if (!staff.id && staff.hasOwnProperty("id")) {
       delete staff.id;
@@ -215,13 +223,16 @@ export const saveTimesheetStaffToServer = createAsyncThunk("timesheet/saveTimesh
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 
 export const loadTimesheetDocs = createAsyncThunk("timesheet/loadTimesheetDocs", async ({ selectedDate }, { getState, dispatch, rejectWithValue }) => {
   try {
-    const { Auth, Timesheet } = getState();
+    dispatch(setPageLoading(true));
+    const { Auth } = getState();
     const { shop } = Auth;
     const dateStr = selectedDate.format("YYYY-MM-DD");
     const res = await loadTimesheetReport(dateStr, shop.shop_name);
@@ -234,6 +245,8 @@ export const loadTimesheetDocs = createAsyncThunk("timesheet/loadTimesheetDocs",
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
@@ -243,6 +256,7 @@ export const updateStartTime = createAsyncThunk("timesheet/updateStartTime", asy
   let singleDoc = _.cloneDeep(timesheetDocs)[index];
   const backupDoc = _.cloneDeep(singleDoc);
   try {
+    dispatch(setPageLoading(true));
     if (time !== null) {
       singleDoc.approve_start_time = time;
       const res = await dispatch(saveSingleDocToServer({index, singleDoc}));
@@ -254,6 +268,8 @@ export const updateStartTime = createAsyncThunk("timesheet/updateStartTime", asy
     dispatch(spliceDocLocal({index, newDoc: backupDoc}));
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
@@ -263,6 +279,7 @@ export const updateEndTime = createAsyncThunk("timesheet/updateEndTime", async (
   let singleDoc = _.cloneDeep(timesheetDocs)[index];
   const backupDoc = _.cloneDeep(singleDoc);
   try {
+    dispatch(setPageLoading(true));
     if (time !== null) {
       singleDoc.approve_end_time = time;
       const res = await dispatch(saveSingleDocToServer({index, singleDoc}));
@@ -274,11 +291,14 @@ export const updateEndTime = createAsyncThunk("timesheet/updateEndTime", async (
     dispatch(spliceDocLocal({index, newDoc: backupDoc}));
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 export const saveSingleDocToServer = createAsyncThunk("timesheet/saveSingleDocToServer", async ({ index, singleDoc }, { getState, dispatch, rejectWithValue }) => {
   try {
+    dispatch(setPageLoading(true));
     const data = {
       id: singleDoc.id,
       approve_start_time: singleDoc.approve_start_time.format("YYYY-MM-DD HH:mm:ss"),
@@ -301,40 +321,46 @@ export const saveSingleDocToServer = createAsyncThunk("timesheet/saveSingleDocTo
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 
 export const fetchDashboardData = createAsyncThunk("timesheet/fetchDashboardData", async ({ filterAllShop }, { getState, dispatch, rejectWithValue }) => {
   try {
+    dispatch(setPageLoading(true));
     const { Auth } = getState();
     const { shop } = Auth;
-    // setPageLoading(true)
     const res = await fetchTimesheetDashboard(filterAllShop ? "" : shop.shop_name);
     if (res.error) throw res.error;
     return res;
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 
 export const fetchRosterList = createAsyncThunk("timesheet/fetchRosterList", async ({ from, to }, { getState, dispatch, rejectWithValue }) => {
   try {
-    // setPageLoading(true)
+    dispatch(setPageLoading(true));
     const res = await listRoster(from, to);
     if (res.error) throw res.error;
     return res;
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 export const saveRoster = createAsyncThunk("timesheet/saveRoster", async ({ roster }, { getState, dispatch, rejectWithValue }) => {
   try {
-    // setPageLoading(true)
+    dispatch(setPageLoading(true));
     if (roster.end_time.isSameOrBefore(roster.start_time)) throw new Error("End time must be later than start time");
     const formatData = {
       ...roster,
@@ -354,36 +380,42 @@ export const saveRoster = createAsyncThunk("timesheet/saveRoster", async ({ rost
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 export const delRoster = createAsyncThunk("timesheet/delRoster", async ({ id }, { getState, dispatch, rejectWithValue }) => {
   try {
-    // setPageLoading(true)
+    dispatch(setPageLoading(true));
     const res = await deleteRoster(id);
     if (res.error) throw res.error;
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 
 export const fetchPaidTypeList = createAsyncThunk("timesheet/fetchPaidTypeList", async (data, { getState, dispatch, rejectWithValue }) => {
   try {
-    // setPageLoading(true)
+    dispatch(setPageLoading(true));
     const res = await ListPaidType();
     if (res.error) throw res.error;
     return res;
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 export const savePaidType = createAsyncThunk("timesheet/savePaidType", async ({ obj }, { getState, dispatch, rejectWithValue }) => {
   try {
-    // setPageLoading(true)
+    dispatch(setPageLoading(true));
     let res;
     if (obj.id === "") {
       delete obj["id"];
@@ -396,6 +428,8 @@ export const savePaidType = createAsyncThunk("timesheet/savePaidType", async ({ 
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
@@ -404,7 +438,7 @@ export const simpleDuplicateRoster = createAsyncThunk("timesheet/simpleDuplicate
   try {
     const { Auth } = getState();
     const { shop } = Auth;
-    // setPageLoading(true)
+    dispatch(setPageLoading(true));
     const res = await duplicateRosterBasedOnToday(shop.shop_name, isOverWriting ? 1 : 0);
     if (res.code === 3000) {  //Alert existing record if user want to overwrite
       confirm({
@@ -420,16 +454,18 @@ export const simpleDuplicateRoster = createAsyncThunk("timesheet/simpleDuplicate
     } else if (res.error) {
       throw res.error;
     }
-
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
 //Duplicate roster by giving date
 export const generalDuplicateRoster = createAsyncThunk("timesheet/generalDuplicateRoster", async ({ data, reFetchRosterHandler }, { getState, dispatch, rejectWithValue }) => {
   try {
+    dispatch(setPageLoading(true));
     const res = await duplicateRoster(data);
     if (res.code === 3000) {  //Alert existing record if user want to overwrite
       confirm({
@@ -450,6 +486,8 @@ export const generalDuplicateRoster = createAsyncThunk("timesheet/generalDuplica
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
+  } finally {
+    dispatch(setPageLoading(false));
   }
 });
 
@@ -583,8 +621,5 @@ export const selectShowAddLeaveModal = (state) => state.Timesheet.showAddLeaveMo
 export const selectDashboardData = (state) => state.Timesheet.dashboardData;
 export const selectPaidTypeList = (state) => state.Timesheet.paidTypeList;
 export const selectRosterList = (state) => state.Timesheet.rosterList;
-
-
-
 
 export default TimesheetSlice.reducer;

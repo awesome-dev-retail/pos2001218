@@ -4,7 +4,6 @@ import "react-day-picker/lib/style.css";
 import DayPicker from "react-day-picker";
 import moment from "moment";
 
-
 // Default selected week is based on today or you can pass initialSelected as moment obj to select the week based on that day
 
 const WeekPicker = props => {

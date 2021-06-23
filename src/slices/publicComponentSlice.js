@@ -11,6 +11,7 @@ const initialState = {
     // btnList: [],
   },
   status: CONSTANT.API_STATUS.IDLE,
+  globalLoading: false,
 };
 
 const publicComponentSlice = createSlice({
@@ -28,14 +29,18 @@ const publicComponentSlice = createSlice({
     },
     resetErrorBox(state, action) {
       state.errorBox = {};
+    },
+    setPageLoading(state, action) {
+      state.globalLoading = action.payload;
     }
   }
 });
 
-export const { setMessageBox, setErrorBox, resetErrorBox, resetMessageBox } = publicComponentSlice.actions;
+export const { setMessageBox, setErrorBox, resetErrorBox, resetMessageBox, setPageLoading } = publicComponentSlice.actions;
 
 
 export const selectMessageBox = state => state.PublicComponent.messageBox;
 export const selectErrorBox = state => state.PublicComponent.errorBox;
+export const selectGlobalLoading = state => state.PublicComponent.globalLoading;
 
 export default publicComponentSlice.reducer;

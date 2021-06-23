@@ -3,7 +3,6 @@ import { useSelector, useDispatch, useStore } from "react-redux";
 import "./index.scss";
 import { Row, Col, Input, Button, Modal, Select, Radio } from "antd";
 import { message, dateToMoment } from "../../../lib";
-import _ from "lodash";
 import ClockBtn from "../ClockBtn/index";
 import { Form } from "@ant-design/compatible";
 import { fetchShopList, selectShop, selectShops } from "../../../slices/authSlice";
@@ -14,15 +13,12 @@ import {
   selectTimesheetStaffs
 } from "../../../slices/timesheetSlice";
 import { EditOutlined } from "@ant-design/icons";
+import { setPageLoading } from "../../../slices/publicComponentSlice";
 
 
 const { Option } = Select;
 
 const ClockAction = (props) => {
-  // const { timesheetStore, publicComponentStore, authStore } = useStores();
-  // const { fetchTimesheetStaffs, timesheetStaffs, activatedStaff, staffTypedPasswordOnchange, inactiveStaff, saveTimesheetStaffToServer, staffLogin, updated_at } = timesheetStore;
-  // const { setPageLoading } = publicComponentStore;
-
   const timesheetStaffs = useSelector(state => selectTimesheetStaffs(state));
   const shopList = useSelector(state => selectShops(state));
   const shop = useSelector((state) => selectShop(state));
@@ -54,7 +50,7 @@ const ClockAction = (props) => {
     props.form.validateFields(async (err, staff) => {
       if (!err) {
         try {
-          // setPageLoading(true);
+          dispatch(setPageLoading(true));
           await dispatch(saveTimesheetStaffToServer({staff}));
           setShowStaffDetails(false);
           setFieldsValue({id:"", passwd:"", email:"", phone:"", uname:"", store_code:""});
@@ -62,7 +58,7 @@ const ClockAction = (props) => {
         } catch (e) {
           message.error(e.message);
         } finally {
-          // setPageLoading(false);
+          dispatch(setPageLoading(false));
         }
       }
     });
@@ -79,7 +75,6 @@ const ClockAction = (props) => {
     };
     setShowStaffDetails(true);
     setFieldsValue(fields);
-    // console.log(_.cloneDeep(staff))
   };
 
   // const handleStaffCardFlipIconClick = staff => {

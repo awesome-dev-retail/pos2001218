@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {Button, Col, Spin, Modal, Row, Select, TimePicker} from "antd";
+import { Button, Col, Modal, Row, Select, TimePicker } from "antd";
 import { listAllTimesheetStaffInCompany, addTimesheetAction } from "../../../services/timesheetApi";
-// import {formatCashierLine, message} from "../../../lib/index";
-// import PageLoading from "../../../components/PageLoading/index";
 import config from "../../../configs/index";
 import _ from "lodash";
 import { Form } from "@ant-design/compatible";
-import { useSelector, useDispatch, useStore } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectShop, selectShops } from "../../../slices/authSlice";
 import { fetchShopList } from "../../../slices/authSlice";
 import { message } from "../../../lib";
@@ -18,6 +16,7 @@ import {
   validateAddAction,
   loadTimesheetDocs
 } from "../../../slices/timesheetSlice";
+import { setPageLoading } from "../../../slices/publicComponentSlice";
 
 const { Option } = Select;
 
@@ -40,6 +39,7 @@ const LeaveModal = (props) => {
 
   const fetchStaffList = async () => {
     try {
+      dispatch(setPageLoading(true));
       const res = await listAllTimesheetStaffInCompany();
       if (res.error) throw res.error;
       if (res.data && res.data.length > 0) {
@@ -47,6 +47,8 @@ const LeaveModal = (props) => {
       }
     } catch (e) {
       message.error(e.message);
+    } finally {
+      dispatch(setPageLoading(false));
     }
   };
 
@@ -59,15 +61,13 @@ const LeaveModal = (props) => {
     setFieldsValue({store_code: shop.shop_name, job_code: config.TIMESHEET.LEAVE, staff_name: defaultStaffName});
   }, []);
 
-
-
   const handleActionSubmit = (e) => {
     e.preventDefault();
     // eslint-disable-next-line react/prop-types
     props.form.validateFields(async (err, formData) => {
       if (!err) {
         try {
-          // setPageLoading(true);
+          dispatch(setPageLoading(true));
           // eslint-disable-next-line react/prop-types
           const { summaryDate } = props;
           const staff = staffList.find(staff => staff.uname === formData.staff_name);
@@ -96,7 +96,7 @@ const LeaveModal = (props) => {
         } catch (e) {
           message.error(e.message);
         } finally {
-          // setPageLoading(false);
+          dispatch(setPageLoading(false));
         }
 
       }
@@ -113,7 +113,6 @@ const LeaveModal = (props) => {
           destroyOnClose={true}
           className="bizex-timesheet-add-leave-modal"
       >
-        {/*<PageLoading loading={pageLoading} />*/}
         <Form {...layout} layout="inline" onSubmit={(e)=>handleActionSubmit(e)}>
           <Form.Item label="Staff" className="staff-details-form-item">
             {getFieldDecorator("staff_name", {

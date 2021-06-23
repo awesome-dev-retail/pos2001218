@@ -5,15 +5,13 @@ import moment from "moment";
 import { message, getRounding2, wordsToCamelCase } from "../../../lib/index";
 import LeaveModal from "./LeveModal";
 import { postTimesheet, deleteTimesheetLine } from "../../../services/timesheetApi";
-import _ from "lodash";
 import config from "../../../configs/index";
 import { Form } from "@ant-design/compatible";
 import { useSelector, useDispatch, useStore } from "react-redux";
 import {selectShop} from "../../../slices/authSlice";
-import { selectShowAddLeaveModal, saveTimesheetDocs, selectTimesheetIsPosted, validateTimesheetDoc, loadTimesheetDocs, selectHasInvisibleLine, visibleDoc, invisibleDoc, clearTimesheetDocs, updateStartTime, updateEndTime, setShowAddLeaveModal, calculateSumHoursByStaffId } from "../../../slices/timesheetSlice";
-import { selectTimesheetDocs } from "../../../slices/timesheetSlice";
+import { selectTimesheetDocs, selectShowAddLeaveModal, saveTimesheetDocs, selectTimesheetIsPosted, validateTimesheetDoc, loadTimesheetDocs, selectHasInvisibleLine, visibleDoc, invisibleDoc, clearTimesheetDocs, updateStartTime, updateEndTime, setShowAddLeaveModal, calculateSumHoursByStaffId } from "../../../slices/timesheetSlice";
 import { EditOutlined, ExclamationCircleOutlined, DeleteOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-
+import { setPageLoading } from "../../../slices/publicComponentSlice";
 
 
 const CheckTimesheet = (props) => {
@@ -35,11 +33,11 @@ const CheckTimesheet = (props) => {
   };
 
   useEffect(() => {
-    return clearTimesheetDocs;
+    return dispatch(clearTimesheetDocs);
   },[]);
 
   const handleDateChange = date => {
-    clearTimesheetDocs();
+    dispatch(clearTimesheetDocs());
     setSelectedDate(date);
   };
 
@@ -49,27 +47,27 @@ const CheckTimesheet = (props) => {
 
   const handleLoadBtnClick = async () => {
     try {
-      // setPageLoading(true);
+      dispatch(setPageLoading(true));
       await dispatch(loadTimesheetDocs({selectedDate}));
       setHasLoadedData(true);
     } catch (e) {
       message.error(e.message);
     } finally {
-      // setPageLoading(false);
+      dispatch(setPageLoading(false));
     }
   };
 
   const handleDeleteClick = async (e, doc) => {
     try {
       e.preventDefault();
-      // setPageLoading(true);
+      dispatch(setPageLoading(true));
       const res = await deleteTimesheetLine(doc.id);
       if (res.error) throw res.error;
       await handleLoadBtnClick();
     } catch (e) {
       message.error(e.message);
     } finally {
-      // setPageLoading(false);
+      dispatch(setPageLoading(false));
     }
 
   };
@@ -94,7 +92,7 @@ const CheckTimesheet = (props) => {
 
   const handlePostBtnClick = async () => {
     try {
-      // setPageLoading(true);
+      dispatch(setPageLoading(true));
       const dateStr = selectedDate.format("YYYY-MM-DD");
       const res = await postTimesheet(dateStr, shop.shop_name);
       if (res.error)  throw res.error;
@@ -105,13 +103,13 @@ const CheckTimesheet = (props) => {
     } catch (e) {
       message.error(e.message);
     } finally {
-      // setPageLoading(false);
+      dispatch(setPageLoading(false));
     }
   };
 
-  const handleDevBtnClick = () => {
-    console.log(_.cloneDeep(timesheetDocs));
-  };
+  // const handleDevBtnClick = () => {
+  //   console.log(_.cloneDeep(timesheetDocs));
+  // };
 
   return (
       <div className="check-timesheet-container">
