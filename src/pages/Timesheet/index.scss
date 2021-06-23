@@ -2,7 +2,7 @@
 
 .clock-page-container {
   padding: 0 30px;
-  height: calc(100vh - #{$top-bar-height});
+  min-height: calc(100vh - #{$top-bar-height});
 
   .clock-menu-item {
     display: inline-block;

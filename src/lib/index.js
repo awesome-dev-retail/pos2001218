@@ -205,3 +205,15 @@ export const wordsToCamelCase = function (str) {
     return "";
   }
 };
+
+// Warning: Hard coding date into moment obj. Only if you don't use the date.
+export const onlyTimeToMoment = (timeStr) => {
+  const dateStr = "1970-01-01 " + timeStr;
+  const momentObj = moment(dateStr, "YYYY-MM-DD HH:mm:ss");
+  return momentObj.isValid() ? momentObj : null;
+};
+
+export const getTimeDiffInHour = (start, end) => {
+  const duration = moment.duration(end.diff(start));
+  return getRounding2(duration.asHours());
+};

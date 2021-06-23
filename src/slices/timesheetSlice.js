@@ -390,7 +390,7 @@ export const savePaidType = createAsyncThunk("timesheet/savePaidType", async ({ 
 });
 
 //Duplicate roster based on current date
-export const simpleDuplicateRoster = createAsyncThunk("timesheet/simpleDuplicateRoster", async ({ isOverWriting }, { getState, dispatch, rejectWithValue }) => {
+export const simpleDuplicateRoster = createAsyncThunk("timesheet/simpleDuplicateRoster", async ({ isOverWriting, reFetchRosterHandler }, { getState, dispatch, rejectWithValue }) => {
   try {
     const { Auth } = getState();
     const { shop } = Auth;
@@ -403,12 +403,14 @@ export const simpleDuplicateRoster = createAsyncThunk("timesheet/simpleDuplicate
         cancelText: "No",
         content: "You have roster already. By clicking yes, your existing roster will be overwritten.",
         onOk: async () => {
-          await dispatch(simpleDuplicateRoster({isOverWriting: true}));
+          await dispatch(simpleDuplicateRoster({isOverWriting: true, reFetchRosterHandler}));
+          await reFetchRosterHandler();
         }
       });
     } else if (res.error) {
       throw res.error;
     }
+
   } catch (e) {
     message.error(e.message);
     return rejectWithValue(e.message);
@@ -535,7 +537,7 @@ const TimesheetSlice = createSlice({
           return item;
         });
       } else {
-        this.rosterList = [];
+        state.rosterList = [];
       }
     },
     [fetchPaidTypeList.fulfilled]: (state, action) => {
@@ -566,6 +568,7 @@ export const selectDefaultStaffName = (state) => {
 export const selectShowAddLeaveModal = (state) => state.Timesheet.showAddLeaveModal;
 export const selectDashboardData = (state) => state.Timesheet.dashboardData;
 export const selectPaidTypeList = (state) => state.Timesheet.paidTypeList;
+export const selectRosterList = (state) => state.Timesheet.rosterList;
 
 
 

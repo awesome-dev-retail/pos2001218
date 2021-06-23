@@ -1,6 +1,7 @@
 @import "../../../lib.scss";
 
 .timesheet-roster-page-container {
+  margin-top: 30px;
 
   .roast-left-component {
     background-color: white;
@@ -36,10 +37,10 @@
       }
 
       .each-roster-container {
-        border: 2px solid $bizex-blue;
+        border: 2px solid $bizex-primary-blue;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         text-decoration: none;
-        color: $bizex-blue;
+        color: $bizex-primary-blue;
         display: inline-block;
         margin: 10px;
         padding: 10px;
@@ -76,11 +77,11 @@
 
 
     .calendar-footer-sum {
-      //background-color: $bizex-blue;
-      color: $bizex-blue;
+      //background-color: $bizex-primary-blue;
+      color: $bizex-primary-blue;
       padding: 3px;
       text-align: center;
-      font-size: 1.3rem;
+      font-size: calc(1.3rem / #{$rem-rate-from-pos});
 
       .duplicate-icon {
         text-decoration: none;
@@ -96,7 +97,7 @@
         li {
           .each-day-header {
             margin: 10px 0;
-            background-color: $bizex-blue;
+            background-color: $bizex-primary-blue;
             color: white;
             padding: 8px;
             text-decoration: none;
@@ -117,39 +118,39 @@
   .DayPicker {
     //xs: <576 sm: >=576 md: >=768 lg: >=992 xl >=1200 xxl: >=1600
     @media (max-width: 2100px) {
-      font-size: 1.9rem;
+      font-size: calc(1.9rem / #{$rem-rate-from-pos})
     }
     @media (max-width: 1900px) {
-      font-size: 1.7rem;
+      font-size: calc(1.7rem / #{$rem-rate-from-pos})
     }
     @media (max-width: 1700px) {
-      font-size: 1.6rem;
+      font-size: calc(1.6rem / #{$rem-rate-from-pos})
     }
     @media (max-width: 1599px) {
-      font-size: 1.4rem;
+      font-size: calc(1.4rem / #{$rem-rate-from-pos})
     }
     @media (max-width: 1450px) {
-      font-size: 1.2rem;
+      font-size: calc(1.2rem / #{$rem-rate-from-pos})
     }
     @media (max-width: 1300px) {
-      font-size: 1.1rem;
+      font-size: calc(1.1rem / #{$rem-rate-from-pos})
     }
     @media (max-width: 1199px) {
-      font-size: 1.9rem;
+      font-size: calc(1.9rem / #{$rem-rate-from-pos})
       //justify-content: center;
     }
     @media (max-width: 750px) {
-      font-size: 1.3rem;
+      font-size: calc(1.3rem / #{$rem-rate-from-pos})
       //justify-content: center;
     }
     @media (max-width: 550px) {
-      font-size: 0.8rem;
+      font-size: calc(0.8rem / #{$rem-rate-from-pos})
       //justify-content: center;
     }
 
     display: flex;
     justify-content: center;
-    font-size: 2.2rem;
+    font-size: calc(2.2rem / #{$rem-rate-from-pos})
   }
 }
 
@@ -176,18 +177,27 @@
   }
   .duplicate-roster-modal-content {
     .DayPicker {
-      font-size: 1.3rem;
+      font-size: calc(1.3rem / #{$rem-rate-from-pos});
       display: flex;
       justify-content: center;
-      border-bottom: 1px solid $bizex-blue;
+      border-bottom: 1px solid $bizex-primary-blue;
       margin-bottom: 20px;
     }
     p {
       margin-bottom: 8px;
     }
     text-align: center;
-    font-size: 1.1rem;
+    font-size: calc(1.1rem / #{$rem-rate-from-pos});
+    font-size: calc(1.1rem / #{$rem-rate-from-pos});
   }
 }
 
-
+//Solving difference from POS below
+.roster-form-modal-container {
+  .timesheet-roster-editing-form-item {
+    margin: 8px 0;
+  }
+  .ant-select {
+    width: 100%;
+  }
+}

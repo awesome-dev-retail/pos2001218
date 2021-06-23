@@ -74,20 +74,15 @@ export default function Timesheet(props) {
             })
           }
         </div>
-        <Row>
-
-          <div className={pathname === "/timesheet/roster" ? "" : "clock-sub-content-container primary-boarder"}>
-            <Route exact path={"/timesheet/"} component={ClockAction} />
-            <Route path={"/timesheet/clock-action"} component={ClockAction} />
-            <Route path={"/timesheet/check"} component={CheckTimesheet} />
-            <Route path={"/timesheet/dashboard"} component={Dashboard} />
-            {/*<Route path={"/timesheet/clock-action-back-up"} component={ClockActionBackUp} />*/}
-            <Route path={"/timesheet/roster"} component={Roster} />
-            <Route path={"/timesheet/settings"} component={Settings} />
-
-
-          </div>
-        </Row>
+        <div className={pathname === "/timesheet/roster" ? "" : "clock-sub-content-container primary-boarder"}>
+          <Route exact path={"/timesheet/"} component={ClockAction} />
+          <Route path={"/timesheet/clock-action"} component={ClockAction} />
+          <Route path={"/timesheet/check"} component={CheckTimesheet} />
+          <Route path={"/timesheet/dashboard"} component={Dashboard} />
+          {/*<Route path={"/timesheet/clock-action-back-up"} component={ClockActionBackUp} />*/}
+          <Route path={"/timesheet/roster"} component={Roster} />
+          <Route path={"/timesheet/settings"} component={Settings} />
+        </div>
       </div>
   );
 }
