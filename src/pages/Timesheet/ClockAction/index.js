@@ -104,7 +104,6 @@ const ClockAction = (props) => {
     }
   };
 
-  console.log(_.cloneDeep(timesheetStaffs));
 
   return(
       <div className="timesheet-action-page-container">
