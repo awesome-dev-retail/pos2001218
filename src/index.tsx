@@ -8,6 +8,9 @@ import store from "./store";
 import api from "./services/api.js";
 import { db } from "./lib";
 
+const env = process.env.NODE_ENV;
+console.warn(`App is starting in ${env} environment`);
+
 api.setStore(store);
 db.setStore(store);
 
