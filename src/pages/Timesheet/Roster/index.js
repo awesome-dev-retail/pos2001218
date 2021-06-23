@@ -22,7 +22,7 @@ import {
   simpleDuplicateRoster,
   generalDuplicateRoster,
 } from "../../../slices/timesheetSlice";
-import { CopyOutlined, PlusCircleOutlined, QuestionCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { CopyOutlined, PlusCircleOutlined, QuestionCircleOutlined, CloseCircleOutlined, CloseOutlined } from "@ant-design/icons";
 
 
 const layout = {
@@ -287,7 +287,7 @@ const Roster = (props) => {
                                                     currentPaidType &&
                                                     <p>
                                                       <span>Pay rate:</span>
-                                                      <span>{currentPaidType.paid_code} <CloseCircleOutlined type="close" />{currentPaidType.multiple_confident}</span>
+                                                      <span>{currentPaidType.paid_code} <CloseOutlined type="close" />{currentPaidType.multiple_confident}</span>
                                                     </p>
                                                   }
 
