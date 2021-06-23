@@ -50,7 +50,7 @@ const TopNavBar = props => {
           </Col>
           <Col xxl={6} xl={6} lg={6} md={12} sm={0} xs={0}>
             <div className="app-info">
-              <a className="app-menu-item" onClick={handleDevBtnClick}>Dev</a>
+              {/*<a className="app-menu-item" onClick={handleDevBtnClick}>Dev</a>*/}
               <span className="app-menu-item">{`Welcome ${currentUser.userinfo.uname}`}</span>
             </div>
           </Col>
