@@ -33,7 +33,7 @@ const CheckTimesheet = (props) => {
   };
 
   useEffect(() => {
-    return dispatch(clearTimesheetDocs);
+    return dispatch(clearTimesheetDocs());
   },[]);
 
   const handleDateChange = date => {
