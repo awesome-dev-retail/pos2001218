@@ -12,7 +12,7 @@ import { history } from "../components/MyRouter";
 
 const initialState = {
   payment: {},
-  amountPaying: 0,
+  // amountPaying: 0,
   amountPaid: 0,
   // amountPaidArr: [],
   showCashPage: false,
@@ -60,12 +60,12 @@ const PaymentSlice = createSlice({
   name: "payment",
   initialState,
   reducers: {
-    setAmountPaying(state, action) {
-      state.amountPaying = action.payload;
-    },
-    setAmountPaid(state, action) {
-      state.amountPaid = action.payload;
-    },
+    // setAmountPaying(state, action) {
+    //   state.amountPaying = action.payload;
+    // },
+    // setAmountPaid(state, action) {
+    //   state.amountPaid = action.payload;
+    // },
     setShowCashPage(state, action) {
       state.showCashPage = action.payload;
     },
@@ -118,13 +118,11 @@ const PaymentSlice = createSlice({
   },
 });
 
-export const { setAmountPaying, setAmountPaid, setShowCashPage } = PaymentSlice.actions;
+export const { setShowCashPage } = PaymentSlice.actions;
 // export const selectCashierStatus = (state) => state.Payment.showCashier;
 
 export const selectPayment = (state) => state.Payment.payment;
-export const selectAmountPaying = (state) => state.Payment.amountPaying;
-export const selectAmountPaid = (state) => state.Payment.amountPaid;
-export const selectAmountPaidArr = (state) => state.Payment.amountPaidArr;
+
 export const selectShowCashPage = (state) => state.Payment.showCashPage;
 export const selectPaymentIsLoading = (state) => state.Payment.status === config.API_STATUS.LOADING;
 

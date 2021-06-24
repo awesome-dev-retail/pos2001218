@@ -22,7 +22,7 @@ const initialState = {
   amountPaid: 0,
   amountTotal: 0,
   showSplitOrder: false,
-  // showCashier: false,
+  isBackToOrder:true, 
   status: config.API_STATUS.IDLE,
   error: null,
   currentTransactionId: "",
@@ -43,7 +43,6 @@ const initialState = {
 
 export const fetchDocument = createAsyncThunk("document/fetchDocument", async (invoiceId, { dispatch, rejectWithValue }) => {
   try {
-    debugger;
     const res = await fetchDocumentRequest(invoiceId);
     if (res.error) throw res.error;
     const sum = res.data.payment_lines.reduce((t,c) => t + c.line_amount - c.rounding_amount ,0);
@@ -538,6 +537,10 @@ const DocumentSlice = createSlice({
 
       state.amountTotal = state.document.doc_gross_amount;
 
+      if(state.amountPaid > 0 ){
+        state.isBackToOrder = false;
+      }
+
 
 
       // const copyDocument = JSON.parse(JSON.stringify(state.document));
@@ -616,6 +619,7 @@ export const selectAmountTotal = (state) => state.Document.amountTotal;
 export const selectDocumentIsLoading = (state) => state.Document.status === config.API_STATUS.LOADING;
 
 export const selectShowSplitOrder = (state) => state.Document.showSplitOrder;
+export const selectIsBackToOrder = (state) => state.Document.isBackToOrder;
 
 // export const selectPaidPriceArr = (state) => state.Document.paidPriceArr;
 

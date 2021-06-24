@@ -33,6 +33,7 @@ import {
   selectRemainingDue,
   selectAmountTotal,
   setUnpaidBillList,
+  selectIsBackToOrder
 } from "../../slices/documentSlice";
 // import { setAmountPaying, setAmountPaid, selectAmountPaidArr } from "../../slices/paymentSlice";
 
@@ -95,6 +96,7 @@ function OrderList(props) {
   // const billList = useSelector((state) => selectBillList(state)) || [];
 
   const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
+  const isBackToOrder = useSelector((state) => selectIsBackToOrder(state));
 
   // const paidBillList = useSelector((state) => selectPaidBillList(state));
   const paidArr = useSelector((state) => selectPaidArr(state)) || [];
@@ -350,7 +352,7 @@ function OrderList(props) {
               onClick={() => {
                 // console.log(history);
                 history.goBack();
-              }}>
+              }} disabled={!isBackToOrder}>
               BACK
             </button>
             <button onClick={handleCancelPayment}>CANCEL PAYMENT</button>

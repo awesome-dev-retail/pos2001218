@@ -73,15 +73,11 @@ const AuthCheck = (props) => {
     checkAuth();
   }, []);
 
-<<<<<<< HEAD
   const handleDevBtnClick = () => {
     console.log(store.getState());
   };
 
   if (isAuthLoading) {
-=======
-  if (isLoading) {
->>>>>>> f6ce1852fbcf691aa64622f3034e757d885e0fcf
     return (
       <div>
         <Spin className={styles.Spin} tip={"System Loading"} />
@@ -96,13 +92,9 @@ const AuthCheck = (props) => {
          <TopNavBar />
         </div>
         <div>
-<<<<<<< HEAD
           <Spin spinning={isLoading} tip={"Loading"}>
             {props.children}
           </Spin>
-=======
-          <Spin spinning={isLoading || appIsLoading}>{props.children}</Spin>
->>>>>>> f6ce1852fbcf691aa64622f3034e757d885e0fcf
         </div>
       </Layout>
     );
