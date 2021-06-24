@@ -29,7 +29,6 @@ import {
   selectInvoice,
   selectDishObjInOrder,
   setDishObjInOrder,
-  selectCashierStatus,
   setShowCashier,
   calculateInvoice,
   saveInvoice,
@@ -95,8 +94,6 @@ function OrderList(props) {
 
   const currentLine = useSelector((state) => selectCurrentLine(state));
   const currentDish = useSelector((state) => selectCurrentDish(state));
-
-  const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
 
@@ -522,11 +519,9 @@ function OrderList(props) {
             </button>
             {/* <button onClick={handleCancelPayment}>CANCEL PAYMENT</button> */}
             {/* <button>Add Dish</button> */}
-            {!cashierStatus && (
               <button onClick={handlePayment} disabled={!showPay}>
                 PAY
               </button>
-            )}
           </div>
         </div>
       </div>

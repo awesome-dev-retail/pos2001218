@@ -22,16 +22,27 @@ import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
 import { selectCurrentUser } from "../../slices/authSlice";
-import { fetchDocument, selectShowSplitOrder, selectBillList, setBillList } from "../../slices/documentSlice";
-import { setAmountPaying, setAmountPaid, selectAmountPaidArr } from "../../slices/paymentSlice";
+import {
+  selectDocument,
+  selectShowSplitOrder,
+  // selectPaidBillList,
+  selectPaidArr,
+  selectUnpaidBillList,
+  selectAmountPaying,
+  selectAmountPaid,
+  selectRemainingDue,
+  selectAmountTotal,
+  setUnpaidBillList,
+} from "../../slices/documentSlice";
+// import { setAmountPaying, setAmountPaid, selectAmountPaidArr } from "../../slices/paymentSlice";
 
 import {
+  selectInvoice,
   selectDishObjInOrder,
   setDishObjInOrder,
   setCurrentLine,
   selectCurrentLine,
   clearCheckedDish,
-  selectCashierStatus,
   setShowCashier,
   calculateInvoice,
   saveInvoice,
@@ -39,9 +50,6 @@ import {
   cancelInvoice,
   setCurrentInvoice,
 } from "../../slices/dishSlice";
-import { selectInvoice } from "../../slices/dishSlice";
-
-import { selectDocument } from "../../slices/documentSlice";
 
 import { fetchTableById, fetchTableListInShop, saveTable, endTable } from "../../slices/tableSlice";
 import { selectTable } from "../../slices/tableSlice";
@@ -58,6 +66,7 @@ import { message } from "../../lib";
 function OrderList(props) {
   // const [currentLine, setCurrentLine] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
+  // const [billList, setBillList] = useState([]);
 
   const [showMore, setShowMore] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -79,16 +88,21 @@ function OrderList(props) {
   const table = useSelector((state) => selectTable(state)) || {};
   // console.log("=======================", table);
   const currentLine = useSelector((state) => selectCurrentLine(state));
-  const cashierStatus = useSelector((state) => selectCashierStatus(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
 
   const documentFromSlice = useSelector((state) => selectDocument(state)) || {};
-  const billList = useSelector((state) => selectBillList(state)) || [];
+  // const billList = useSelector((state) => selectBillList(state)) || [];
 
   const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
 
-  const amountPaidArr = useSelector((state) => selectAmountPaidArr(state));
+  // const paidBillList = useSelector((state) => selectPaidBillList(state));
+  const paidArr = useSelector((state) => selectPaidArr(state)) || [];
+  const unpaidBillList = useSelector((state) => selectUnpaidBillList(state)) || [];
+  const amountPaying = useSelector((state) => selectAmountPaying(state)) || 0;
+  const amountPaid = useSelector((state) => selectAmountPaid(state))|| 0;
+  const remainingDue = useSelector((state) => selectRemainingDue(state))|| 0;
+  const amountTotal = useSelector((state) => selectAmountTotal(state))|| 0;
 
   const { confirm } = Modal;
   useEffect(async () => {
@@ -128,28 +142,49 @@ function OrderList(props) {
   }, [JSON.stringify(documentFromSlice)]);
 
   //for split
-  const result = useMemo(() => {
-    let amountPaying = 0;
-    let remainingDue = 0;
-    let amountPaid = 0;
-    let total = 0;
+  // const result = useMemo(() => {
+  //   let amountPaying = 0;
+  //   let remainingDue = 0;
+  //   let amountPaid = 0;
+  //   let total = 0;
+  //   let unpaidBillList = [];
+  //   let paidBillList = [];
 
-    total = documentFromSlice.doc_gross_amount;
+  //   total = documentFromSlice.doc_gross_amount;
 
-    billList.forEach((item) => {
-      if (item.checked) {
-        amountPaying += item.line_amount;
-      }
-    });
+  //   unpaidBillList = documentFromSlice.invoice_lines ? documentFromSlice.invoice_lines.filter((i) => !i.paid) : [];
+  //   // debugger;
+  //   setBillList(unpaidBillList);
 
-    amountPaid = amountPaidArr.reduce((total, current) => total + current, 0);
+  //   paidBillList = documentFromSlice.invoice_lines ? documentFromSlice.invoice_lines.filter((i) => i.paid) : [];
 
-    remainingDue = documentFromSlice.doc_gross_amount - amountPaid;
-    // console.log(amountPaidArr);
-    dispatch(setAmountPaying(amountPaying));
-    dispatch(setAmountPaid(amountPaid));
-    return { amountPaying, remainingDue, amountPaid, total };
-  }, [documentFromSlice, billList, amountPaidArr]);
+  //   billList.forEach((item) => {
+  //     if (item.checked) {
+  //       amountPaying += item.line_amount;
+  //     }
+  //   });
+
+  //   amountPaid = paidBillList.reduce((total, current) => total + current.line_amount, 0);
+
+  //   // amountPaid = amountPaidArr.reduce((total, current) => total + current, 0);
+
+  //   remainingDue = documentFromSlice.doc_gross_amount - amountPaid;
+  //   // console.log(amountPaidArr);
+  //   dispatch(setAmountPaying(amountPaying));
+  //   dispatch(setAmountPaid(amountPaid));
+  //   return { amountPaying, remainingDue, amountPaid, total };
+  // }, [documentFromSlice, billList]);
+
+  // useEffect(() => {
+  //   let amountPaying = 0;
+  //   unpaidBillList.forEach((item) => {
+  //       if (item.checked) {
+  //         amountPaying += item.line_amount;
+  //       }
+  //     });
+  //     dispatch(setAmountPaying(amountPaying));
+  //     // return {setAmountPaying};
+  // }, [unpaidBillList]);
 
   const handleSetTab = (index) => {
     setOrderTabIndex(index);
@@ -157,10 +192,11 @@ function OrderList(props) {
 
   const handleChangeBox = (e, index) => {
     // let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
-    const copybillList = JSON.parse(JSON.stringify(billList));
+    const copyUnpaidBillList = JSON.parse(JSON.stringify(unpaidBillList));
     let { checked } = e.target;
-    copybillList[index].checked = checked;
-    dispatch(setBillList(copybillList));
+    copyUnpaidBillList[index].checked = checked;
+    dispatch(setUnpaidBillList(copyUnpaidBillList));
+    // setBillList(copybillList);
   };
 
   const getCheckDishObjInOrderPrice = useMemo(() => {
@@ -198,14 +234,14 @@ function OrderList(props) {
             </div>
           )}
           {showSplitOrder &&
-            amountPaidArr.map((item, index) => (
+            paidArr.map((item, index) => (
               <div key={item} className="paid-line">
                 <span>Payment {index + 1} - Cash</span>
                 <span>${item.toFixed(2)}</span>
               </div>
             ))}
           <div className="bill-list">
-            {billList.map((item, index) => (
+            {unpaidBillList.map((item, index) => (
               <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
                 {showSplitOrder && <Checkbox className="check-box" onChange={(e) => handleChangeBox(e, index)}></Checkbox>}
                 <div className="bill-name">
@@ -286,24 +322,24 @@ function OrderList(props) {
             <div className="tatal-money-container-split">
               <div>
                 <span>Total:</span>
-                <div className="total-money">${result.total.toFixed(2)}</div>
+                <div className="total-money">${amountTotal.toFixed(2)}</div>
               </div>
               <div>
                 <div>
                   <span className="amount">Amount paying:</span>
-                  <span className="total-money-right">${result.amountPaying.toFixed(2)}</span>
+                  <span className="total-money-right">${amountPaying.toFixed(2)}</span>
                   {/* Amount paying:<span className="total-money-right">${getCheckDishObjInOrderPrice}</span> */}
                 </div>
                 <div>
                   <span className="amount">Remaining Due:</span>
-                  <span>${result.remainingDue.toFixed(2)}</span>
+                  <span>${remainingDue.toFixed(2)}</span>
                 </div>
                 {/* <div>
                   Rounding Amount:<span>${result.price}</span>
                 </div> */}
                 <div>
                   <span className="amount">Amount paid:</span>
-                  <span>${result.amountPaid.toFixed(2)}</span>
+                  <span>${amountPaid.toFixed(2)}</span>
                   {/* Amount paid:<span>${paidPriceArr[paidPriceArr.length - 1] || 0}</span> */}
                 </div>
               </div>

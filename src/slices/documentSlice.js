@@ -15,10 +15,14 @@ import { history } from "../components/MyRouter";
 const initialState = {
   document: {},
   billList: [],
+  paidBillList: [],
+  unpaidBillList: [],
+  paidArr:[],
+  amountPaying: 0,
+  amountPaid: 0,
+  amountTotal: 0,
   showSplitOrder: false,
-  splitOrder: [],
-  paidPriceArr: [],
-  showCashier: false,
+  // showCashier: false,
   status: config.API_STATUS.IDLE,
   error: null,
   currentTransactionId: "",
@@ -37,10 +41,15 @@ const initialState = {
 //   });
 // };
 
-export const fetchDocument = createAsyncThunk("document/fetchDocument", async (invoiceId, { rejectWithValue }) => {
+export const fetchDocument = createAsyncThunk("document/fetchDocument", async (invoiceId, { dispatch, rejectWithValue }) => {
   try {
+    debugger;
     const res = await fetchDocumentRequest(invoiceId);
     if (res.error) throw res.error;
+    const sum = res.data.payment_lines.reduce((t,c) => t + c.line_amount - c.rounding_amount ,0);
+    if(res.data.doc_gross_amount === sum){
+      dispatch(setShowCashPage(true));
+    }
     console.log("fetchDocument--------------", res);
     return res;
   } catch (e) {
@@ -467,27 +476,44 @@ const DocumentSlice = createSlice({
     resetAll(state, action) {
       state = { ...initialState };
     },
-    setBillList(state, action) {
-      state.billList = action.payload;
+   
+    setUnpaidBillList(state, action) {
+      state.unpaidBillList = action.payload;
+      state.amountPaying = 0;
+      state.unpaidBillList.forEach((item) => {
+        if (item.checked) {
+          state.amountPaying += item.line_amount;
+        }
+      });
     },
+
     setShowSplitOrder(state, action) {
       state.showSplitOrder = action.payload;
     },
-    // setPaidPriceArr(state, action) {
-    //   state.paidPriceArr = action.payload;
-    // },
+
     setDocument(state, action) {
       state.document = action.payload;
     },
-    // setDocumentObjInOrder(state, action) {
-    //   state.documentObjInOrder = action.payload;
-    // },
-    // setCurrentDocument(state, action) {
-    //   state.currentDocument = action.payload;
-    // },
-    // setShowCashier(state, action) {
-    //   state.showCashier = action.payload;
-    // },
+
+    setAmountPaying(state, action) {
+      state.amountPaying = action.payload;
+    },
+
+    initDocumentState(state, action) {
+        state.document= {},
+        state.billList= [],
+        state.paidBillList= [],
+        state.unpaidBillList= [],
+        state.paidArr=[],
+        state.amountPaying= 0,
+        state.amountPaid= 0,
+        state.amountTotal= 0,
+        state.showSplitOrder= false;
+        
+    },
+
+   
+    
   },
   extraReducers: {
     [fetchDocument.pending]: (state) => {
@@ -497,7 +523,22 @@ const DocumentSlice = createSlice({
       state.status = config.API_STATUS.SUCCEEDED;
       // state.document = action.payload.data;
       state.document = new Document(action.payload.data);
-      state.billList = state.document.invoice_lines;
+
+      state.showSplitOrder = state.document.payment_lines[0]&&state.document.payment_lines[0].invoice_line_ids.length !== 0;
+
+      state.unpaidBillList = state.document.invoice_lines ? state.document.invoice_lines.filter((i) => !i.paid) : [];
+
+      state.paidBillList = state.document.invoice_lines ? state.document.invoice_lines.filter((i) => i.paid) : [];
+
+      state.paidArr = state.paidBillList.map((i) => i.line_amount);
+
+      state.amountPaid = state.paidBillList.reduce((total, current) => total + current.line_amount, 0);
+
+      state.remainingDue = state.document.doc_gross_amount - state.document.payment_lines.reduce((total,current)=>total + current.line_amount - current.rounding_amount,0);
+
+      state.amountTotal = state.document.doc_gross_amount;
+
+
 
       // const copyDocument = JSON.parse(JSON.stringify(state.document));
 
@@ -550,13 +591,32 @@ const DocumentSlice = createSlice({
 // export const { } = DocumentSlice.actions;
 // export const selectCashierStatus = (state) => state.Document.showCashier;
 
-export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactionIsAccepted, setLastMessage, setDocument, resetAll, setWs, setShowSplitOrder, setPaidPriceArr, setBillList } =
+export const { setCurrentTransactionId, resetTransactionId, setCurrentTransactionIsAccepted, setLastMessage, setDocument, resetAll, setWs, setShowSplitOrder, setUnpaidBillList,setAmountPaying,initDocumentState } =
   DocumentSlice.actions;
 
 export const selectDocument = (state) => state.Document.document;
-export const selectBillList = (state) => state.Document.billList;
+
+// export const selectBillList = (state) => state.Document.billList;
+export const selectUnpaidBillList = (state) => state.Document.unpaidBillList;
+
+export const selectPaidBillList = (state) => state.Document.paidBillList;
+
+export const selectPaidArr = (state) => state.Document.paidArr;
+
+
+export const selectAmountPaying = (state) =>
+  state.Document.amountPaying;
+
+export const selectAmountPaid = (state) => state.Document.amountPaid;
+
+export const selectRemainingDue = (state) => state.Document.remainingDue;
+
+export const selectAmountTotal = (state) => state.Document.amountTotal;
+
 export const selectDocumentIsLoading = (state) => state.Document.status === config.API_STATUS.LOADING;
+
 export const selectShowSplitOrder = (state) => state.Document.showSplitOrder;
-export const selectPaidPriceArr = (state) => state.Document.paidPriceArr;
+
+// export const selectPaidPriceArr = (state) => state.Document.paidPriceArr;
 
 export default DocumentSlice.reducer;

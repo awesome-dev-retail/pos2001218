@@ -5,6 +5,8 @@ import { history } from "../components/MyRouter";
 import CacheStorage from "../lib/cache-storage";
 import { message } from "../lib";
 
+import { setShowCashPage } from "../slices/paymentSlice";
+
 import { dishListRequest, dishListInMenuRequest, saveDishRequest, deleteDishRequest, calculateInvoiceRequest, saveInvoiceRequest, listInvoiceRequest, cancelInvoiceRequest } from "../services";
 
 const initialState = {
@@ -12,7 +14,6 @@ const initialState = {
   currentDish: {},
   dishObjInOrder: [],
   invoice: {},
-  showCashier: false,
   currentLine: {},
   status: "",
   error: null,
@@ -113,6 +114,7 @@ export const cancelInvoice = createAsyncThunk("dish/cancelDocument", async ({ in
     message.success("Cancel Invoice successfully!");
     history.push("/");
     CacheStorage.removeItem("invoice_" + "1_" + tableId);
+    dispatch(setShowCashPage(false));
     dispatch(setInvoice({}));
     console.log("cancelDocument--------------", res);
     return res;
@@ -140,9 +142,7 @@ const DishSlice = createSlice({
         item.checked = false;
       });
     },
-    setShowCashier(state, action) {
-      state.showCashier = action.payload;
-    },
+   
     setInvoice(state, action) {
       state.invoice = action.payload;
     },
@@ -292,9 +292,7 @@ const DishSlice = createSlice({
   },
 });
 
-export const { setDishObjInOrder, setCurrentDish, setCurrentLine, clearCheckedDish, setShowCashier, setInvoice } = DishSlice.actions;
-
-export const selectCashierStatus = (state) => state.Dish.showCashier;
+export const { setDishObjInOrder, setCurrentDish, setCurrentLine, clearCheckedDish, setInvoice } = DishSlice.actions;
 
 export const selectDishList = (state) => state.Dish.dish;
 export const selectCurrentDish = (state) => state.Dish.currentDish;

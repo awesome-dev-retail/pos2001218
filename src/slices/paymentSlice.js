@@ -3,6 +3,7 @@ import config from "../configs/index";
 import CacheStorage from "../lib/cache-storage";
 import { setBillList } from "../slices/documentSlice";
 import { setInvoice } from "./dishSlice";
+import { fetchDocument,initDocumentState } from "./documentSlice";
 // import { CacheStorage, message } from "../lib";
 import { savePaymentRequest, completePaymentRequest } from "../services";
 import axios from "axios";
@@ -13,7 +14,7 @@ const initialState = {
   payment: {},
   amountPaying: 0,
   amountPaid: 0,
-  amountPaidArr: [],
+  // amountPaidArr: [],
   showCashPage: false,
   status: "",
   error: null,
@@ -32,10 +33,7 @@ export const savePayment = createAsyncThunk("payment/savePayment", async (paymen
   try {
     const res = await savePaymentRequest(payment);
     if (res.error) throw res.error;
-    const { Document } = getState();
-    const { billList } = Document;
-    const unpaidBillList = billList.filter((item) => !item.checked);
-    dispatch(setBillList(unpaidBillList));
+    dispatch(fetchDocument(res.data.InvoiceID));
     console.log("savePayment--------------", res);
     return res;
   } catch (e) {
@@ -50,7 +48,7 @@ export const completePayment = createAsyncThunk("payment/completePayment", async
     message.success("Successfully Complete Transaction!");
     history.push("/");
     CacheStorage.removeItem("invoice_" + "1_" + tableId);
-    dispatch(setInvoice({}));
+    dispatch(initDocumentState());
     console.log("completePayment--------------", res);
     return res;
   } catch (e) {
@@ -89,13 +87,10 @@ const PaymentSlice = createSlice({
     [savePayment.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
       state.payment = action.payload.data;
-      state.error = null;
       state.showCashPage = true;
-      const amountPaid = (state.payment.Amount - state.payment.RoundingAmount).toFixed(2) * 1;
-      state.amountPaidArr.push(amountPaid);
-      // const { document } = getState();
-      // const { billList } = document;
-      // billList.filter((item) => !item.checked);
+      state.error = null;
+      // const amountPaid = state.payment.Amount - state.payment.RoundingAmount;
+      // state.amountPaidArr.push(amountPaid);
 
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
@@ -111,12 +106,7 @@ const PaymentSlice = createSlice({
     },
     [completePayment.fulfilled]: (state, action) => {
       state.status = config.API_STATUS.SUCCEEDED;
-      state.payment = {};
-      state.amountPaying = 0;
-      state.amountPaid = 0;
-      state.amountPaidArr = [];
       state.showCashPage = false;
-      state.error = null;
       // state.token = action.payload.token;
       // CacheStorage.setItem(config.TOKEN_SYMBOL, action.payload.token);
       // CacheStorage.setItem(config.TOKEN_IS_ADMIN, false);
