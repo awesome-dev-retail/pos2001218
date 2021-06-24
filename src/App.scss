@@ -1,28 +1,28 @@
 @import "./lib.scss";
 
 .home-page-container {
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #fff;
-    // padding: 1.5rem 2rem;
-    padding: 15px 20px;
-    box-shadow: 0 2px 4px -4px black;
-
-    font-size: 20px;
-    // font-size: 2rem;
-    font-weight: bold;
-    .anticon {
-      margin-right: 10px;
-      font-size: 22px;
-      cursor: pointer;
-    }
-    > div:last-of-type {
-      .anticon {
-        margin-right: 20px;
-        font-size: 28px;
-      }
-    }
-  }
+  //.header {
+  //  display: flex;
+  //  align-items: center;
+  //  justify-content: space-between;
+  //  background: #fff;
+  //  // padding: 1.5rem 2rem;
+  //  padding: 15px 20px;
+  //  box-shadow: 0 2px 4px -4px black;
+  //
+  //  font-size: 20px;
+  //  // font-size: 2rem;
+  //  font-weight: bold;
+  //  .anticon {
+  //    margin-right: 10px;
+  //    font-size: 22px;
+  //    cursor: pointer;
+  //  }
+  //  > div:last-of-type {
+  //    .anticon {
+  //      margin-right: 20px;
+  //      font-size: 28px;
+  //    }
+  //  }
+  //}
 }

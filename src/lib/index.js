@@ -180,3 +180,40 @@ export const getRounding = (number, digit) => {
 
 export const getRounding1 = (number) => getRounding(number, 1); // For NZ Money
 export const getRounding2 = (number) => getRounding(number, 2);
+
+export const wordToCamelCase = function (str) {
+  if (str === null) return "";
+  let temp = str.toString().split("");
+  if (temp.length < 1) {
+    return "";
+  } else {
+
+    return temp.map((item, index) => {
+      return index === 0 ? item.toUpperCase() : item.toLowerCase();
+    }).join("");
+  }
+};
+
+export const wordsToCamelCase = function (str) {
+  if (str === null) return "";
+  let temp = str.toString().split(" ");
+  if (temp.length > 0) {
+    return temp.map(item => {
+      return wordToCamelCase(item);
+    }).join(" ");
+  } else {
+    return "";
+  }
+};
+
+// Warning: Hard coding date into moment obj. Only if you don't use the date.
+export const onlyTimeToMoment = (timeStr) => {
+  const dateStr = "1970-01-01 " + timeStr;
+  const momentObj = moment(dateStr, "YYYY-MM-DD HH:mm:ss");
+  return momentObj.isValid() ? momentObj : null;
+};
+
+export const getTimeDiffInHour = (start, end) => {
+  const duration = moment.duration(end.diff(start));
+  return getRounding2(duration.asHours());
+};

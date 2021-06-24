@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styles from "./index.module.scss";
-import Logo from "../../assets/images/Bizex_FinalLogo.jpg";
 import logoAbbey from "../../assets/images/logo-Abbey.png";
 
 import { Redirect, withRouter } from "react-router-dom";
@@ -17,6 +16,8 @@ import { selectPaymentIsLoading } from "../../slices/paymentSlice";
 import { history } from "../MyRouter";
 import { connectSocket, setDocument } from "../../slices/documentSlice";
 import _ from "lodash";
+import TopNavBar from "../TopNavBar";
+import { useLoading } from "../../hooks/useLoading";
 
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
@@ -27,6 +28,9 @@ const AuthCheck = (props) => {
   const isPaymentLoading = useSelector((state) => selectPaymentIsLoading(state));
 
   let isLoading = isTableLoading || isDishLoading || isPaymentLoading;
+
+  // const isLoading = useSelector((state) => selectAuthIsLoading(state));
+  const appIsLoading = useLoading();
 
   const token = CacheStorage.getItem("token");
   const dispatch = useDispatch();
@@ -69,11 +73,15 @@ const AuthCheck = (props) => {
     checkAuth();
   }, []);
 
+<<<<<<< HEAD
   const handleDevBtnClick = () => {
     console.log(store.getState());
   };
 
   if (isAuthLoading) {
+=======
+  if (isLoading) {
+>>>>>>> f6ce1852fbcf691aa64622f3034e757d885e0fcf
     return (
       <div>
         <Spin className={styles.Spin} tip={"System Loading"} />
@@ -85,35 +93,16 @@ const AuthCheck = (props) => {
     return (
       <Layout>
         <div className="home-page-container">
-          <header className="header">
-            <div>
-              {/* <MenuOutlined />
-              Table */}
-              <span>
-                <img style={{ width: 100, marginLeft: 20 }} src={Logo} alt="logo" />- BizCafe
-              </span>
-
-              <span>
-                <img style={{ width: 100, marginLeft: 600 }} src={logoAbbey} alt="logo" />
-              </span>
-            </div>
-            {/* <button onClick={handleDevBtnClick}>Dev</button> */}
-
-            <div style={{ fontSize: "18px", marginLeft: "400px" }}>{`Welcome! ${currentUser.userinfo.uname}`}</div>
-            <div>
-              {/* <PrinterOutlined /> */}
-              {/* <FileTextFilled /> */}
-              {/* <QuestionCircleFilled /> */}
-              {/* <Dropdown overlay={<UIMenu />} trigger={["click"]}>
-                <Avatar size={25} icon={<AntDesignOutlined />}></Avatar>
-              </Dropdown> */}
-            </div>
-          </header>
+         <TopNavBar />
         </div>
         <div>
+<<<<<<< HEAD
           <Spin spinning={isLoading} tip={"Loading"}>
             {props.children}
           </Spin>
+=======
+          <Spin spinning={isLoading || appIsLoading}>{props.children}</Spin>
+>>>>>>> f6ce1852fbcf691aa64622f3034e757d885e0fcf
         </div>
       </Layout>
     );

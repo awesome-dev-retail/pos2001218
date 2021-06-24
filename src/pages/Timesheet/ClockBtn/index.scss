@@ -1,0 +1,44 @@
+@import "../../../lib.scss";
+
+.clock-btn-container {
+  line-height: 0;
+  display: inline-block;
+  width: 100%;
+  padding: 10px 0;
+
+  .clock-btn-group {
+    width: 48%;
+    height: 44px;
+    margin: 5px 0 1px 0;
+    padding: 0;
+  }
+  .block-btn {
+    width: 100%;
+    margin: 0 auto 11px auto;
+    height: 50px;
+  }
+
+  //.spinning-clock {
+  //  svg {
+  //    animation: loadingCircle 3s infinite linear;
+  //  }
+  //}
+  .icon-container {
+    margin-right: 10px;
+  }
+
+  .clock-drawer-container {
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+  }
+
+  .ant-drawer-wrapper-body {
+    border: 1px solid $bizex-blue;
+    //padding: 15px;
+  }
+  .ant-drawer-body {
+    padding: 15px;
+  }
+
+}

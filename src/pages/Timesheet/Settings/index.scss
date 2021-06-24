@@ -1,0 +1,35 @@
+@import "../../../lib.scss";
+.timesheet-settings-page-container {
+  h3 {
+    text-align: left;
+  }
+  .paid-type-list {
+    display: inline-block;
+
+    .paid-type-item {
+      border: 2px solid $bizex-primary-blue;
+      text-decoration: none;
+      padding: 7px 14px;
+      color: $bizex-primary-blue;
+      margin: 0 10px;
+    }
+  }
+}
+
+.timesheet-paid-type-editing-form-item {
+  width: 100%;
+
+  .ant-form-item-label {
+    text-align: left;
+  }
+}
+
+//Solving difference from POS below
+.bizex-timesheet-paid-type-modal {
+  .timesheet-paid-type-editing-form-item {
+    margin: 8px 0;
+  }
+  .ant-select {
+    width: 100%;
+  }
+}

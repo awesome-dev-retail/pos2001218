@@ -1,0 +1,44 @@
+@import "../../lib.scss";
+
+.clock-page-container {
+  padding: 0 30px;
+  min-height: calc(100vh - #{$top-bar-height});
+
+  .clock-menu-item {
+    display: inline-block;
+    padding: 0 15px;
+    height: 47px;
+    background-color: white;
+    vertical-align: baseline;
+    line-height: 45px;
+    color: #95a1b4;
+    border: 1px solid #95a1b4;
+    border-top: none;
+    margin-left: -1px;
+    cursor: pointer;
+  }
+
+  .clock-menu-item-selected {
+    composes: clockMenuItem;
+    background: none;
+    padding: 0 15px;
+  }
+
+  .clock-menu-container {
+    padding:0;
+    margin:0;
+    height: 47px;
+  }
+  .clock-sub-content-container {
+    margin: 35px 0;
+    background-color:white;
+    padding: 30px;
+    text-align: center;
+    width: 100%;
+    border: 1px solid $bizex-primary-blue;
+    h2 {
+      text-align: left;
+    }
+  }
+
+}

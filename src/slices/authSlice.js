@@ -24,7 +24,6 @@ export const fetchShopList = createAsyncThunk("user/fetchShops", async (data, { 
   try {
     const res = await listShops();
     return res;
-    console.log(res);
   } catch (e) {
     return rejectWithValue(e.message);
   }

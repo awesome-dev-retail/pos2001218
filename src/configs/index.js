@@ -13,7 +13,22 @@ export default {
     FAILED: "failed",
   },
   NO_MONEY_CHARACTER : "-",
-
+  TIMESHEET: {
+    CLOCK: "CLOCK",
+    BREAK: "BREAK",
+    UNPAIDBREAK: "UNPAIDBREAK",
+    LEAVE: "LEAVE",
+    VIEW_NAME: {
+      CLOCK: "CLOCK",
+      BREAK: "BREAK",
+      UNPAIDBREAK: "UNPAID BREAK",
+      LEAVE: "LEAVE"
+    }
+  },
+  ROSTER: {
+    DEFAULT_START_TIME: "1970-01-01 08:00",
+    DEFAULT_END_TIME: "1970-01-01 17:00"
+  }
 };
 
 export const getWebSocketBaseUrl = (url) => {

@@ -1,0 +1,154 @@
+@import "../../../lib.scss";
+.check-timesheet-container {
+  position: relative;
+
+  .posted-container {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    animation-name: rotatePosted;
+    animation-duration: .5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+
+    span {
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      color: $bizex-pink;
+      border: 3px solid $bizex-pink;
+      padding: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  }
+  .check-timesheet-date-picker {
+    margin: 0 20px;
+    transform: translateY(-3px);
+  }
+  .load-btn {
+    margin-left: 20px;
+    //transform: translateY(-4px);
+  }
+  .tips-paragraph {
+    text-align: left;
+    margin-bottom: 0;
+  }
+  .invalid-icon {
+    margin-left: 10px;
+    color: $bizex-pink;
+    transform: translateY(1px);
+  }
+  .check-timesheet-data-table-container {
+
+    .invalid-timesheet {
+      background-color: $bizex-bg-light3;
+      //.ant-time-picker-input {
+      //  background-color: @bizex-bg-light1;
+      //}
+    }
+    //padding: 0 15%;
+    margin-top: 35px;
+    overflow-x:auto;
+    .check-timesheet-data-table {
+      width: 100%;
+      margin: 0 auto;
+      border: 2px solid;
+      tr {
+        border: 1px solid;
+        td,th {
+          padding: 10px 20px;
+        }
+      }
+      .grey-out-row {
+        background-color: #f5f5f5;
+        td {
+          input {
+            color: $bizex-primary-blue
+          }
+        }
+      }
+      .hover-effect:hover {
+        td {
+          border-top: 1px solid $bizex-pink !important;
+          border-bottom: 1px solid $bizex-pink !important;
+        }
+        td:first-child {
+          border-left: 2px solid $bizex-pink;
+        }
+        td:last-child {
+          border-right: 2px solid $bizex-pink;
+        }
+        background-color: $bizex-bg-light1;
+      }
+    }
+
+    .check-timesheet-data-time-picker {
+      input {
+        border: none;
+        border-radius: 0;
+      }
+    }
+    .check-timesheet-post-btn {
+      margin-top: 20px;
+      float: right;
+    }
+    .check-timesheet-leave-btn {
+      margin-right: 20px;
+      margin-top: 20px;
+      float: right;
+    }
+    .check-timesheet-time-edit-icon {
+      margin-left: 5px;
+    }
+  }
+  .table-staff {
+    color: $bizex-primary-blue;
+    text-decoration: none;
+  }
+  .table-staff:hover {
+    text-decoration: none;
+  }
+
+  .delete-icon {
+    float: right;
+    color: $bizex-pink;
+  }
+}
+
+.check-timesheet-leave-time-picker {
+  width: 100%;
+  input {
+    border-radius: 0;
+  }
+}
+
+@keyframes rotatePosted {
+  0% {
+    transform: translate(-10px)
+  }
+  20% {
+    transform: translate(0px);
+  }
+  40% {
+    transform: translate(15px);
+  }
+  60% {
+    transform: translate(-5px);
+  }
+  80% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(5deg)
+  }
+}
+
+
+//Solving difference from POS below
+.bizex-timesheet-add-leave-modal {
+  .staff-details-form-item {
+    margin: 8px 0;
+  }
+  .ant-select {
+    width: 100%;
+  }
+}
