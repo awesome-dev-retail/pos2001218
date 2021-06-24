@@ -13,6 +13,7 @@ import {
   QuestionCircleFilled,
   CloseOutlined,
   CheckCircleTwoTone,
+  DeleteTwoTone,
   AntDesignOutlined,
   PlusOutlined,
   ExclamationCircleOutlined,
@@ -22,22 +23,24 @@ import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
 
 import { selectCurrentUser } from "../../slices/authSlice";
+import { selectCommentList, saveComment, deleteComment, fetchCommentListInShop } from "../../slices/commentSlice";
 
 import {
+  selectInvoice,
   selectDishObjInOrder,
   setDishObjInOrder,
-  setCurrentDish,
-  selectCurrentDish,
-  clearCheckedDish,
-  selectCashierStatus,
   setShowCashier,
   calculateInvoice,
   saveInvoice,
   listDocument,
   cancelInvoice,
-  setCurrentInvoice,
+  setInvoice,
+  setCurrentLine,
+  selectCurrentLine,
+  selectDishList,
+  selectCurrentDish,
+  setCurrentDish,
 } from "../../slices/dishSlice";
-import { selectInvoice } from "../../slices/dishSlice";
 
 import { selectDocument } from "../../slices/documentSlice";
 
@@ -53,16 +56,18 @@ import sousuo from "../../assets/images/sousuo.png";
 
 import "./OrderList.scss";
 import { message } from "../../lib";
+import { createComment, createCommentByItem } from "../../services/createComment";
 function OrderList(props) {
-  // const [currentDish, setCurrentDish] = useState({});
+  // const [currentLine, setCurrentLine] = useState({});
   const [currentMeun, setCurrentMeun] = useState();
+  // const [currentDish, setCurrentDish] = useState();
 
   const [showMore, setShowMore] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const tableMenus = [
     // { name: "规格/做法", key: "spec" },
-    { name: "Extras", key: "feeding" },
+    { name: "Extras", key: "extras" },
     { name: "Comment", key: "remark" },
     // { name: "稍后上菜", key: "wait" },
     // { name: "买赠", key: "buyGift" },
@@ -76,21 +81,32 @@ function OrderList(props) {
   // const pathname = props.location.pathname + "";
   // const tableId = pathname.split("/")[3] * 1;
 
-  const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
-  const table = useSelector((state) => selectTable(state)) || {};
-  // console.log("=======================", table);
-  const currentDish = useSelector((state) => selectCurrentDish(state));
+  // eslint-disable-next-line react/prop-types
+  const tableId = props.match.params.tableId;
 
-  const cashierStatus = useSelector((state) => selectCashierStatus(state));
+  const invoice = useSelector((state) => selectInvoice(state)) || {};
+
+  const copyInvoice = JSON.parse(JSON.stringify(invoice));
+
+  const currentUser = useSelector((state) => selectCurrentUser(state)) || {};
+
+  const table = useSelector((state) => selectTable(state)) || {};
+
+  const currentLine = useSelector((state) => selectCurrentLine(state));
+  const currentDish = useSelector((state) => selectCurrentDish(state));
 
   const dishObjFromSlice = useSelector((state) => selectDishObjInOrder(state)) || [];
 
+  const commentList = useSelector((state) => selectCommentList(state)) || [];
+
+  const dishListInShop = useSelector((state) => selectDishList(state));
+
   const documentFromSlice = useSelector((state) => selectDocument(state));
 
-  const { confirm } = Modal;
+  const currentDishCopy = JSON.parse(JSON.stringify(currentDish || {}));
+  const currentLineCopy = JSON.parse(JSON.stringify(currentLine || {}));
 
-  // eslint-disable-next-line react/prop-types
-  const tableId = props.match.params.tableId;
+  const { confirm } = Modal;
 
   const [form] = Form.useForm();
 
@@ -98,59 +114,50 @@ function OrderList(props) {
 
   useEffect(async () => {
     // eslint-disable-next-line react/prop-types
-    // console.log("=====================", props);
     await dispatch(fetchTableById(tableId));
-    dispatch(setDishObjInOrder([]));
-    const arr = CacheStorage.getItem("dishObjInOrder_" + "1_" + tableId);
-    if (arr) {
-      dispatch(setDishObjInOrder(arr));
-    }
 
-    // const obj = CacheStorage.getItem("invoice_" + "1_" + tableId);
-    // if (obj) {
-    //   dispatch(setCurrentInvoice(obj));
-    // }
-    dispatch(setCurrentDish({}));
-    dispatch(clearCheckedDish());
+    const localInvoice = CacheStorage.getItem("invoice_" + "1_" + tableId);
+    // const newInvoice = localInvoice ? localInvoice : invoice;
+    if (localInvoice) {
+      dispatch(setInvoice(localInvoice));
+    } else {
+      dispatch(setInvoice({}));
+    }
+    dispatch(setCurrentLine({}));
+    // dispatch(clearCheckedDish());
+    console.log("currentUser.userinfo.cid", currentUser.userinfo.cid);
+    dispatch(fetchCommentListInShop(0));
   }, []);
 
-  const updateCount = async (value) => {
-    if (currentDish.id) {
-      let copyCurrentDish = JSON.parse(JSON.stringify(currentDish));
-      copyCurrentDish.count += value;
-      // 数量为0  删除
-      if (!copyCurrentDish.count) {
-        // setCurrentDish({});
-        dispatch(setCurrentDish({}));
-      } else {
-        // setCurrentDish(copyCurrentDish);
-        dispatch(setCurrentDish(copyCurrentDish));
-      }
-      let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
-      let index = copyDishOrder.findIndex((i) => {
-        return i.id === currentDish.id;
-      });
-      if (!copyCurrentDish.count) {
-        copyDishOrder.splice(index, 1);
-      } else {
-        copyDishOrder[index].count += value;
-      }
+  // useEffect(() => {
+  //   dispatch(fetchCommentListInShop(currentUser.userinfo.cid));
+  // }, [currentUser]);
 
-      const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
-      dispatch(setDishObjInOrder(copyDishOrder));
-      dispatch(calculateInvoice(invoice));
+  const showPay = useMemo(() => {
+    return Object.keys(invoice).length === 0 || !invoice.Lines || invoice.Lines.length === 0 ? false : true;
+  }, [invoice]);
+
+  const updateCount = (value) => {
+    if (Object.keys(currentLine).length !== 0) {
+      let index = copyInvoice.Lines.findIndex((i) => {
+        return i.Dish.DishCode === currentLine.Dish.DishCode;
+      });
+      copyInvoice.Lines[index].Quantity.Qty += value;
+      if (!copyInvoice.Lines[index].Quantity.Qty) {
+        copyInvoice.Lines.splice(index, 1);
+        dispatch(setCurrentLine({}));
+        setShowDrawer(false);
+      } else {
+        copyInvoice.Lines[index].Quantity.Changed = true;
+        dispatch(setCurrentLine(copyInvoice.Lines[index]));
+      }
+      dispatch(calculateInvoice(copyInvoice));
     }
   };
 
-  const handleCheckDishOrder = async (item) => {
-    console.log("-----------------currentDish", item);
-    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
-    copyDishOrder.forEach((i) => {
-      i.checked = i.id === item.id;
-    });
-    // setCurrentDish(item);
-    dispatch(setCurrentDish(item));
-    await dispatch(setDishObjInOrder(copyDishOrder));
+  const handleCheckLine = (line) => {
+    setShowDrawer(false);
+    dispatch(setCurrentLine(line));
   };
 
   const handleOperation = async (key) => {
@@ -175,71 +182,74 @@ function OrderList(props) {
       });
       return;
     }
-    if (!Object.keys(currentDish).length) {
+    if (!Object.keys(currentLine).length) {
       return;
     }
-    setCurrentMeun(key); // 删除
-    let copyDishOrder = JSON.parse(JSON.stringify(dishObjFromSlice));
+    setCurrentMeun(key);
     if (key === "delete") {
-      let index = copyDishOrder.findIndex((i) => {
-        return i.id === currentDish.id;
-      });
-      copyDishOrder.splice(index, 1);
-      // setCurrentDish({});
-      dispatch(setCurrentDish({}));
-      const invoice = createInvoice(table, copyDishOrder, currentUser.userinfo.id);
-      dispatch(setDishObjInOrder(copyDishOrder));
-      dispatch(calculateInvoice(invoice));
-    } else if (key === "feeding") {
-      if (currentDish && currentDish.extras && currentDish.extras.length !== 0) setShowDrawer(true);
+      if (Object.keys(currentLine).length !== 0) {
+        let index = copyInvoice.Lines.findIndex((i) => {
+          return i.Dish.DishCode === currentLine.Dish.DishCode;
+        });
+        copyInvoice.Lines.splice(index, 1);
+        dispatch(setCurrentLine({}));
+        setShowDrawer(false);
+        dispatch(calculateInvoice(copyInvoice));
+      }
+    } else if (key === "extras") {
+      const dish = dishListInShop.find((i) => i.dish_code === currentLine.Dish.DishCode);
+      if (dish) {
+        dispatch(setCurrentDish(dish));
+      }
+      if (dish && dish.extras && dish.extras.length !== 0) setShowDrawer(true);
     } else if (key === "remark") {
       setShowDrawer(true);
     }
   };
 
-  const total = useMemo(() => {
-    let count = 0,
-      price = 0,
-      oldPrice = 0;
-    dishObjFromSlice.forEach((item) => {
-      // let extrasAmount = 0;
-      // if (item.extras && item.extras.length !== 0) {
-      //   extrasAmount = item.extras.reduce((total, current) => (current.count ? total + current.count * current.unit_price : total), 0);
-      // }
-      // console.log("-------------item.extras", item.extras);
-      count += item.count || 1;
-      price += item.Amount;
-      // price += extrasAmount;
-      oldPrice += (item.count || 1) * item.unit_cost;
-    });
-    return { count, price: price.toFixed(2) };
-  }, [JSON.stringify(dishObjFromSlice)]);
+  // const total = useMemo(() => {
+  //   let count = 0,
+  //     price = 0,
+  //     oldPrice = 0;
+  //   dishObjFromSlice.forEach((item) => {
+  //     // let extrasAmount = 0;
+  //     // if (item.extras && item.extras.length !== 0) {
+  //     //   extrasAmount = item.extras.reduce((total, current) => (current.count ? total + current.count * current.unit_price : total), 0);
+  //     // }
+  //     // console.log("-------------item.extras", item.extras);
+  //     count += item.count || 1;
+  //     price += item.Amount;
+  //     // price += extrasAmount;
+  //     oldPrice += (item.count || 1) * item.unit_cost;
+  //   });
+  //   return { count, price: price.toFixed(2) };
+  // }, [JSON.stringify(dishObjFromSlice)]);
 
-  let currentDishCopy = JSON.parse(JSON.stringify(currentDish));
   const handleCheckRemark = (item) => {
-    // console.log(item);
-    if (currentDishCopy.remark) {
-      let index = currentDishCopy.remark.findIndex((i) => item === i);
-      let remark = currentDishCopy.remark;
+    // debugger;
+    if (currentLineCopy.LineNote) {
+      let index = currentLineCopy.LineNote.findIndex((i) => item.id === i.NoteID);
       if (index > -1) {
-        remark.splice(index, 1);
+        currentLineCopy.LineNote.splice(index, 1);
       } else {
-        remark.push(item);
+        const newItem = createCommentByItem(item);
+        currentLineCopy.LineNote.push(newItem);
       }
-      currentDishCopy = {
-        ...currentDishCopy,
-        remark,
-      };
     } else {
-      let remark = [item];
-      currentDishCopy.remark = remark;
+      currentLineCopy.LineNote = [];
+      const newItem = createCommentByItem(item);
+      currentLineCopy.LineNote.push(newItem);
     }
-
-    dispatch(setCurrentDish(currentDishCopy));
-    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
-    let index = copyDishObjFromSlice.findIndex((item) => item.id === currentDish.id);
-    copyDishObjFromSlice.splice(index, 1, currentDishCopy);
-    dispatch(setDishObjInOrder(copyDishObjFromSlice));
+    if (copyInvoice.Lines) {
+      let index = copyInvoice.Lines.findIndex((i) => {
+        if (i.Dish && currentLineCopy.Dish) return i.Dish.DishCode === currentLineCopy.Dish.DishCode;
+      });
+      if (index > -1) {
+        copyInvoice.Lines.splice(index, 1, currentLineCopy);
+        dispatch(setCurrentLine(currentLineCopy));
+        dispatch(calculateInvoice(copyInvoice));
+      }
+    }
   };
 
   const handlePayment = () => {
@@ -249,73 +259,90 @@ function OrderList(props) {
     // dispatch(setShowCashier(true));
   };
 
-  const handleUpdateCount = (indexes, number) => {
-    // let count = currentDishCopy.extras[indexes].count;
-    if (!currentDishCopy.extras[indexes].count) {
-      currentDishCopy.extras[indexes].count = 0;
+  const handleUpdateCount = (extraID, number) => {
+    if (!currentLineCopy.ExtraDetail.ExtraList) {
+      if (number === -1) {
+        return;
+      }
+      currentLineCopy.ExtraDetail.ExtraList = [];
+      currentLineCopy.ExtraDetail.Changed = true;
+      currentLineCopy.ExtraDetail.ExtraList.push({
+        ExtraID: extraID, // [required]
+        ExtraQty: number, // [required]
+      });
+    } else {
+      const index = currentLineCopy.ExtraDetail.ExtraList.findIndex((i) => i.ExtraID === extraID);
+      if (index > -1) {
+        currentLineCopy.ExtraDetail.ExtraList[index].ExtraQty += number;
+        if (currentLineCopy.ExtraDetail.ExtraList[index].ExtraQty === 0) {
+          currentLineCopy.ExtraDetail.ExtraList.splice(index, 1);
+          if (currentLineCopy.ExtraDetail.ExtraList.length === 0) {
+            currentLineCopy.ExtraDetail.ExtraList = null;
+          }
+        }
+        currentLineCopy.ExtraDetail.Changed = true;
+      } else {
+        currentLineCopy.ExtraDetail.ExtraList.push({
+          ExtraID: extraID, // [required]
+          ExtraQty: number, // [required]
+        });
+        currentLineCopy.ExtraDetail.Changed = true;
+      }
     }
-    currentDishCopy.extras[indexes].count += number;
-    if (currentDishCopy.extras[indexes].count < 0) {
-      currentDishCopy.extras[indexes].count = 0;
-    }
-
-    // currentDishCopy.material = materialData;
-    dispatch(setCurrentDish(currentDishCopy));
-    let copyDishObjFromSlice = JSON.parse(JSON.stringify(dishObjFromSlice));
-    let index = copyDishObjFromSlice.findIndex((item) => item.id === currentDish.id);
-    copyDishObjFromSlice.splice(index, 1, currentDishCopy);
-
-    const invoice = createInvoice(table, copyDishObjFromSlice, currentUser.userinfo.id);
-    dispatch(setDishObjInOrder(copyDishObjFromSlice));
-    dispatch(calculateInvoice(invoice));
+    currentLineCopy.Changed = true;
+    // currentLineCopy.Dish.Changed = true;
+    dispatch(setCurrentLine(currentLineCopy));
+    const index = copyInvoice.Lines.findIndex((i) => i.Dish.DishCode === currentLineCopy.Dish.DishCode);
+    copyInvoice.Lines.splice(index, 1, currentLineCopy);
+    dispatch(calculateInvoice(copyInvoice));
   };
+
   const handleAddComment = () => {
     // debugger;
-    const newComment = commentContainer.current.input.value;
-    const copyRemarkList = JSON.parse(JSON.stringify(remarkList || []));
-    copyRemarkList.unshift(newComment);
-    // commentContainer.current.input.value = "";
-    setRemarkList(copyRemarkList);
+    const cid = null;
+    const commentID = 0;
+    const commentContent = commentContainer.current.input.value;
+    const comment = createComment(currentUser.userinfo.cid, commentID, commentContent);
+    dispatch(saveComment(comment));
   };
+
+  const handleDeleteComment = (e, item) => {
+    // console.log(e.target);
+
+    e.stopPropagation();
+    const index = currentLine.LineNote && currentLine.LineNote.findIndex((i) => i.NoteID === item.id);
+    if (index > -1) {
+      message.warning("Please remove this comment first!");
+      return;
+    }
+    dispatch(deleteComment(item.id));
+  };
+
   const drawerDom = useMemo(() => {
     let dom = null;
-    if (currentMeun === "feeding" && currentDish.extras && currentDish.extras.length !== 0) {
-      dom = currentDish.extras.map((item, index) => (
-        <div className="material-item" key={index}>
-          <Badge count={item.count || 0}>
-            <div className="material-info-inner">
-              <div className="material-info-name">{item.inventory_id}</div>
-              <span>${item.unit_price}</span>
-            </div>
-          </Badge>
-          <div className="counter-inner">
-            <div onClick={() => handleUpdateCount(index, -1)}>
-              <img src={reduceIcon} alt="reduce" />
-            </div>
-            <div onClick={() => handleUpdateCount(index, 1)}>
-              <img src={addIcon} alt="increase" />
+    // debugger;
+    if (currentMeun === "extras" && currentDish.extras.length !== 0) {
+      dom = currentDish.extras.map((item, index) => {
+        const extra = currentLine.ExtraDetail && currentLine.ExtraDetail.ExtraList && currentLine.ExtraDetail.ExtraList.find((i) => i.ExtraID === item.id);
+        return (
+          <div className="material-item" key={index}>
+            <Badge count={extra ? extra.ExtraQty : 0}>
+              <div className="material-info-inner">
+                <div className="material-info-name">{item.inventory_id}</div>
+                <span>${item.unit_price}</span>
+              </div>
+            </Badge>
+            <div className="counter-inner">
+              <div onClick={() => handleUpdateCount(item.id, -1)}>
+                <img src={reduceIcon} alt="reduce" />
+              </div>
+              <div onClick={() => handleUpdateCount(item.id, 1)}>
+                <img src={addIcon} alt="increase" />
+              </div>
             </div>
           </div>
-        </div>
-      ));
-      // dom = (
-      //   <div className="material-item">
-      //     <Badge count={currentDish.material ? currentDish.material[0].count : 0}>
-      //       <div className="material-info-inner">
-      //         <div className="material-info-name">Milk</div>
-      //         <span>$1</span>
-      //       </div>
-      //     </Badge>
-      //     <div className="counter-inner">
-      //       <div onClick={() => handleUpdateCount(-1)}>
-      //         <img src={reduceIcon} alt="reduce" />
-      //       </div>
-      //       <div onClick={() => handleUpdateCount(1)}>
-      //         <img src={addIcon} alt="increase" />
-      //       </div>
-      //     </div>
-      //   </div>
-      // );
+        );
+      });
     } else if (currentMeun === "remark") {
       dom = (
         <>
@@ -327,10 +354,17 @@ function OrderList(props) {
             ))}
           </div>
           <div className="remark-list">
-            {remarkList.map((item) => (
-              <div onClick={() => handleCheckRemark(item)} className={`remark-item ${Array.isArray(currentDish.remark) && currentDish.remark.includes(item) ? "remark-item-active" : ""}`} key={item}>
-                {item}
-                {Array.isArray(currentDish.remark) && currentDish.remark.includes(item) && <CheckCircleTwoTone twoToneColor="$bizex-pink" />}
+            {commentList.map((item, index) => (
+              <div
+                onClick={() => handleCheckRemark(item)}
+                className={`remark-item ${currentLine.LineNote && currentLine.LineNote.findIndex((i) => i.NoteID === item.id) > -1 ? "remark-item-active" : ""} `}
+                key={index}>
+                {/* <div onClick={() => handleCheckRemark(item)} className={`remark-item ${currentLine.LineNote.includes(item) ? "remark-item-active" : ""}`} key={item}> */}
+                {item.description}
+                {/* <CheckCircleTwoTone twoToneColor="$bizex-pink" /> */}
+                <DeleteTwoTone onClick={(e) => handleDeleteComment(e, item)} />
+
+                {/* {Array.isArray(currentLine.commentList) && currentLine.remark.includes(item) && <CheckCircleTwoTone twoToneColor="$bizex-pink" />} */}
               </div>
             ))}
           </div>
@@ -347,8 +381,12 @@ function OrderList(props) {
         </>
       );
     }
+    // if (!dom) {
+    //   setShowDrawer(false);
+    //   return;
+    // }
     return dom;
-  }, [currentMeun, currentTabIndex, currentDish, remarkList]);
+  }, [currentMeun, currentTabIndex, currentLine, invoice, currentDish, remarkList, commentList]);
 
   // const handleCancelPayment = () => {
   //   dispatch(cancelInvoice(table));
@@ -381,43 +419,46 @@ function OrderList(props) {
             {/* <CaretDownOutlined /> */}
           </div>
           <div className="bill-list">
-            {dishObjFromSlice.map((item, index) => (
-              <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
-                {/* <div> */}
-                <div className="bill-name">
-                  <div>{item.description}</div>
-                  {item.tip && <div className="food-tip">{item.tip}</div>}
-                  {/* {item.extras && item.extras.length > 0 && item.material[0].count > 0 && ( */}
-                  {item.extras && item.extras.length > 0 && (
-                    <div className="materials">
-                      {/* Extras: */}
-                      {item.extras.map(
-                        (i, index) =>
-                          i.count > 0 && (
-                            <span key={index}>
-                              {/* {i.inventory_id} x {i.count} ${i.count * i.unit_price} */}
-                              {i.inventory_id} : ${i.count * i.unit_price}
-                            </span>
-                          )
-                      )}
-                    </div>
-                  )}
-                  {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>}
-                </div>
-                {/* </div> */}
-                <div className="count">X {item.count}</div>
-                <div className="price">
-                  <div className="new-price">${item.unit_price.toFixed(2)}</div>
-                  {/* <div className="old-price">$ {item.unit_cost}</div>  */}
-                </div>
-                <div className="price">
-                  <div className="new-price" style={{ fontWeight: "bolder" }}>
-                    ${item.Amount ? item.Amount.toFixed(2) : "0.00"}
+            {invoice.Lines &&
+              invoice.Lines.map((item, index) => (
+                <div
+                  className={`bill-item ${
+                    item.Dish && item.Dish.DishCode && currentLine.Dish && currentLine.Dish.DishCode && item.Dish.DishCode === currentLine.Dish.DishCode ? "bill-item-current" : ""
+                  }`}
+                  key={item.id}
+                  onClick={() => handleCheckLine(item)}>
+                  {/* <div> */}
+                  <div className="bill-name">
+                    <div>{item.Description}</div>
+                    {/* {item.tip && <div className="food-tip">{item.tip}</div>} */}
+                    {/* {item.extras && item.extras.length > 0 && item.material[0].count > 0 && ( */}
+                    {item.ExtraDetail && item.ExtraDetail.ExtraList && item.ExtraDetail.ExtraList.length > 0 && (
+                      <div className="materials">
+                        {/* Extras: */}
+                        {item.ExtraDetail.ExtraList.map((i, index) => (
+                          <span key={index}>
+                            {i.ExtraInventoryID} ${item.UnitExtraAmount}
+                            {/* {i.ExtraInventoryID} x {i.ExtraQty} ${item.UnitExtraAmount} */}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {item.LineNote && item.LineNote.length > 0 && <div className="materials">Comments: {item.LineNote.map((i) => i.Description).join(",")}</div>}
                   </div>
-                  {/* <div className="old-price">$ {item.unit_cost}</div>  */}
+                  {/* </div> */}
+                  <div className="count">${item.UnitPrice.toFixed(2)}</div>
+                  <div className="count">X {item.Quantity.Qty}</div>
+                  {/* <div className="price">
+                    <div className="new-price">${item.Amount}</div>
+                    <div className="old-price">$ {item.unit_cost}</div> 
+                  </div> */}
+                  <div className="price">
+                    <div className="new-price" style={{ fontWeight: "bolder" }}>
+                      ${item.Amount.toFixed(2)}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
         <div className="table-bottom">
@@ -452,16 +493,16 @@ function OrderList(props) {
                 </div>
                 <div className="left-line">
                   <span className="label">SUBTOTAL</span>
-                  <span className="text">${(0.85 * total.price).toFixed(2)}</span>
+                  <span className="text">${(invoice.NetAmount && invoice.NetAmount.toFixed(2)) || "0.00"}</span>
                 </div>
                 <div className="left-line">
                   <span className="label">TAX(GST)</span>
-                  <span className="text">${(0.15 * total.price).toFixed(2)}</span>
+                  <span className="text">${(invoice.GSTAmount && invoice.GSTAmount.toFixed(2)) || "0.00"}</span>
                 </div>
               </div>
               <div className="content">
                 <span>TOTAL</span>
-                <div className="content-total">${total.price}</div>
+                <div className="content-total">${(invoice.GrossAmount && invoice.GrossAmount.toFixed(2)) || "0.00"}</div>
               </div>
               {/* <div className="right">
                 <div>NEW CUSTOMER</div>
@@ -478,12 +519,14 @@ function OrderList(props) {
             </button>
             {/* <button onClick={handleCancelPayment}>CANCEL PAYMENT</button> */}
             {/* <button>Add Dish</button> */}
-            {!cashierStatus && <button onClick={handlePayment}>PAY</button>}
+              <button onClick={handlePayment} disabled={!showPay}>
+                PAY
+              </button>
           </div>
         </div>
       </div>
       <div className="table-info-menus">
-        <Counter count={currentDish.count || 0} updateCount={updateCount} />
+        <Counter count={(currentLine.Quantity && currentLine.Quantity.Qty) || 0} updateCount={updateCount} />
         {tableMenus.map((item) => (
           <div className="table-info-menu-item" key={item.key} onClick={() => handleOperation(item.key)}>
             {item.name}
@@ -499,14 +542,16 @@ function OrderList(props) {
         </div> */}
       </div>
       {/* <div className={"drawer hide"}> */}
-      <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
-        <div className="drawer-header">
-          <h3 className="drawer-title">COMMENT</h3>
-          {/* <h3 className="drawer-title">Comment-Fruit Salad</h3> */}
-          <CloseOutlined onClick={() => setShowDrawer(false)} />
+      {drawerDom && (
+        <div className={`drawer ${showDrawer ? "show" : "hide"}`}>
+          <div className="drawer-header">
+            <h3 className="drawer-title">COMMENT</h3>
+            {/* <h3 className="drawer-title">Comment-Fruit Salad</h3> */}
+            <CloseOutlined onClick={() => setShowDrawer(false)} />
+          </div>
+          <div className="drawer-content">{drawerDom}</div>
         </div>
-        <div className="drawer-content">{drawerDom}</div>
-      </div>
+      )}
     </div>
   );
 }

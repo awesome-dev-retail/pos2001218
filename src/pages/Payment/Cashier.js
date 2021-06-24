@@ -20,16 +20,19 @@ import {
   selectDocument,
   selectDocumentIsLoading,
   resetAll,
-  setBillList,
   selectShowSplitOrder,
   setShowSplitOrder,
-  setPaidPriceArr,
-  selectPaidPriceArr,
   setDocument,
+  selectAmountPaying,
+  selectAmountPaid,
+  selectRemainingDue,
+  selectAmountTotal,
+  selectUnpaidBillList 
+
 } from "../../slices/documentSlice";
 import { selectMessageBox, resetMessageBox, resetErrorBox } from "../../slices/publicComponentSlice";
 import { savePayment, completePayment } from "../../slices/paymentSlice";
-import { selectPayment, selectAmountPaying, selectAmountPaid, selectAmountPaidArr, selectShowCashPage, setShowCashPage } from "../../slices/paymentSlice";
+import { selectPayment, selectShowCashPage, setShowCashPage } from "../../slices/paymentSlice";
 
 import { createPayment, createPaymentForSplit } from "../../services/createPayment";
 import _ from "lodash";
@@ -57,8 +60,9 @@ const Cashier = (props) => {
   const showSplitOrder = useSelector((state) => selectShowSplitOrder(state));
   const amountPaying = useSelector((state) => selectAmountPaying(state));
   const amountPaid = useSelector((state) => selectAmountPaid(state));
-
-  const amountPaidArr = useSelector((state) => selectAmountPaidArr(state));
+  const remainingDue = useSelector((state) => selectRemainingDue(state));
+  const amountTotal = useSelector((state) => selectAmountTotal(state));
+  const unpaidBillList = useSelector((state) => selectUnpaidBillList(state));
 
   const showCashPage = useSelector((state) => selectShowCashPage(state));
 
@@ -211,12 +215,18 @@ const Cashier = (props) => {
     if (name === "CASH") {
       // console.log(due, tendered);
       let payment = null;
+      let invoiceLineIDs = "";
       if (due > tendered) {
         message.warning("Tendered must be greater than due!");
         return;
       }
-      const change = (tendered - due).toFixed(1) * 1;
-      payment = createPayment(documentFromSlice, due, tendered, change);
+      if(showSplitOrder){
+        // debugger;
+        const checkedBillList = unpaidBillList.filter((i) => i.checked);
+        invoiceLineIDs = checkedBillList.map((i)=>i.id).join(",");
+      }
+      const change = (tendered - due) * 1;
+      payment = createPayment(documentFromSlice, due, tendered, change,invoiceLineIDs);
       dispatch(savePayment(payment));
       // setShowCashPage(true);
     } else if (name === "SPLIT PAYMENT") {
@@ -246,7 +256,7 @@ const Cashier = (props) => {
   };
 
   const handleCompletePayment = () => {
-    if (amountPaid === documentFromSlice.doc_gross_amount) {
+    if (!remainingDue) {
       // eslint-disable-next-line react/prop-types
       const invoiceId = props.match.params.invoiceId;
       const tableId = documentFromSlice.table_id;
@@ -260,14 +270,14 @@ const Cashier = (props) => {
   const result = useMemo(() => {
     let change = 0;
     if (showSplitOrder) {
-      change = (payMoney * 1 - Math.round(amountPaying * 10) / 10).toFixed(1) * 1;
+      change = (payMoney * 1 - Math.round(amountPaying * 10) / 10).toFixed(2);
     } else {
       const amountInDoc = documentFromSlice.doc_gross_amount;
       // const amount = amountInDoc ? amountInDoc.toFixed(2) : "0.00";
-      change = (payMoney * 1 - Math.round(amountInDoc * 10) / 10).toFixed(1) * 1;
+      change = (payMoney * 1 - Math.round(amountInDoc * 10) / 10).toFixed(2);
     }
-    change = change < 0 ? 0 : change;
-    change = change ? change : 0;
+    change = change ? change : "0.00";
+    change = change < 0 ? "0.00" : change;
     return { change };
   }, [documentFromSlice, amountPaying, payMoney]);
 
@@ -282,7 +292,7 @@ const Cashier = (props) => {
               <Input
                 ref={dueContainer}
                 className="total-input"
-                value={showSplitOrder ? amountPaying.toFixed(2) : documentFromSlice.doc_gross_amount ? documentFromSlice.doc_gross_amount.toFixed(2) : "0.00"}
+                value={showSplitOrder ? amountPaying.toFixed(2) : amountTotal ? amountTotal.toFixed(2) : "0.00"}
               />
               <div className="title">Amount Tendered:</div>
               <Input ref={tenderedContainer} className="total-input" value={payMoney * 1} />
@@ -319,7 +329,7 @@ const Cashier = (props) => {
                 <div>EMAIL RECEIPT</div>
               </div>
               <div className="complete-btn" onClick={handleCompletePayment}>
-                {amountPaid == documentFromSlice.doc_gross_amount ? "COMPELETE SALE" : "CONTINUE TO PAY"}
+                {!remainingDue ? "COMPELETE SALE" : "CONTINUE TO PAY"}
               </div>
               {/* <div className="complete-btn" onClick={() => setShowCashPage(false)}>
                 COMPELETE SALE

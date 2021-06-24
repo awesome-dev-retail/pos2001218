@@ -12,7 +12,7 @@ import DishList from "./DishList";
 import DishCategory from "./DishCategory";
 import { useSelector, useDispatch } from "react-redux";
 
-import { selectDishObjInOrder, setDishObjInOrder, setCurrentDish, selectCurrentDish, selectCashierStatus, setShowCashier } from "../../slices/dishSlice";
+import { selectDishObjInOrder, setDishObjInOrder, setCurrentLine, selectCurrentLine, setShowCashier } from "../../slices/dishSlice";
 
 import { fetchDocument, selectShowSplitOrder, selectPaidPriceArr } from "../../slices/documentSlice";
 
@@ -24,7 +24,6 @@ import CacheStorage from "../../lib/cache-storage";
 import Cashier from "../Payment/Cashier";
 
 const Order = (props) => {
-  const cashierStatus = useSelector((state) => selectCashierStatus(state));
   const timerRef = useRef();
 
   const [showMore, setShowMore] = useState(false);

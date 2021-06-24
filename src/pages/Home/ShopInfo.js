@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { selectTableList } from "../../slices/tableSlice";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
+import CacheStorage from "../../lib/cache-storage";
 
 const ShopInfo = () => {
   const timerRef = useRef();
@@ -17,20 +18,21 @@ const ShopInfo = () => {
   useEffect(() => {
     setCurrentDate(moment().format("YYYY-MM-DD"));
     setCurrentWeek(weeks[moment().day()]);
-    // timerRef.current = setInterval(() => {
-    //   setCurrentTime(moment().format("HH:mm:ss"));
-    // }, 1000);
-    return () => {
-      // clearInterval(timerRef.current);
-    };
   }, []);
+
   useEffect(() => {
     let unpaidOrder = 0;
     let unpaidAmount = 0;
-    tableListFromSlice.map((item) => {
+    tableListFromSlice.forEach((item) => {
       if (item.status === "Occupied") {
         unpaidOrder += 1;
-        unpaidAmount += item.totalAmount;
+        const invoice = CacheStorage.getItem("invoice_" + "1_" + item.id);
+        if (invoice && invoice.GrossAmount) {
+          unpaidAmount += invoice.GrossAmount;
+        } else {
+          unpaidAmount = 0;
+        }
+        // unpaidAmount += item.totalAmount;
       }
     });
     setUnpaidOrder(unpaidOrder);

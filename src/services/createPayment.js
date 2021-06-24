@@ -23,7 +23,7 @@ export const createPaymentForSplit = (document, payMoney, amountPaying) => {
     IsCreditCard: false,
   };
 };
-export const createPayment = (document, due, tendered, change) => {
+export const createPayment = (document, due, tendered, change,invoiceLineIDs) => {
   // const shop = useSelector((state) => selectShops(state));
   return {
     PaymentID: 0, // [more than 0 while updating] [payment by EFTPOS cannot update]
@@ -42,5 +42,6 @@ export const createPayment = (document, due, tendered, change) => {
     VoucherNumber: "", // [required for VOUCHER]
     OriginalID: -1, // [required for refunding a previous payment, OriginalID = payment ID that need refund; if not refund, empty or <= 0] type int
     IsCreditCard: false,
+    invoiceLineIDs
   };
 };

@@ -10,6 +10,9 @@ import { MenuOutlined, PrinterOutlined, FileTextFilled, CaretDownOutlined, Quest
 import { Dropdown, Avatar, Layout, Spin } from "antd";
 import UIMenu from "../UIMenu";
 import { fetchUser, setUser, setToken, selectIsLogin, selectCurrentUser, selectAuthIsLoading, fetchDevices, setShop, setLane, selectLane, selectShop, setDevice } from "../../slices/authSlice";
+import { selectTableIsLoading } from "../../slices/tableSlice";
+import { selectDishIsLoading } from "../../slices/dishSlice";
+import { selectPaymentIsLoading } from "../../slices/paymentSlice";
 import { history } from "../MyRouter";
 import { connectSocket, setDocument } from "../../slices/documentSlice";
 import _ from "lodash";
@@ -19,8 +22,14 @@ import { useLoading } from "../../hooks/useLoading";
 const AuthCheck = (props) => {
   const isLogin = useSelector((state) => selectIsLogin(state));
   const currentUser = useSelector((state) => selectCurrentUser(state));
+  const isAuthLoading = useSelector((state) => selectAuthIsLoading(state));
+  const isTableLoading = useSelector((state) => selectTableIsLoading(state));
+  const isDishLoading = useSelector((state) => selectDishIsLoading(state));
+  const isPaymentLoading = useSelector((state) => selectPaymentIsLoading(state));
 
-  const isLoading = useSelector((state) => selectAuthIsLoading(state));
+  let isLoading = isTableLoading || isDishLoading || isPaymentLoading;
+
+  // const isLoading = useSelector((state) => selectAuthIsLoading(state));
   const appIsLoading = useLoading();
 
   const token = CacheStorage.getItem("token");
@@ -64,7 +73,15 @@ const AuthCheck = (props) => {
     checkAuth();
   }, []);
 
+<<<<<<< HEAD
+  const handleDevBtnClick = () => {
+    console.log(store.getState());
+  };
+
+  if (isAuthLoading) {
+=======
   if (isLoading) {
+>>>>>>> f6ce1852fbcf691aa64622f3034e757d885e0fcf
     return (
       <div>
         <Spin className={styles.Spin} tip={"System Loading"} />
@@ -79,7 +96,13 @@ const AuthCheck = (props) => {
          <TopNavBar />
         </div>
         <div>
+<<<<<<< HEAD
+          <Spin spinning={isLoading} tip={"Loading"}>
+            {props.children}
+          </Spin>
+=======
           <Spin spinning={isLoading || appIsLoading}>{props.children}</Spin>
+>>>>>>> f6ce1852fbcf691aa64622f3034e757d885e0fcf
         </div>
       </Layout>
     );

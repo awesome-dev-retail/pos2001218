@@ -1,16 +1,17 @@
 /* eslint-disable react/prop-types */
 import React, { Fragment, useEffect, useState } from "react";
 import { withRouter } from "react-router-dom";
-import { Badge, Modal, Button, message } from "antd";
+import { Badge, Modal, Button, message, Spin } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 
 // import { selectAreaId } from "../../slices/areaSlice";
-import { fetchTableListInShop, fetchTableListInArea, saveTable, deleteTable } from "../../slices/tableSlice";
+import { fetchTableListInShop, fetchTableListInArea, saveTable, deleteTable, selectTableIsLoading } from "../../slices/tableSlice";
 import { selectTableList, setTableList } from "../../slices/tableSlice";
 
 import AddTable from "../../components/AddTable";
 import AreaPepleNum from "./AreaPepleNum";
+import CacheStorage from "../../lib/cache-storage";
 
 function TableList(props) {
   const [showTable, setShowTable] = useState(false);
@@ -21,6 +22,7 @@ function TableList(props) {
 
   const dispatch = useDispatch();
   const tableListFromSlice = useSelector((state) => selectTableList(state)) || [];
+  const isLoading = useSelector((state) => selectTableIsLoading(state));
   // const areaId = useSelector((state) => selectAreaId(state));
 
   useEffect(() => {
@@ -72,8 +74,8 @@ function TableList(props) {
   const handleUpdatePersonNum = async (value) => {
     setPersonNumPopStatus(false);
     if (typeof value === "string") {
-      let copyTable = JSON.parse(JSON.stringify(table));
-      let copyTableListFromSlice = JSON.parse(JSON.stringify(tableListFromSlice));
+      let copyTable = JSON.parse(JSON.stringify(table || {}));
+      let copyTableListFromSlice = JSON.parse(JSON.stringify(tableListFromSlice || []));
       copyTable.num = value;
       setTable(copyTable);
       let index = copyTableListFromSlice.findIndex((item) => item.id === copyTable.id);
@@ -97,7 +99,7 @@ function TableList(props) {
               {/* {item.combination && <div>拼{item.combination}桌</div>} */}
               {item.status === "Available" && <div className="wait-plan-order-text">To be ordered</div>}
               {/* {item.status === "Occupied" && <div className="wait-plan-order-text">Amount:$ {item.uncomplete_invoices ? uncomplete_invoices[0].doc_gross_amount.toFixed(2) : 0}</div>} */}
-              {item.status === "Occupied" && <div className="wait-plan-order-text">Amount:$ {item.totalAmount ? item.totalAmount.toFixed(2) : "0.00"}</div>}
+              {item.status === "Occupied" && <div className="wait-plan-order-text">Amount:$ {item.totalAmount.toFixed(2)}</div>}
               <div>
                 <span>
                   {/* Capacity: {item.capacity} */}

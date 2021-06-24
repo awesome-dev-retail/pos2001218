@@ -9,21 +9,22 @@ import CacheStorage from "../../lib/cache-storage";
 
 import { selectCurrentUser } from "../../slices/authSlice";
 
-import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder, calculateInvoice } from "../../slices/dishSlice";
+import { fetchDishListInShop, fetchDishListInMenu, deleteDish, setDishObjInOrder, selectDishObjInOrder, calculateInvoice, setCurrentLine } from "../../slices/dishSlice";
 import { selectInvoice } from "../../slices/dishSlice";
 
 import { selectTable } from "../../slices/tableSlice";
 
-import { selectDishList } from "../../slices/dishSlice";
+import { selectDishList, setCurrentDish } from "../../slices/dishSlice";
 
 import { selectMenuId } from "../../slices/menuSlice";
 
 import AddDish from "../../components/AddDish";
 
-import { createInvoice } from "../../services/createInvoice";
+import { createInvoice, createLine } from "../../services/createInvoice";
 
 function DishList(props) {
   const [showDish, setShowDish] = useState(false);
+  const [dish, setDish] = useState({});
   const [dishId, setDishId] = useState(0);
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
@@ -39,6 +40,7 @@ function DishList(props) {
   const menuIdFromSlice = useSelector((state) => selectMenuId(state));
 
   const table = useSelector((state) => selectTable(state)) || {};
+  const invoice = useSelector((state) => selectInvoice(state)) || {};
 
   useEffect(() => {
     dispatch(fetchDishListInShop(1));
@@ -53,11 +55,10 @@ function DishList(props) {
   //   props.history.push("/order");
   // };
 
-  const handleSaveDish = (dishId, description, price) => {
+  const handleSaveDish = (dish) => {
+    console.log(dish);
     setShowDish(true);
-    setDishId(dishId);
-    setDescription(description);
-    setPrice(price);
+    setDish(dish);
   };
 
   function showDeleteConfirm(dish) {
@@ -79,29 +80,39 @@ function DishList(props) {
     });
   }
 
-  // useEffect(() => {
-  //   const copyInvoiceFromSlice = Object.assign({}, invoiceFromSlice) || {};
-  //   CacheStorage.setItem("invoice_" + "1_" + table.id, copyInvoiceFromSlice);
-  //   console.log("invoiceFromSlice of addToOrderList from localstorage----------------", CacheStorage.getItem("invoice_" + "1_" + table.id));
-  // }, [invoiceFromSlice]);
-
   const addToOrderList = async (dish) => {
-    let index = dishObjInOrder.findIndex((item) => item.id === dish.id);
-    let copydishObjInOrder = JSON.parse(JSON.stringify(dishObjInOrder));
-    let copyDish = JSON.parse(JSON.stringify(dish));
-    if (index > -1) {
-      copydishObjInOrder[index].count += 1;
+    let newInvoice = {};
+    if (Object.keys(invoice).length === 0) {
+      newInvoice = createInvoice(table, dish, currentUser.userinfo.id);
+      dispatch(setCurrentLine(newInvoice.Lines[0]));
     } else {
-      copyDish.count = 1;
-      copydishObjInOrder.push(copyDish);
+      newInvoice = JSON.parse(JSON.stringify(invoice || {}));
+      if (newInvoice.Lines && newInvoice.Lines.length !== 0) {
+        let index = newInvoice.Lines.findIndex((item) => item.Dish.DishCode === dish.dish_code);
+        // let copyDish = JSON.parse(JSON.stringify(dish));
+        if (index > -1) {
+          newInvoice.Lines[index].Quantity.Qty += 1;
+          dispatch(setCurrentLine(newInvoice.Lines[index]));
+          // dispatch(setCurrentDish(dish));
+        } else {
+          const line = createLine(dish);
+          newInvoice.Lines.push(line);
+          dispatch(setCurrentLine(line));
+          // dispatch(setCurrentDish(dish));
+        }
+      } else {
+        newInvoice.Lines = [];
+        const line = createLine(dish);
+        newInvoice.Lines.push(line);
+        dispatch(setCurrentLine(line));
+        // dispatch(setCurrentDish(dish));
+      }
     }
-    // dispatch(setDishObjInOrder(copydishObjInOrder));
-    // CacheStorage.setItem("dishObjInOrder_" + "1_" + table.id, copydishObjInOrder);
-    const invoice = createInvoice(table, copydishObjInOrder, currentUser.userinfo.id);
-    dispatch(setDishObjInOrder(copydishObjInOrder));
-    dispatch(calculateInvoice(invoice));
+    dispatch(setCurrentDish(dish));
+    dispatch(calculateInvoice(newInvoice));
+    // dispatch(setCurrentLine(dish));
+    return;
   };
-
   return (
     <Fragment>
       <div className="table-list">
@@ -121,7 +132,7 @@ function DishList(props) {
               </div> */}
             </div>
             <div className="edit-delete">
-              {isAdmin && <EditOutlined onClick={(event) => handleSaveDish(item.id, item.description, item.unit_price)} />}
+              {isAdmin && <EditOutlined onClick={(event) => handleSaveDish(item)} />}
               {isAdmin && <DeleteOutlined onClick={() => showDeleteConfirm(item)} />}
             </div>
           </div>
@@ -131,7 +142,7 @@ function DishList(props) {
           <div>Add Dish</div>
         </div>
       </div>
-      <AddDish visible={showDish} hideModel={setShowDish} id={dishId} description={description} price={price}></AddDish>
+      <AddDish visible={showDish} hideModel={setShowDish} dish={dish}></AddDish>
     </Fragment>
   );
 }
