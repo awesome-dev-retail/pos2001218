@@ -29,9 +29,7 @@ const ShopInfo = () => {
         const invoice = CacheStorage.getItem("invoice_" + "1_" + item.id);
         if (invoice && invoice.GrossAmount) {
           unpaidAmount += invoice.GrossAmount;
-        } else {
-          unpaidAmount = 0;
-        }
+        } 
         // unpaidAmount += item.totalAmount;
       }
     });
