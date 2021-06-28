@@ -5,35 +5,27 @@ import { history } from "../../components/MyRouter";
 import CacheStorage from "../../lib/cache-storage";
 import { formatNum, formatNumToTwoDecimal } from "../../services/formatNum";
 import { Badge, Modal, Button, Checkbox } from "antd";
-import {
-  MenuOutlined,
-  PrinterOutlined,
-  FileTextFilled,
-  CaretDownOutlined,
-  QuestionCircleFilled,
-  CloseOutlined,
-  CheckCircleTwoTone,
-  AntDesignOutlined,
-  PlusOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { withRouter } from "react-router";
 import Counter from "../../components/Counter";
+import CashierPop from "./CashierPop";
 
 import { selectCurrentUser } from "../../slices/authSlice";
 import {
   selectDocument,
   selectShowSplitOrder,
-  // selectPaidBillList,
+  selectPortionBillList,
   selectPaidArr,
+  setPortionBillList,
   selectUnpaidBillList,
   selectAmountPaying,
   selectAmountPaid,
   selectRemainingDue,
   selectAmountTotal,
   setUnpaidBillList,
-  selectIsBackToOrder
+  selectIsBackToOrder,
+  setShowCashierPop,
+  selectShowCashierPop
 } from "../../slices/documentSlice";
 // import { setAmountPaying, setAmountPaid, selectAmountPaidArr } from "../../slices/paymentSlice";
 
@@ -101,10 +93,12 @@ function OrderList(props) {
   // const paidBillList = useSelector((state) => selectPaidBillList(state));
   const paidArr = useSelector((state) => selectPaidArr(state)) || [];
   const unpaidBillList = useSelector((state) => selectUnpaidBillList(state)) || [];
+  const portionBillList = useSelector((state) => selectPortionBillList(state)) || [];
   const amountPaying = useSelector((state) => selectAmountPaying(state)) || 0;
-  const amountPaid = useSelector((state) => selectAmountPaid(state))|| 0;
-  const remainingDue = useSelector((state) => selectRemainingDue(state))|| 0;
-  const amountTotal = useSelector((state) => selectAmountTotal(state))|| 0;
+  const amountPaid = useSelector((state) => selectAmountPaid(state)) || 0;
+  const remainingDue = useSelector((state) => selectRemainingDue(state)) || 0;
+  const amountTotal = useSelector((state) => selectAmountTotal(state)) || 0;
+  const showCashierPop = useSelector((state) => selectShowCashierPop(state)) || false;
 
   const { confirm } = Modal;
   useEffect(async () => {
@@ -190,6 +184,17 @@ function OrderList(props) {
 
   const handleSetTab = (index) => {
     setOrderTabIndex(index);
+    if (index === 1 && currentTabIndex !== index) {
+      dispatch(setPortionBillList([{
+        id: 1,
+        checked: false,
+        description: "Portion Payment",
+        line_amount: amountTotal
+      }]));
+      dispatch(setShowCashierPop(true));
+    } else {
+      dispatch(setShowCashierPop(false));
+    }
   };
 
   const handleChangeBox = (e, index) => {
@@ -222,6 +227,7 @@ function OrderList(props) {
     dispatch(cancelInvoice(params));
   };
 
+
   return (
     <div className="table-info-container">
       <div className="inner">
@@ -242,33 +248,36 @@ function OrderList(props) {
                 <span>${item.toFixed(2)}</span>
               </div>
             ))}
-          <div className="bill-list">
-            {unpaidBillList.map((item, index) => (
-              <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
-                {showSplitOrder && <Checkbox className="check-box" onChange={(e) => handleChangeBox(e, index)}></Checkbox>}
-                <div className="bill-name">
-                  <div>{item.description}</div>
-                  {/* {item.tip && <div className="food-tip">{item.tip}</div>}
-                  {item.material && item.material.length > 0 && item.material[0].count > 0 && (
-                    <div className="materials">
-                      Extras:
-                      {item.dish_extra.map((i, index) => (
-                        <span key={index}>
-                          {i.ExtraInventoryID} x {i.ExtraQty} ${i.ExtraQty * i.unit_extra_amount}
-                        </span>
-                      ))}
-                    </div>
-                  )}  
-                  {item.remark && item.remark.length > 0 && <div className="materials">Comments: {item.remark.join(",")}</div>} */}
+          {!orderTabIndex ?
+            <div className="bill-list">
+              {unpaidBillList.map((item, index) => (
+                <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
+                  {showSplitOrder && <Checkbox className="check-box" onChange={(e) => handleChangeBox(e, index)}></Checkbox>}
+                  <div className="bill-name">
+                    <div>{item.description}</div>
+                  </div>
+                  <div className="count">X {item.line_qty}</div>
+                  <div className="price">
+                    <div className="new-price">${item.line_amount.toFixed(2)}</div>
+                  </div>
                 </div>
-                <div className="count">X {item.line_qty}</div>
-                <div className="price">
-                  <div className="new-price">${item.line_amount.toFixed(2)}</div>
-                  {/* <div className="old-price">$ {item.unit_cost}</div>  */}
+              ))}
+            </div> :
+            <div className="bill-list">
+              {portionBillList.map((item, index) => (
+                <div className={`bill-item ${item.checked ? "bill-item-current" : ""}`} key={item.id} onClick={() => handleCheckDishOrder(item)}>
+                  {showSplitOrder && <Checkbox className="check-box" onChange={(e) => handleChangeBox(e, index)}></Checkbox>}
+                  <div className="bill-name">
+                    <div>{item.description}</div>
+                  </div>
+                  <div className="price">
+                    <div className="new-price portion-price">${item.line_amount.toFixed(2)}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          }
+
         </div>
         <div className="table-bottom">
           {/* <div className="tatal-money-container">
@@ -360,6 +369,7 @@ function OrderList(props) {
             {/* {!cashierStatus && <button onClick={handlePayment}>PAY</button>} */}
           </div>
         </div>
+        {showCashierPop && <CashierPop />}
       </div>
     </div>
   );

@@ -1,0 +1,94 @@
+@import '../../lib.scss';
+
+.cashier-pop {
+  position: absolute;
+  top: 0;
+  right: -300px;
+  z-index: 999;
+  width: 300px;
+  color: #fff;
+  background: #0b77db;
+  padding: 15px 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 3px 1px #67a6e0;
+  box-sizing: border-box;
+  .cashier-inner {
+    text-align: center;
+    .pop-title {
+      color: #fff;
+    }
+    .cashier-innner-tab {
+      display: flex;
+      align-items: center;
+      border: 1px solid #fff;
+      div {
+        flex-basis: 50%;
+        background: #0b77db;
+        color: #fff;
+        padding: 5px 0;
+        cursor: pointer;
+        &.active {
+          color: #67a6e0;
+          background: #fff;
+        }
+      }
+    }
+    .total-input {
+      margin: 10px auto;
+      padding: 1px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 24px;
+    }
+    .cashier {
+      display: flex;
+      justify-content: space-between;
+      .cashier-left {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+      .cashier-right {
+        flex: 1;
+        .calculator-item {
+          margin-left: 8%;
+          &:nth-of-type(2) {
+            background: #f00;
+            color: #fff;
+          }
+          &:last-of-type {
+            height: 105px;
+            line-height: 105px;
+            color: #fff;
+            box-sizing: border-box;
+            background: #0b77db;
+            border: 1px solid #fff;
+          }
+        }
+      }
+      .calculator-item {
+        cursor: pointer;
+        flex-basis: 31%;
+        background: #fff;
+        color: #000;
+        padding: 5px 10px;
+        font-size: 24px;
+        text-align: center;
+        margin-bottom: 10px;
+        img {
+          width: 25px;
+        }
+        &:active {
+          background: #ccc !important;
+        }
+      }
+    }
+  }
+  .triangle {
+    border: 10px solid transparent;
+    border-right-color: #0b77db;
+    position: absolute;
+    left: -20px;
+    top: 66px;
+  }
+}

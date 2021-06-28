@@ -1,4 +1,4 @@
-@import "../../lib.scss";
+@import '../../lib.scss';
 
 .order-page-container {
   // .header {
@@ -110,6 +110,10 @@
                 font-size: 14px;
                 color: #999;
                 text-decoration: line-through;
+              }
+              .portion-price {
+                background: #ccc;
+                text-align: center;
               }
             }
             // div:nth-of-type(1) {
